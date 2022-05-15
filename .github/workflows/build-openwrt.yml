@@ -1,0 +1,209 @@
+#=================================================
+# https://github.com/tete1030/openwrt-fastbuild-actions
+# Description: FAST building OpenWrt with Github Actions and Docker!
+# Lisence: MIT
+# Author: Texot
+#=================================================
+
+env:
+  # DO NOT CHANGE the following here, set them only in forked repo's Settings->Secrets page
+  # You don't need to set docker_registry if you are using the default Docker Hub
+  # 安全起见以下参数请不要在此更改，在你Fork的repo中，Settings->Secrets页面更改
+  # 如果你想使用默认的Docker Hub，你不需要在secrets页面设置docker_registry
+  DK_REGISTRY: ${{secrets.docker_registry}}
+  DK_USERNAME: ${{secrets.docker_username}}
+  DK_PASSWORD: ${{secrets.docker_password}}
+  SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+  TMATE_ENCRYPT_PASSWORD: ${{secrets.TMATE_ENCRYPT_PASSWORD}}
+
+name: Build OpenWrt
+
+on:
+  deployment:
+  repository_dispatch:
+  workflow_dispatch:
+  push:
+    paths:
+    - 'user/**'
+  # # For 'schedule', see examples in: https://crontab.guru/examples.html
+  # #     e.g. every sunday midnight: '0 0 * * 0' every midnight: '0 0 * * *'
+  # schedule:
+  #   - cron: '0 0 * * 0'
+  # watch:
+  #   types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    # For `github.event`'s structure, see: https://developer.github.com/v3/activity/events/types/
+    # Do not modify the trigger methods here, customize them in the `on` section
+    if: |
+      github.event_name == 'push'
+      || github.event_name == 'repository_dispatch'
+      || github.event_name == 'workflow_dispatch'
+      || github.event_name == 'deployment'
+      || (github.event_name == 'watch' && github.event.action == 'started' && github.event.repository.owner.id == github.event.sender.id)
+      || github.event_name == 'schedule'
+    name: ${{matrix.title}} ${{matrix.target}}
+    strategy:
+      fail-fast: false
+      matrix:
+        mode:
+          - normal
+          - test
+        # ########### Add your target name below ###########
+        # targets are located in the folder user/${TARGET_NAME}/
+        target: [x64, ax6s, ax1800]
+        include:
+        - mode: normal
+          title: Build
+        - mode: test
+          title: Fast check
+    env:
+      HOST_WORK_DIR: ${{github.workspace}}
+      BUILD_MODE: ${{matrix.mode}}
+      BUILD_TARGET: ${{matrix.target}}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Checkout private tools
+      uses: actions/checkout@v3
+      with:
+        repository: kouhj/kouhj_openwrt_packages
+        token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
+        path: kouhj_src
+
+    - name: Init build env
+      run: scripts/cisteps/build-openwrt/01-init_env.sh
+
+    - name: Check if skip this job
+      run: scripts/cisteps/build-openwrt/02-check_target.sh
+
+    - name: Clean up for extra space
+      if: env.SKIP_TARGET == '0' && env.TEST != '1'
+      run: scripts/cisteps/build-openwrt/03-clean_up.sh
+
+    # https://github.com/docker/setup-qemu-action
+    - name: Set up QEMU
+      id: buildx-qemy
+      if: env.SKIP_TARGET == '0'
+      uses: docker/setup-qemu-action@v1
+    # https://github.com/docker/setup-buildx-action
+    - name: Set up Docker Buildx
+      id: buildx
+      if: env.SKIP_TARGET == '0'
+      uses: docker/setup-buildx-action@v1
+
+    - name: Configure docker
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/04-configure_docker.sh
+
+    - name: Check status of builders
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/05-check_builders.sh
+
+    - name: '[Debug] Wait for SSH connection (timeout 5min)'
+      if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+      env:
+        TIMEOUT_MIN: 5
+      uses: tete1030/safe-debugger-action@dev
+
+    - name: Get builder
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/06-get_builder.sh
+
+    - name: Clone/update OpenWrt
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/07-download_openwrt.sh
+
+    - name: Apply customizations
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/08-customize.sh
+
+    # Allow intermediate customization
+    - name: '[Debug/Menuconfig] Wait for SSH connection (timeout 30min)'
+      if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+      env:
+        TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+      uses: tete1030/safe-debugger-action@dev
+
+    - name: Prepare config file
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/09-prepare_config.sh
+
+    # Should not call this, as we are using SDK
+    - name: Download packages
+      if: env.SKIP_TARGET == '0'
+      run: scripts/cisteps/build-openwrt/10-download_packages.sh
+
+    - name: Print disk space
+      if: env.SKIP_TARGET == '0'
+      run: df -h
+
+    - name: Compile firmware and packages with multiple threads
+      id: mtcompile
+      if: env.SKIP_TARGET == '0'
+      continue-on-error: true
+      run: scripts/cisteps/build-openwrt/11-compile_multi.sh
+
+    - name: Compile firmware and packages with single threads when failed
+      if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
+      run: scripts/cisteps/build-openwrt/12-compile_single.sh
+
+    - name: Print disk space
+      if: env.SKIP_TARGET == '0'
+      run: df -h
+
+    # failure checking
+    - name: '[Failure/Debug] Wait for SSH connection (timeout 30min)'
+      if: |
+        env.SKIP_TARGET == '0' && !cancelled()
+        && (job.status == 'failure' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+      env:
+        TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+      uses: tete1030/safe-debugger-action@dev
+
+    - name: Upload builder
+      if: |
+        env.SKIP_TARGET == '0' && !cancelled() && (
+          job.status == 'success'
+          || env.OPT_PUSH_WHEN_FAIL == '1'
+        )
+      run: scripts/cisteps/build-openwrt/13-upload_builder.sh
+
+    # - name: Upload bin directory
+    #   uses: actions/upload-artifact@master
+    #   if: env.SKIP_TARGET == '0' && !cancelled()
+    #   with:
+    #     name: OpenWrt_bin_${{env.BUILD_TARGET}}
+    #     path: ${{env.HOST_BIN_DIR}}
+
+    - name: Organize files
+      id: organize
+      if: env.SKIP_TARGET == '0' && !cancelled()
+      run: scripts/cisteps/build-openwrt/14-organize_files.sh
+
+    - name: Upload firmware
+      uses: actions/upload-artifact@master
+      if: env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware_${{env.BUILD_TARGET}}
+        path: openwrt_firmware
+
+    - name: Upload packages
+      uses: actions/upload-artifact@master
+      if: env.SKIP_TARGET == '0' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_packages_${{env.BUILD_TARGET}}
+        path: ${{env.HOST_BIN_DIR}}
+
+    # failure checking
+    - name: '[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)'
+      if: |
+        env.SKIP_TARGET == '0' && !cancelled()
+        && (job.status == 'failure' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+      uses: tete1030/safe-debugger-action@dev
