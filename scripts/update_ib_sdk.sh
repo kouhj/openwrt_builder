@@ -24,10 +24,10 @@ source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 
 MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/download"
+mkdir -p "${OPENWRT_COMPILE_DIR}" || true
+mkdir -p "${MY_DOWNLOAD_DIR}" || true
 
 if [ "x${TEST}" = "x1" ]; then
-  mkdir -p "${OPENWRT_COMPILE_DIR}" || true
-  mkdir -p "${MY_DOWNLOAD_DIR}" || true
   exit 0
 fi
 

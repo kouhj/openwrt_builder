@@ -27,7 +27,7 @@ on:
 jobs:
   squash:
     name: ${{matrix.title}} ${{matrix.target}}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
