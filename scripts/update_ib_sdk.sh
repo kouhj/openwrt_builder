@@ -35,7 +35,7 @@ REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
 wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL} -O $REMOTE_FILES
 
 OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE_FILES)
-OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilderk/ s/.*(openwrt.*.xz).*/\1/p'  $REMOTE_FILES)
+OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.xz).*/\1/p'  $REMOTE_FILES)
 OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.xz).*/\1/p'  $REMOTE_FILES)
 
 for file in $OPENWRT_MF_FILE $OPENWRT_IB_FILE $OPENWRT_SDK_FILE config.buildinfo feeds.buildinfo; do
