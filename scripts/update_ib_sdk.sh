@@ -32,7 +32,7 @@ if [ "x${TEST}" = "x1" ]; then
 fi
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
-wget  ${OPENWRT_DOWNLOAD_SITE_URL}/targets/${OPENWRT_BIN_RELPATH} -O $REMOTE_FILES
+wget  ${OPENWRT_DOWNLOAD_SITE_URL} -O $REMOTE_FILES
 
 OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE_FILES)
 OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilderk/ s/.*(openwrt.*.xz).*/\1/p'  $REMOTE_FILES)
