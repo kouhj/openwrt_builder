@@ -14,8 +14,8 @@ if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPE
   exit 1
 fi
 
-if [ -z "${OPENWRT_DOWNLOAD_SITE_URL}" ] || [ -z "${KOUHJ_SRC_DIR}" ]; then
-  echo "::error::'OPENWRT_DOWNLOAD_SITE_URL' or 'KOUHJ_SRC_DIR' is empty" >&2
+if [ -z "${OPENWRT_DOWNLOAD_SITE_URL}" ]; then
+  echo "::error::'OPENWRT_DOWNLOAD_SITE_URL' is empty" >&2
   exit 1
 fi
 

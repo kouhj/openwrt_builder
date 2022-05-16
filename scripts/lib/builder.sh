@@ -41,6 +41,13 @@ config_option_set() {
 	grep $1 .config
 }
 
+get_config_option() {
+  local v=$(sed -n -r 's/'$1'="(.*)"/\1/p' .config)
+  eval "$1=$v"
+  _set_env $1
+  append_docker_exec_env $1
+}
+
 config_openwrt_sdk() {
 	local PKGS_SRC_TOP="$OPENWRT_CUR_DIR/package"
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
@@ -63,9 +70,9 @@ config_openwrt_sdk() {
 	config_option_set CONFIG_DOWNLOAD_FOLDER  "\"$MY_DOWNLOAD_DIR\""
 
   # Find the target architecture, which is used as folder name: bin/packages/<arch>
-  OPENWRT_SDK_TARGET_ARCH=$(sed -n -r 's/CONFIG_TARGET_ARCH_PACKAGES="(.*)"/\1/p' .config)
-  _set_env OPENWRT_SDK_TARGET_ARCH
-  append_docker_exec_env OPENWRT_SDK_TARGET_ARCH
+  get_config_option CONFIG_TARGET_BOARD
+  get_config_option CONFIG_TARGET_SUBTARGET
+  get_config_option CONFIG_TARGET_ARCH_PACKAGES
 
 	popd >/dev/null
 }
@@ -73,16 +80,16 @@ config_openwrt_sdk() {
 generate_sdk_feeds_conf() {
   # Set SDK feeds.conf
   cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo ${OPENWRT_SDK_DIR}/feeds.conf
-  [ -f ${BUILDER_PROFILE_DIR}/feeds.extra.conf ] && cat ${BUILDER_PROFILE_DIR}/feeds.extra.conf >> ${OPENWRT_SDK_DIR}/feeds.conf
+  [ -f ${BUILDER_PROFILE_DIR}/feeds.extra.conf ] && cat ${BUILDER_PROFILE_DIR}/sdk/feeds.extra.conf >> ${OPENWRT_SDK_DIR}/feeds.conf
 }
 
 generate_ib_repositories_conf() {
-	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/kouhj
-	add_feed_to_repositories_conf local-base file:${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/base
-	add_feed_to_repositories_conf local-luci file:${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/luci
-	add_feed_to_repositories_conf local-packages ${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/packages
-	add_feed_to_repositories_conf local-routing ${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/routing
-	add_feed_to_repositories_conf local-telephony ${OPENWRT_SDK_DIR}/bin/packages/${OPENWRT_SDK_TARGET_ARCH}/telephony
+	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/kouhj
+	add_feed_to_repositories_conf local-base file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/base
+	add_feed_to_repositories_conf local-luci file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/luci
+	add_feed_to_repositories_conf local-packages ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/packages
+	add_feed_to_repositories_conf local-routing ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/routing
+	add_feed_to_repositories_conf local-telephony ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/telephony
 	#add_feed_to_repositories_conf stangri https://repo.openwrt.melmac.net
 }
 
