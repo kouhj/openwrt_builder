@@ -42,6 +42,101 @@ By storing cache in docker images, BuildWrt significantly decreases compiling du
 
 ## Steps to build OpenWRT Images
 
+### Step  - Init build env
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Init build env
+  participant Host1 as Host<br>01-init_env.sh
+  participant Host2 as Host<br>init_runner.sh
+  participant Docker
+
+  ActionStep ->> Host1: run "scripts/cisteps/build-openwrt/01-init_env.sh"
+  Host1 ->> Host2: scripts/host/init_runner.sh" main build
+  Host2 ->> Host2: main $@
+  Host2 ->> Host2: install_commands
+    note right of Host2: Install extra commands
+  Host2 ->> Host2: setup_envs
+    note right of Host2: Setup some OPENWRT_XXX env variables
+  Host2 ->> Host2: check_test
+    note right of Host2: assign var TEST=1 if $BUILD_MODE=test
+  Host2 ->> Host2: load_task
+    note right of Host2: Load building action
+  Host2 ->> Host2: prepare_target
+    note right of Host2: Apply user/default/* and user/$TARGET/*<br> into user/current folder
+  Host2 ->> Host2: load_options
+    note right of Host2: Load options of $BUILD_OPTS
+  Host2 ->> Host2: update_builder_info
+  Host2 ->> Host2: check_validity
+  Host2 ->> Host2: prepare_dirs
+
+```
+---
+<br><br>
+
+### Step  - Check if skip this job
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Check if skip this job
+  participant Host1 as Host<br>02-check_target.sh
+  participant Docker
+
+  ActionStep ->> Host1: run "scripts/cisteps/build-openwrt/02-check_target.sh"
+```
+---
+<br><br>
+
+### Step  - Clean up for extra space if not in TEST mode
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Clean up for extra space if not in TEST mode
+  participant Host1 as Host<br>03-clean_up.sh
+  participant Docker
+
+  ActionStep ->> Host1: run "scripts/cisteps/build-openwrt/03-clean_up.sh"
+```
+---
+<br><br>
+
+### Step  - Set up QEMU
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Set up QEMU
+  participant Host1 as Host<br>uses: docker/setup-qemu-action@v1
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'
+```
+---
+<br><br>
+
+
+
+
+```mermaid
+flowchart TB
+  subgraph sub_init_runner ["scripts/host/init_runner.sh"]
+    direction TB
+    _main --> install_commands --> setup_envs --> check_test --> load_task --> prepare_target --> load_options --> update_builder_info --> check_validity --> prepare_dirs
+    _main(if $1==BUILD<br>BUILD_OPTS=update_feeds update_repo rebase<br>rebuild debug push_when_fail package_only)
+    install_commands(install_commands: Install extra commands)
+    setup_envs(setup_envs:<br> Setup some OPENWRT_XXX env variables)
+    check_test(check_test: assign var TEST=1 if $BUILD_MODE=test)
+    load_task(load_task: Load building action)
+    prepare_target(prepare_target:<br> Apply user/default/* and user/$TARGET/*<br> into user/current folder)
+    load_options(load_options of $BUILD_OPTS)
+    update_builder_info
+    check_validity
+    prepare_dirs
+  end
+```
+---
+<br><br>
+
+
 ```mermaid
 flowchart TB
   step_init_env --> step_check_target --> step_clean_up --> step_setup_qemu --> step_setup_docker_buildx --> step_configure_docker --> step_wait_for_ssh_builder_env --> step_get_builder --> step_download_openwrt --> step_apply_customizations --> step_wait_for_ssh_make_menuconfig --> step_prepare_config --> step_download_packages
