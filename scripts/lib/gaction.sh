@@ -11,6 +11,8 @@ _set_env() {
     var_value="${var_value//$'\n'/%0A}"
     var_value="${var_value//$'\r'/%0D}"
 
+    echo "${var_name}=${var_value}" >> $GITHUB_ENV
+    return
     [ -f $GITHUB_ENV ] || touch $GITHUB_ENV
     GITHUB_ENV_DIR="$(dirname $GITHUB_ENV)"
     # It seems $GITHUB_ENV filename is different when in or out of container! Safer way is to set vars to all files
