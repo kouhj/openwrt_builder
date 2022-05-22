@@ -13,6 +13,7 @@ _set_env() {
 
     [ -f $GITHUB_ENV ] || touch $GITHUB_ENV
     GITHUB_ENV_DIR="$(dirname $GITHUB_ENV)"
+    # It seems $GITHUB_ENV filename is different when in or out of container! Safer way is to set vars to all files
     for var_file in $(find $GITHUB_ENV_DIR -type f); do
       echo "append ${var_name}=${var_value} >> $var_file"
       echo "${var_name}=${var_value}" >> $var_file
