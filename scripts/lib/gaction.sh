@@ -12,15 +12,25 @@ _set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     echo "${var_name}=${var_value}" >> $GITHUB_ENV
-    return
-    [ -f $GITHUB_ENV ] || touch $GITHUB_ENV
-    GITHUB_ENV_DIR="$(dirname $GITHUB_ENV)"
-    # It seems $GITHUB_ENV filename is different when in or out of container! Safer way is to set vars to all files
-    for var_file in $(find $GITHUB_ENV_DIR -type f); do
-      echo "append ${var_name}=${var_value} >> $var_file"
-      echo "${var_name}=${var_value}" >> $var_file
-    done
-  done
+}
+
+_docker_set_env() {
+  [ -f /.dockerenv ] || return 0
+  for var_name in "$@" ; do
+    eval "export ${var_name}"
+    local var_value="${!var_name}"
+    var_value="${var_value//%/%25}"
+    var_value="${var_value//$'\n'/%0A}"
+    var_value="${var_value//$'\r'/%0D}"
+
+    vars_file="$(dirname $GITHUB_ENV)/docker-vars"
+    echo "${var_name}=${var_value}" >> $vars_file
+}
+
+_docker_load_env() {
+  [ -f /.dockerenv ] || return 0
+  vars_file="$(dirname $GITHUB_ENV)/docker-vars"
+  source $vars_file
 }
 
 _set_env_prefix() {

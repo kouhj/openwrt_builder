@@ -108,3 +108,4 @@ add_sdk_keys_to_ib() {
 	cp -a keys files/etc/opkg/
 }
 
+_docker_load_env

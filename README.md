@@ -55,17 +55,17 @@ sequenceDiagram
   Host1 ->> Host2: scripts/host/init_runner.sh" main build
   Host2 ->> Host2: main $@
   Host2 ->> Host2: install_commands
-    note right of Host2: Install extra commands
+    note over Host2: Install extra commands
   Host2 ->> Host2: setup_envs
-    note right of Host2: Setup some OPENWRT_XXX env variables
+    note over Host2: Setup some OPENWRT_XXX env vars
   Host2 ->> Host2: check_test
-    note right of Host2: assign var TEST=1 if $BUILD_MODE=test
+    note over Host2: assign var TEST=1 if $BUILD_MODE=test
   Host2 ->> Host2: load_task
-    note right of Host2: Load building action
+    note over Host2: Load building action
   Host2 ->> Host2: prepare_target
-    note right of Host2: Apply user/default/* and user/$TARGET/*<br> into user/current folder
+    note over Host2: Apply user/default/* and user/$TARGET/*<br> into user/current folder
   Host2 ->> Host2: load_options
-    note right of Host2: Load options of $BUILD_OPTS
+    note over Host2: Load options of $BUILD_OPTS
   Host2 ->> Host2: update_builder_info
   Host2 ->> Host2: check_validity
   Host2 ->> Host2: prepare_dirs
@@ -113,97 +113,126 @@ sequenceDiagram
 ---
 <br><br>
 
-
-
-
+### Step  - Set up Docker Buildx
 ```mermaid
-flowchart TB
-  subgraph sub_init_runner ["scripts/host/init_runner.sh"]
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Set up Docker Buildx
+  participant Host1 as Host<br>uses: docker/setup-buildx-action@v1
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'
+```
+---
+<br><br>
+
+### Step  - Configure docker
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Configure docker
+  participant Host1 as Host<br>04-configure_docker.sh
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'<br>run: scripts/cisteps/build-openwrt/04-configure_docker.sh
+  Host1 ->> Host1: docker login
+```
+---
+<br><br>
+
+### Step  - Check status of builders
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Check status of builders
+  participant Host1 as Host<br>05-check_builders.sh
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'<br>run: scripts/cisteps/build-openwrt/05-check_builders.sh
+```
+
+And the flowchart of 05-check_builders.sh is:
+```mermaid
+flowchart LR
+  subgraph sub_check_builder ["scripts/cisteps/build-openwrt/05-check_builders.sh"]
     direction TB
-    _main --> install_commands --> setup_envs --> check_test --> load_task --> prepare_target --> load_options --> update_builder_info --> check_validity --> prepare_dirs
-    _main(if $1==BUILD<br>BUILD_OPTS=update_feeds update_repo rebase<br>rebuild debug push_when_fail package_only)
-    install_commands(install_commands: Install extra commands)
-    setup_envs(setup_envs:<br> Setup some OPENWRT_XXX env variables)
-    check_test(check_test: assign var TEST=1 if $BUILD_MODE=test)
-    load_task(load_task: Load building action)
-    prepare_target(prepare_target:<br> Apply user/default/* and user/$TARGET/*<br> into user/current folder)
-    load_options(load_options of $BUILD_OPTS)
-    update_builder_info
-    check_validity
-    prepare_dirs
+    check_rebuild -->|No| export_env
+    check_rebuild -->|YES, Rebuild| docker_buildx_inc
+    docker_buildx_inc -->|$OPT_REBASE==1 OR docker cmd failed| docker_buildx_rebase
+    docker_buildx_inc -->|$OPT_REBASE==0 AND docker cmd ok| export_env
+    docker_buildx_rebase -->|docker cmd failed| set_rebuild_opt
+    docker_buildx_rebase -->|docker cmd ok| create_remote_tag_alias
+    set_rebuild_opt --> export_env
+    create_remote_tag_alias --> export_env
+     
+
+    check_rebuild{{"$OPT_REBUILD == 1 ?"}}
+    docker_buildx_inc("docker buildx imagetools inspect<br>$BUILDER_IMAGE_ID_INC")
+    docker_buildx_rebase("docker buildx imagetools inspect<br>$BUILDER_IMAGE_ID_BASE")
+    create_remote_tag_alias("docker buildx imagetools create<br>$BUILDER_IMAGE_ID_BASE $BUILDER_IMAGE_ID_INC")
+    set_rebuild_opt("set OPT_REBUILD=1")
+    export_env("_set_env OPT_REBUILD")
+  end
+  
+```
+---
+<br><br>
+
+### Step  - Wait for SSH
+Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+
+### Step  - Get Docker Builder Image
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Get Docker Builder Image
+  participant Host1 as Host<br>06-get_builder.sh
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'<br>run: scripts/cisteps/build-openwrt/06-get_builder.sh
+```
+
+And the flowchart of 06-get_builder.sh is:
+```mermaid
+flowchart LR
+  subgraph sub_get_builder ["scripts/cisteps/build-openwrt/06-get_builder.sh"]
+    direction TB
+    init_docker --> check_rebuild
+    check_rebuild -->|No| docker_run
+    check_rebuild -->|YES, Rebuild| pull_image
+    pull_image --> squash_image_when_necessary --> docker_run
+    docker_run --> docker_exec
+
+    init_docker("scripts/host/docker.sh")
+    check_rebuild{{"$OPT_REBUILD == 1"}}
+    pull_image("docker pull $BUILDER_IMAGE_ID_INC")
+    squash_image_when_necessary("squash_image_when_necessary")
+    docker_run("docker run ...")
+    docker_exec(<div style='text-align: left'><h3>docker_exec scripts/init_env.sh:</h3><ul><li>apt-get install the required packages</li></ul><br></div>)
   end
 ```
 ---
 <br><br>
 
-
+### Step  - Clone/update OpenWrt
 ```mermaid
-flowchart TB
-  step_init_env --> step_check_target --> step_clean_up --> step_setup_qemu --> step_setup_docker_buildx --> step_configure_docker --> step_wait_for_ssh_builder_env --> step_get_builder --> step_download_openwrt --> step_apply_customizations --> step_wait_for_ssh_make_menuconfig --> step_prepare_config --> step_download_packages
-  
-  subgraph step_init_env [Init build env]
-    01_init_env["scripts/cisteps/build-openwrt/01-init_env.sh"] --> init_runner["scripts/host/init_runner.sh main build"]
-  end
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Clone/update OpenWrt
+  participant Host1 as Host<br>07-download_openwrt.sh
+  participant Docker1 as Docker<br>scripts/update_ib_sdk.sh
+  participant Docker2 as Docker<br>scripts/update_repo.sh
+  participant Docker3 as Docker<br>scripts/update_feeds.sh
 
-  subgraph sub_init_runner ["scripts/host/init_runner.sh"]
-    direction TB
-    _main --> install_commands --> setup_envs --> check_test --> load_task --> prepare_target --> load_options --> update_builder_info --> check_validity --> prepare_dirs
-    _main(if $1==BUILD<br>BUILD_OPTS=update_feeds update_repo rebase<br>rebuild debug push_when_fail package_only)
-    install_commands(install_commands: Install extra commands)
-    setup_envs(setup_envs:<br> Setup some OPENWRT_XXX env variables)
-    check_test(check_test: assign var TEST=1 if $BUILD_MODE=test)
-    load_task(load_task: Load building action)
-    prepare_target(prepare_target:<br> Apply user/default/* and user/$TARGET/*<br> into user/current folder)
-    load_options(load_options of $BUILD_OPTS)
-    update_builder_info
-    check_validity
-    prepare_dirs
-  end
-  init_runner --> sub_init_runner
+  ActionStep ->> Host1: if SKIP_TARGET == '0' run: <br>scripts/cisteps/build-openwrt/07-download_openwrt.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/update_ib_sdk.sh"
+  Host1 ->> Docker2: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/update_repo.sh"
+  Host1 ->> Docker3: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/update_feeds.sh"
+```
 
-  subgraph step_check_target [Check if skip this job]
-    02_check_target["scripts/cisteps/build-openwrt/02-check_target.sh"]
-  end
-
-  subgraph step_clean_up [Clean up for extra space if not in TEST mode]
-    03_clean_up["scripts/cisteps/build-openwrt/03-clean_up.sh"]
-  end
-
-  subgraph step_setup_qemu [Set up QEMU if SKIP_TARGET == '0']
-    buildx_qemy["uses: docker/setup-qemu-action@v1"]
-  end
-
-  subgraph step_setup_docker_buildx [Set up Docker Buildx if SKIP_TARGET == '0']
-    buildx["uses: docker/setup-buildx-action@v1"]
-  end
-
-  subgraph step_configure_docker [Configure docker if SKIP_TARGET == '0']
-    04_configure_docker["scripts/cisteps/build-openwrt/04-configure_docker.sh"]
-  end
-
-  subgraph step_wait_for_ssh_builder_env [Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1']
-    _wait_for_ssh["uses: tete1030/safe-debugger-action@dev"]
-  end
-
-  subgraph step_get_builder [Get Docker Builder Image if env.SKIP_TARGET == '0']
-    06_get_builder["scripts/cisteps/build-openwrt/06-get_builder.sh"]
-  end
-
-  subgraph sub_get_builder ["scripts/cisteps/build-openwrt/06-get_builder.sh"]
-    direction TB
-    init_docker --> docker_run
-    init_docker --> pull_image --> squash_image_when_necessary --> docker_run
-    docker_run --> docker_exec
-    init_docker("scripts/host/docker.sh")
-    docker_run("docker run ...")
-    docker_exec("docker_exec scripts/init_env.sh:" <br> apt-get install the required packages)
-  end
-  06_get_builder --> sub_get_builder
-
-  subgraph step_download_openwrt [Clone/update OpenWrt if env.SKIP_TARGET == '0']
-    07_download_openwrt["scripts/cisteps/build-openwrt/07-download_openwrt.sh"]
-  end
-
+And the flowchart of 07-download_openwrt.sh is:
+```mermaid
+flowchart LR
   subgraph sub_download_openwrt ["scripts/cisteps/build-openwrt/07-download_openwrt.sh"]
     direction TB
     update_ib_sdk --> update_repo --> update_feeds
@@ -211,7 +240,11 @@ flowchart TB
     update_repo("docker_exec scripts/update_repo.sh")
     update_feeds("docker_exec scripts/update_feeds.sh")
   end
-  07_download_openwrt --> sub_download_openwrt
+```
+---
+<br><br>
+
+```
 
   subgraph step_apply_customizations [Apply customizations if env.SKIP_TARGET == '0']
     08_customize["scripts/cisteps/build-openwrt/08-customize.sh"]
