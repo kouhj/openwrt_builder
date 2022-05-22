@@ -9,6 +9,9 @@
 
 set -eo pipefail
 
+echo "cat GITHUB_ENV: $GITHUB_ENV"
+cat $GITHUB_ENV
+
 if [ -z "${MY_DOWNLOAD_DIR}" ]; then
   echo "::error::'MY_DOWNLOAD_DIR' is empty" >&2
   exit 1
