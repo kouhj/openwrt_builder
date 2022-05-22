@@ -3,6 +3,7 @@
 # shellcheck disable=SC1090
 source "${BASH_SOURCE%/*}/utils.sh"
 
+echo "GITHUB_ENV: $GITHUB_ENV"
 _set_env() {
   for var_name in "$@" ; do
     eval "export ${var_name}"
@@ -12,6 +13,7 @@ _set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     echo "${var_name}=${var_value}" >> $GITHUB_ENV
+  done
 }
 
 _docker_set_env() {
@@ -25,6 +27,7 @@ _docker_set_env() {
 
     vars_file="$(dirname $GITHUB_ENV)/docker-vars"
     echo "${var_name}=${var_value}" >> $vars_file
+  done
 }
 
 _docker_load_env() {
