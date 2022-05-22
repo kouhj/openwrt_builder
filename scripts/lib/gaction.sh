@@ -12,13 +12,13 @@ _set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     [ -f $GITHUB_ENV ] || touch $GITHUB_ENV
-    for var_file in $(find `dirname $GITHUB_ENV` -type f); do
+    GITHUB_ENV_DIR="$(dirname $GITHUB_ENV)"
+    for var_file in $(find $GITHUB_ENV_DIR -type f); do
+      echo "append ${var_name}=${var_value} >> $var_file"
       echo "${var_name}=${var_value}" >> $var_file
     done
   done
 }
-
-
 
 _set_env_prefix() {
   for var_name_prefix in "$@" ; do

@@ -10,7 +10,6 @@ env:
   # You don't need to set docker_registry if you are using the default Docker Hub
   # 安全起见以下参数请不要在此更改，在你Fork的repo中，Settings->Secrets页面更改
   # 如果你想使用默认的Docker Hub，你不需要在secrets页面设置docker_registry
-  OPT_DEBUG: 1
   DK_REGISTRY: ${{secrets.docker_registry}}
   DK_USERNAME: ${{secrets.docker_username}}
   DK_PASSWORD: ${{secrets.docker_password}}
