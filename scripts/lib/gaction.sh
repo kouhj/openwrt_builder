@@ -33,7 +33,7 @@ _docker_set_env() {
 _docker_load_env() {
   [ -f /.dockerenv ] || return 0
   vars_file="$(dirname $GITHUB_ENV)/docker-vars"
-  source $vars_file
+  if [ -f $vars_file ]; then source $vars_file; fi
 }
 
 _set_env_prefix() {
