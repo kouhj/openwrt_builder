@@ -3,6 +3,11 @@
 # shellcheck disable=SC1090
 source "${BASH_SOURCE%/*}/utils.sh"
 
+_dump_file() {
+  echo "Dumping file $1"
+  cat $1
+}
+
 echo "GITHUB_ENV: $GITHUB_ENV"
 _set_env() {
   for var_name in "$@" ; do
@@ -11,11 +16,15 @@ _set_env() {
     var_value="${var_value//%/%25}"
     var_value="${var_value//$'\n'/%0A}"
     var_value="${var_value//$'\r'/%0D}"
-
+    
+    echo "${var_name}=${var_value} >> $GITHUB_ENV"
     echo "${var_name}=${var_value}" >> $GITHUB_ENV
   done
+  echo "Appending vars $* to $GITHUB_ENV"
+  _dump_file $GITHUB_ENV
 }
 
+# $GITHUB_ENV file is usually located at /home/runner/work/_temp/_runner_file_commands/ with name pattern "set_env_{GUID}"
 _docker_set_env() {
   [ -f /.dockerenv ] || return 0
   for var_name in "$@" ; do
@@ -26,14 +35,23 @@ _docker_set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     vars_file="$(dirname $GITHUB_ENV)/docker-vars"
+    echo "${var_name}=${var_value} >> $vars_file"
     echo "${var_name}=${var_value}" >> $vars_file
   done
+  echo "Appending vars $* to $vars_file"
+  _dump_file $vars_file
 }
 
 _docker_load_env() {
   [ -f /.dockerenv ] || return 0
   vars_file="$(dirname $GITHUB_ENV)/docker-vars"
-  if [ -f $vars_file ]; then source $vars_file; fi
+  if [ -f $vars_file ]; then
+    source $vars_file;
+    echo "Appending vars $* to $vars_file"
+    _dump_file $vars_file
+  else
+    echo "No vars file found at $vars_file"
+  fi
 }
 
 _set_env_prefix() {

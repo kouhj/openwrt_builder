@@ -60,6 +60,7 @@ jobs:
         - mode: test
           title: Fast check
     env:
+      OPT_DEBUG: 1
       HOST_WORK_DIR: ${{github.workspace}}
       BUILD_MODE: ${{matrix.mode}}
       BUILD_TARGET: ${{matrix.target}}
@@ -112,6 +113,8 @@ jobs:
       env:
         TIMEOUT_MIN: 5
       uses: tete1030/safe-debugger-action@dev
+
+    # GITHUB_ENV filename changed between step 05 and 06, why?
 
     - name: Get builder
       if: env.SKIP_TARGET == '0'

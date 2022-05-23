@@ -23,6 +23,7 @@ setup_envs() {
   BUILDER_MOUNT_OPTS="
     -v '${HOST_WORK_DIR}/scripts:${BUILDER_WORK_DIR}/scripts'
     -v '${HOST_WORK_DIR}/user:${BUILDER_WORK_DIR}/user'
+    -v '${HOST_WORK_DIR}/kouhj_src:${BUILDER_WORK_DIR}/kouhj_src'
     -v '${HOST_BIN_DIR}:${BUILDER_BIN_DIR}'
     -v '${HOST_TMP_DIR}:${BUILDER_TMP_DIR}'
     -v '${GITHUB_ENV}:${GITHUB_ENV}'
