@@ -10,7 +10,7 @@
 set -eo pipefail
 
 # shellcheck disable=SC1090
-source "${BUILDER_WORK_DIR}/scripts/lib/gaction.sh"
+source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
 
 if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPENWRT_SOURCE_DIR}" ]; then
   echo "::error::'OPENWRT_COMPILE_DIR', 'OPENWRT_CUR_DIR' or 'OPENWRT_SOURCE_DIR' is empty" >&2
