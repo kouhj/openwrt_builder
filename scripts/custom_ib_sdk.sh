@@ -29,3 +29,4 @@ config_openwrt_sdk
 add_sdk_keys_to_ib
 generate_ib_repositories_conf
 
+true

@@ -85,3 +85,5 @@ if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ]; then
   OPENWRT_CUR_DIR="${OPENWRT_COMPILE_DIR}"
   _set_env OPENWRT_CUR_DIR
 fi
+
+true
