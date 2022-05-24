@@ -46,8 +46,9 @@ _docker_load_env() {
   [ -f /.dockerenv ] || return 0
   vars_file="$(dirname $GITHUB_ENV)/docker-vars"
   if [ -f $vars_file ]; then
-    source $vars_file;
-    echo "Appending vars $* to $vars_file"
+    echo "Load vars from $vars_file"
+    source $vars_file
+    export $( awk -F= '{print $1}' $vars_file )
     _dump_file $vars_file
   else
     echo "No vars file found at $vars_file"
