@@ -9,7 +9,7 @@
 
 set -eo pipefail
 
-if [ -z "${MY_DOWNLOAD_DIR}" ] || [ -z "${OPENWRT_IBDIR}" ] || [ -z "${OPENWRT_SDK_DIR}" ]; then
+if [ -z "${MY_DOWNLOAD_DIR}" ] || [ -z "${OPENWRT_IB_DIR}" ] || [ -z "${OPENWRT_SDK_DIR}" ]; then
   echo "::error::'MY_DOWNLOAD_DIR', 'OPENWRT_IB_DIR' or 'OPENWRT_SDK_DIR' is empty" >&2
   exit 1
 fi
