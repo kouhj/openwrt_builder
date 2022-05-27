@@ -80,7 +80,7 @@ config_openwrt_sdk() {
 generate_sdk_feeds_conf() {
   # Set SDK feeds.conf
   cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo ${OPENWRT_SDK_DIR}/feeds.conf
-  [ -f ${BUILDER_PROFILE_DIR}/feeds.extra.conf ] && cat ${BUILDER_PROFILE_DIR}/sdk/feeds.extra.conf >> ${OPENWRT_SDK_DIR}/feeds.conf
+  [ -f ${BUILDER_PROFILE_DIR}/feeds.extra.conf ] && cat ${BUILDER_PROFILE_DIR}/sdk/feeds.extra.conf >> ${OPENWRT_SDK_DIR}/feeds.conf || true
 }
 
 generate_ib_repositories_conf() {
@@ -101,9 +101,8 @@ add_key_file() {
 
 #TODO: not used yet
 add_sdk_keys_to_ib() {
-  add_key_file ${OPENWRT_SDK_DIR}/key-build.pub
-
-  mkdir -p files/etc/opkg/
+	add_key_file ${OPENWRT_SDK_DIR}/key-build.pub
+	mkdir -p files/etc/opkg/
 	# Add the official snapshot key 
 	cp -a keys files/etc/opkg/
 }

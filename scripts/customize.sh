@@ -68,11 +68,11 @@ echo "Executing custom.sh"
 if [ -f "${BUILDER_PROFILE_DIR}/custom.sh" ]; then
   (
     cd "${OPENWRT_CUR_DIR}"
-    /bin/bash "${BUILDER_PROFILE_DIR}/custom.sh"
+    /bin/bash -x "${BUILDER_PROFILE_DIR}/custom.sh"
   )
 fi
 
-/bin/bash "${BUILDER_WORK_DIR}/scripts/custom_ib_sdk.sh"
+/bin/bash -x "${BUILDER_WORK_DIR}/scripts/custom_ib_sdk.sh"
 
 # Restore build cache and timestamps
 if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ]; then
