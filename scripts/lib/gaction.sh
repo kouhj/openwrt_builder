@@ -48,8 +48,6 @@ _docker_load_env() {
   if [ -f $vars_file ]; then
     echo "Load vars from $vars_file"
     source $vars_file
-    export $( awk -F= '{print $1}' $vars_file )
-    export
   else
     echo "No vars file found at $vars_file"
   fi

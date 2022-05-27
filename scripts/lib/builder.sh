@@ -45,7 +45,7 @@ get_config_option() {
   local v=$(sed -n -r 's/'$1'="(.*)"/\1/p' .config)
   eval "$1=$v"
   _set_env $1
-  append_docker_exec_env $1
+  _docker_set_env $1
 }
 
 config_openwrt_sdk() {
