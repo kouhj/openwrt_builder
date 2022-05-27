@@ -101,6 +101,7 @@ add_key_file() {
 
 #TODO: not used yet
 add_sdk_keys_to_ib() {
+	cd  ${OPENWRT_IB_DIR}
 	add_key_file ${KOUHJ_SRC_DIR}/key-build.pub
 	mkdir -p files/etc/opkg/
 	# Add the official snapshot key 
