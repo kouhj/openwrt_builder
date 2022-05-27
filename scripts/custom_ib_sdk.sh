@@ -20,6 +20,10 @@ if [ -z "${BUILDER_WORK_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${BUILDE
   exit 1
 fi
 
+if [ -z "${KOUHJ_SRC_DIR}" ]; then
+  echo "::error::'KOUHJ_SRC_DIR' is empty" >&2
+  exit 1
+fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
