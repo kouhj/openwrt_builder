@@ -8,6 +8,7 @@
 #========================================================================================
 
 set -eo pipefail
+source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 if [ -z "${MY_DOWNLOAD_DIR}" ] || [ -z "${OPENWRT_IB_DIR}" ] || [ -z "${OPENWRT_SDK_DIR}" ]; then
   echo "::error::'MY_DOWNLOAD_DIR', 'OPENWRT_IB_DIR' or 'OPENWRT_SDK_DIR' is empty" >&2
@@ -22,7 +23,6 @@ fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
-source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 generate_sdk_feeds_conf
 config_openwrt_sdk
