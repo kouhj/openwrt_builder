@@ -45,13 +45,17 @@ fi
 # including some not managed by git, preseve timestamps
 # of unchanged files (even if their timestamp changed)
 # and make changed files' timestamps most recent
+set -x
+echo -e "OPENWRT_CUR_DIR=${OPENWRT_CUR_DIR}\nOPENWRT_COMPILE_DIR=$OPENWRT_COMPILE_DIR\nOPT_UPDATE_REPO=$OPT_UPDATE_REPO"
 
 if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ] && [ -d "${OPENWRT_COMPILE_DIR}/.git" ] && [ "x${OPT_UPDATE_REPO}" != "x1" ]; then
+  echo "git clone  ${OPENWRT_COMPILE_DIR} ${OPENWRT_CUR_DIR}"
   git clone "${OPENWRT_COMPILE_DIR}" "${OPENWRT_CUR_DIR}"
   git -C "${OPENWRT_CUR_DIR}" remote set-url origin "${REPO_URL}"
   git -C "${OPENWRT_CUR_DIR}" fetch
   git -C "${OPENWRT_CUR_DIR}" checkout "${REPO_BRANCH}"
 else
+  echo "git clone -b ${REPO_BRANCH} ${REPO_URL}  ${OPENWRT_CUR_DIR}"
   git clone -b "${REPO_BRANCH}" "${REPO_URL}" "${OPENWRT_CUR_DIR}"
 fi
 
