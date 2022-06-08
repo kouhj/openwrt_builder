@@ -40,9 +40,30 @@ By storing cache in docker images, BuildWrt significantly decreases compiling du
 - [License](#license)
 
 
+- [OpenWRT Builder Action Steps](#steps-to-build-openwrt-images)
+  - [Step01 - Init build env](#step01)
+  - [Step02 - Check if skip this job](#step02)
+  - [Step03 - Clean up for extra space if not in TEST mode](#step03)
+  - [Step03a - Set up QEMU](#step03a)
+  - [Step03b - Set up Docker Buildx](#step03b)
+  - [Step04 - Configure docker](#step04)
+  - [Step05 - Check status of builders](#step05)
+  - [Step05a - Wait for SSH](#step05a)
+  - [Step06 - Get Docker Builder Image](#step06)
+  - [Step07 - Clone/update OpenWrt](#step07)
+  - [Step08 - Apply customizations](#step08)
+  - [Step08a - Debug/Menuconfig Wait for SSH connection (timeout 30min)](#step08a)
+  - [Step09 - Prepare config file](#step09)
+  - [Step11 - Compile w/ Multiple threads](#step11)
+  - [Step12 - Compile w/ Single threads](#step12)
+  - [Step12a - Failure/Debug Wait for SSH connection (timeout 30min)](#step12a)
+  - [Step13 - Upload builder](#step13)
+  - [Step14 - Organize files](#step14)
+
+
 ## Steps to build OpenWRT Images
 
-### Step  - Init build env
+### <a id="step01"/>Step01 - Init build env
 ```mermaid
 sequenceDiagram
   autonumber
@@ -63,7 +84,7 @@ sequenceDiagram
   Host2 ->> Host2: load_task
     note over Host2: Load building action
   Host2 ->> Host2: prepare_target
-    note over Host2: Apply user/default/* and user/$TARGET/*<br> into user/current folder
+    note over Host2: Combine user/default/* and user/$TARGET/*<br> into user/current folder
   Host2 ->> Host2: load_options
     note over Host2: Load options of $BUILD_OPTS
   Host2 ->> Host2: update_builder_info
@@ -74,7 +95,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Check if skip this job
+
+### <a id="step02"/>Step - Check if skip this job
 ```mermaid
 sequenceDiagram
   autonumber
@@ -87,7 +109,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Clean up for extra space if not in TEST mode
+
+### <a id="step03"/>Step - Clean up for extra space if not in TEST mode
 ```mermaid
 sequenceDiagram
   autonumber
@@ -100,7 +123,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Set up QEMU
+
+### <a id="step03a"/>Step - Set up QEMU
 ```mermaid
 sequenceDiagram
   autonumber
@@ -113,7 +137,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Set up Docker Buildx
+
+### <a id="step03b"/>Step - Set up Docker Buildx
 ```mermaid
 sequenceDiagram
   autonumber
@@ -126,7 +151,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Configure docker
+
+### <a id="step04"/>Step - Configure docker
 ```mermaid
 sequenceDiagram
   autonumber
@@ -140,7 +166,8 @@ sequenceDiagram
 ---
 <br><br>
 
-### Step  - Check status of builders
+
+### <a id="step05"/>Step - Check status of builders
 ```mermaid
 sequenceDiagram
   autonumber
@@ -178,10 +205,23 @@ flowchart LR
 ---
 <br><br>
 
-### Step  - Wait for SSH
-Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
 
-### Step  - Get Docker Builder Image
+### <a id="step05a"/>Step - Wait for SSH
+Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - [Debug] Wait for SSH connection (timeout 5min)
+  participant Host1 as Host<br>uses: tete1030/safe-debugger-action@dev
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'
+```
+---
+<br><br>
+
+
+### <a id="step06"/>Step - Get Docker Builder Image
 ```mermaid
 sequenceDiagram
   autonumber
@@ -214,7 +254,7 @@ flowchart LR
 ---
 <br><br>
 
-### Step  - Clone/update OpenWrt
+### <a id="step07"/>Step - Clone/update OpenWrt
 ```mermaid
 sequenceDiagram
   autonumber
@@ -244,95 +284,234 @@ flowchart LR
 ---
 <br><br>
 
-```
+### <a id="step08"/>Step - Apply customizations
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Apply customizations
+  participant Host1 as Host<br>08-customize.sh
+  participant Docker1 as Docker<br>scripts/customize.sh
 
-  subgraph step_apply_customizations [Apply customizations if env.SKIP_TARGET == '0']
-    08_customize["scripts/cisteps/build-openwrt/08-customize.sh"]
-  end
-
-  subgraph sub_customize ["docker_exec scripts/customize.sh"]
-    direction TB
-    copy_config --> apply_patches --> copy_files --> run_custom --> check_fresh_build
-    check_fresh_build -->|YES, Clean build| end_sub_customize
-    check_fresh_build -->|NO, Restore build cache| rsync_repo
-    rsync_repo --> rm_cur_dir --> assign_dir --> end_sub_customize
-
-    copy_config("copy user/current/config.diff")
-    apply_patches("find *.patch in user/current/ folder and apply")
-    copy_files("copy user/current/files/")
-    run_custom("bash user/current/custom.sh")
-    check_fresh_build{{"$OPENWRT_CUR_DIR == $OPENWRT_COMPILE_DIR ?"}}
-    rsync_repo("rsync $OPENWRT_CUR_DIR/  $OPENWRT_COMPILE_DIR/")
-    rm_cur_dir("rm -rf $OPENWRT_CUR_DIR")
-    assign_dir("OPENWRT_CUR_DIR=$OPENWRT_COMPILE_DIR")
-    end_sub_customize
-  end
-  08_customize --> sub_customize
-
-  subgraph step_wait_for_ssh_make_menuconfig [Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1']
-    _wait_for_ssh_make_menuconfig["uses: tete1030/safe-debugger-action@dev"]
-  end
-
-  
-  subgraph step_prepare_config ["Prepare config file if env.SKIP_TARGET == '0'"]
-      09_prepare_config["scripts/cisteps/build-openwrt/09-prepare_config.sh"]
-  end
-
-  subgraph sub_scripts_customize ["docker_exec scripts/customize.sh"]
-    direction TB
-    call_scripts_config --> upload_config
-    call_scripts_config("docker_exec scripts/config.sh")
-    upload_config("Upload .config to termbin.com")
-  end
-  subgraph sub_scripts_config ["docker_exec scripts/config.sh"]
-    direction TB
-    defconfig("make defconfig") --> oldconfig("make oldconfig")
-  end
-  09_prepare_config --> sub_scripts_customize
-  call_scripts_config --> sub_scripts_config
-
-  subgraph step_download_packages ["Download packages if env.SKIP_TARGET == '0'"]
-    10_download_packages["scripts/cisteps/build-openwrt/10-download_packages.sh"]
-  end
-
-
+  ActionStep ->> Host1: if SKIP_TARGET == '0' run: <br>scripts/cisteps/build-openwrt/08-customize.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/customize.sh
 
 ```
+
+And the flowchart of scripts/customize.sh is:
+```mermaid
+flowchart TB
+  subgraph sub_customize_openwrt ["scripts/customize.sh"]
+    direction TB
+    apply_patches --> rsync_files --> sub_user_current_custom --> sub_scripts_custom_ib_sdk --> check_cache
+    check_cache -->|Not Equal| sync_built_source
+    check_cache -->|Equal| finish
+    sync_built_source --> rm_built_source --> update_env --> finish
+    
+    apply_patches("Apply patches in user/current/patches")
+    rsync_files("rsync user/current/{files,key-build*} to ${OPENWRT_CUR_DIR}/")
+    check_cache{{"$OPENWRT_CUR_DIR != $OPENWRT_COMPILE_DIR ?"}}
+    sync_built_source("rsync ${OPENWRT_CUR_DIR}/ $OPENWRT_COMPILE_DIR/")
+    rm_built_source("rm -rf $OPENWRT_CUR_DIR")
+    update_env("OPENWRT_CUR_DIR=${OPENWRT_COMPILE_DIR}<br>_set_env OPENWRT_CUR_DIR")
+    finish(("END"))
+  end
+
+  subgraph sub_user_current_custom ["user/current/custom.sh"]
+    direction TB
+  end
+
+  subgraph sub_scripts_custom_ib_sdk ["scripts/custom_ib_sdk.sh"]
+    direction TB
+  end
+```
+---
+<br><br>
+
+
+### <a id="step08a"/>Step - [Debug/Menuconfig] Wait for SSH connection (timeout 30min)
+Wait for SSH if  env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - [Debug/Menuconfig] Wait for SSH connection (timeout 30min)'
+  participant Host1 as Host<br>uses: tete1030/safe-debugger-action@dev <br>TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'
+```
+---
+<br><br>
+
+
+### <a id="step09"/>Step - Prepare config file
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Prepare config file
+  participant Host1 as Host<br>09-prepare_config.sh
+  participant Docker1 as Docker<br>scripts/config.sh
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0' run: <br>scripts/cisteps/build-openwrt/09-prepare_config.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/config.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/scripts/diffconfig.sh
+  Docker1 ->> Host1: pipe to "nc termbin.com 9999"<br>for URL to download config file.
+```
+
+And the flowchart of scripts/config.sh is:
+```mermaid
+flowchart TB
+  subgraph sub_config_openwrt ["scripts/config.sh"]
+    direction TB
+    chdir_to_src --> make_defconfig --> make_oldconfig
+    chdir_to_src("cd ${OPENWRT_CUR_DIR}")
+    make_defconfig("make defconfig")
+    make_oldconfig("make oldconfig")
+  end
+```
+---
+<br><br>
+
+
+### <a id="step12a"/>Step - [Failure/Debug] Wait for SSH connection (timeout 30min)
+Wait for SSH if env.SKIP_TARGET == '0' && !cancelled() && (job.status == 'failure' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - [Debug/Menuconfig] Wait for SSH connection (timeout 30min)'
+  participant Host1 as Host<br>uses: tete1030/safe-debugger-action@dev <br>TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+  participant Docker
+
+  ActionStep ->> Host1: if SKIP_TARGET == '0'
+```
+---
+<br><br>
    
 
+### <a id="step13"/>Step - Upload builder
+Upload builder if env.SKIP_TARGET == '0' && !cancelled() && (job.status == 'success' || env.OPT_PUSH_WHEN_FAIL == '1')
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Upload builder
+  participant Host1 as Host<br>13-upload_builder.sh
+  participant Docker1 as Docker<br>scripts/pre_commit.sh
 
+  ActionStep ->> Host1: if SKIP_TARGET == '0' run: <br>scripts/cisteps/build-openwrt/13-upload_builder.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/pre_commit.sh
+  Host1 ->> Host1: docker commit -a tete1030/openwrt-fastbuild-actions <br> ${BUILDER_CONTAINER_ID} ${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: docker container rm -fv "${BUILDER_CONTAINER_ID}"
+  Host1 ->> Host1: docker container prune -f
+  Host1 ->> Host1: docker system prune -f --volumes
+  Host1 ->> Host1: if [ "x${OPT_REBUILD}" != 'x1' ] <br>  squash_image_when_necessary "${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: docker push "${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: if [ "x${OPT_REBUILD}" = "x1" ] <br> create_remote_tag_alias "${BUILDER_IMAGE_ID_INC}" "${BUILDER_IMAGE_ID_BASE}"
+```
+
+And the flowchart of scripts/pre_commit.sh is:
+```mermaid
+flowchart TB
+  subgraph sub_pre_commit ["scripts/pre_commit.sh"]
+    direction TB
+    check_source_dir -->|Exists| rm_rf_source
+
+    check_source_dir{{"[ -d ${OPENWRT_SOURCE_DIR} ] ?"}}
+    rm_rf_source("rm -rf ${OPENWRT_SOURCE_DIR}")
+  end
+```
+---
+<br><br>
 
   
+### <a id="step14"/>Step - Organize files
+Organize filesif env.SKIP_TARGET == '0' && !cancelled()
+```mermaid
+sequenceDiagram
+  autonumber
+  actor ActionStep as Step - Organize files
+  participant Host1 as Host<br>14-organize_files.sh
+  participant Docker1 as Docker<br>scripts/pre_commit.sh
 
+  ActionStep ->> Host1: if SKIP_TARGET == '0' run: <br>scripts/cisteps/build-openwrt/14-organize_files.sh
+  Host1 ->> Docker1: docker_exec "${BUILDER_CONTAINER_ID}"<br> "${BUILDER_WORK_DIR}/pre_commit.sh
+  Host1 ->> Host1: docker commit -a tete1030/openwrt-fastbuild-actions <br> ${BUILDER_CONTAINER_ID} ${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: docker container rm -fv "${BUILDER_CONTAINER_ID}"
+  Host1 ->> Host1: docker container prune -f
+  Host1 ->> Host1: docker system prune -f --volumes
+  Host1 ->> Host1: if [ "x${OPT_REBUILD}" != 'x1' ] <br>  squash_image_when_necessary "${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: docker push "${BUILDER_IMAGE_ID_INC}"
+  Host1 ->> Host1: if [ "x${OPT_REBUILD}" = "x1" ] <br> create_remote_tag_alias "${BUILDER_IMAGE_ID_INC}" "${BUILDER_IMAGE_ID_BASE}"
+```
+
+And the flowchart of scripts/pre_commit.sh is:
+```mermaid
+flowchart TB
+  subgraph sub_pre_commit ["scripts/pre_commit.sh"]
+    direction TB
+    check_source_dir -->|Exists| rm_rf_source
+
+    check_source_dir{{"[ -d ${OPENWRT_SOURCE_DIR} ] ?"}}
+    rm_rf_source("rm -rf ${OPENWRT_SOURCE_DIR}")
+  end
+```
+---
+<br><br>
+
+  
 ## Directory Hierarchy
 ```
-user
-├── default                         # Default profile settings
-│   └── ...
-├── target1                         # First target
-│   ├── config.diff                 # From .config
-│   ├── custom.sh                   # Scripts to be executed before compiling
-│   ├── files                       # Files to be copied to OpenWrt buildroot dir, arranged in same structure
-│   │   └── somefile
-│   └── settings.ini                # Settings
-└── target2
-    ├── config.diff
-    ├── custom.sh
-    ├── packages.txt
-    ├── patches                     # Patches to be applied onto OpenWrt buildroot dir
-    │   └── 001-somepatch.patch
-    └── settings.ini
+user                                                                                                 #step01  scripts/host/init_runner.sh
+├── default                                 # Default profile settings
+│   ├── ib                                  # Files for ImageBuilder                                   
+│   │   ├── config.diff                     # Extra options for .config                              #step09  scripts/config.sh
+│   │   ├── disabled-services.ssv           # SpaceSeparatedVars for services to be disabed          #step09  scripts/config.sh
+│   │   ├── packages.ssv                    # SpaceSeparatedVars for packages to be installed        #step09  scripts/config.sh
+│   │   ├── feeds.conf                      # Extra feeds to be added                                #step08  scripts/custom_ib_sdk.sh  update_ib_repositories_conf
+│   │   ├── custom.sh                       # Script before make                                     #step08  scripts/custom_ib_sdk.sh
+│   │   ├── prepare_rootfs_hook.d           # Hook scripts before IB prepares rootfs                 #step11/12  scripts/compile.sh 
+│   │   ├── files                           # Files to be added to ImageBuilder base folder          #step01  used by IB make rules
+│   │   │   └── some dirs and files         
+│   │   └── patches                         # Patches to be applied to IB                            #step08  scripts/custom_ib_sdk.sh  apply_patches_for_ib
+│   │       └── *.patch
+│   ├── sdk
+│   │   ├── config.diff                     # Extra options for .config                              #step09  scripts/config.sh 
+│   │   ├── feeds.conf                      # Extra feeds to be added                                #step08  scripts/custom_ib_sdk.sh  generate_sdk_feeds_conf 
+│   │   ├── custom.sh                       # Script for customization (before config)               #step08  scripts/custom_ib_sdk.sh
+│   │   ├── files                           # Files to be added to SDK                               #step01  used by SDK make rules
+│   |   │   └── package                     # Files to be added to SDK/package/
+│   │   │       └── some dirs and files         
+│   │   └── patches                         # Patches to be applied to SDK                           #step08  scripts/custom_ib_sdk.sh  apply_patches_for_sdk
+│   │       └── *.patch
+│   └── source
+│       ├── config.diff                     # Extra options for .config                              #step08  scripts/customize.sh
+│       ├── feeds.conf                      # Extra feeds to be added                                #step07  scripts/update_feeds.sh  generate_source_feeds_conf
+│       ├── packages.txt                    # Extra for packages to be added                         #step07  scripts/update_feeds.sh
+│       ├── custom.sh                       # Script for customization (before config)               #step08  scripts/customize.sh
+│       ├── files                           # Files to be added to Git Source                        #step01  used by Source make rules
+│       │   └── package                     # Files to be added to SOURCE/package/
+│       │       └── some dirs and files       
+│       └── patches                         # Patches to be applied to Git Source                    #step08  scripts/customize.sh
+│           └── *.patch
+├── target1                                 # First target
+│   ├── settings.ini                        # Settings                                               #step01  scripts/host/init_runner.sh
+|   └── ...                                 # SAME HIERACHY AS user/default
+└── target2                                 # Second target
+│   ├── settings.ini                        # Settings                                               #step01  scripts/host/init_runner.sh
+|   └── ...                                 # SAME HIERACHY AS user/default
+└── targetN ...                             # More targets
+
 ```
 
+In #step01 (scripts/host/init_runner.sh) will combine user/default and user/$BUILD_TARGET into user/current.
 
 ## Directories
 ```
 BUILDER_WORK_DIR="/home/builder"
 BUILDER_TMP_DIR="/tmp/builder"
 HOST_TMP_DIR="/tmp/builder"
+HOST_BIN_DIR="/home/builder/openwrt_bin"
+HOST_WORK_DIR=${{github.workspace}}
 BUILDER_BIN_DIR="${BUILDER_WORK_DIR}/openwrt_bin"      --> /home/builder/openwrt_bin
 BUILDER_PROFILE_DIR="${BUILDER_WORK_DIR}/user/current" --> /home/builder/user/current
-HOST_WORK_DIR=${{github.workspace}}
 OPENWRT_COMPILE_DIR="${BUILDER_WORK_DIR}/openwrt"      -->  /home/builder/openwrt
 OPENWRT_SOURCE_DIR="${BUILDER_TMP_DIR}/openwrt"        -->  /tmp/builder/openwrt
 

@@ -8,6 +8,7 @@
 #========================================================================================
 
 set -eo pipefail
+source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPENWRT_SOURCE_DIR}" ]; then
   echo "::error::'OPENWRT_COMPILE_DIR', 'OPENWRT_CUR_DIR' or 'OPENWRT_SOURCE_DIR' is empty" >&2
@@ -20,16 +21,13 @@ if [ -z "${OPENWRT_DOWNLOAD_SITE_URL}" ]; then
 fi
 
 
-source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
-
+if [ "x${TEST}" = "x1" ]; then
+  exit 0
+fi
 
 MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/download"
 mkdir -p "${OPENWRT_COMPILE_DIR}" || true
 mkdir -p "${MY_DOWNLOAD_DIR}" || true
-
-if [ "x${TEST}" = "x1" ]; then
-  exit 0
-fi
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
 wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL} -O $REMOTE_FILES
@@ -47,6 +45,9 @@ OPENWRT_SDK_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE%.tar.xz}"
 
 tar -C ${MY_DOWNLOAD_DIR} -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
 tar -C ${MY_DOWNLOAD_DIR} -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+
+# Make a backup of the config file
+cp -a ${OPENWRT_IB_DIR}/.config  ${OPENWRT_IB_DIR}/.config.orig
 
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 

@@ -8,6 +8,7 @@
 #=================================================
 
 set -eo pipefail
+source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPENWRT_SOURCE_DIR}" ]; then
   echo "::error::'OPENWRT_COMPILE_DIR', 'OPENWRT_CUR_DIR' or 'OPENWRT_SOURCE_DIR' is empty" >&2
@@ -17,43 +18,13 @@ fi
 [ "x${TEST}" != "x1" ] || exit 0
 
 echo "Updating and installing feeds ..."
-# priority when update_feeds=false: prev > user > legacy (> default)
-# priority when update_feeds=true:  user > legacy (> default), no prev
-
-if [ -f "${BUILDER_PROFILE_DIR}/files/feeds.conf" ]; then
-  cp "${BUILDER_PROFILE_DIR}/files/feeds.conf" "${OPENWRT_CUR_DIR}/feeds.conf"
-fi
-
-# Backup feeds.conf file
-if [ -f "${OPENWRT_CUR_DIR}/feeds.conf" ]; then
-  cp "${OPENWRT_CUR_DIR}/feeds.conf" "${BUILDER_TMP_DIR}/feeds.conf.bak"
-fi
-
-if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ] && [ "x${OPT_UPDATE_FEEDS}" != "x1" ]; then
-  # Use previous feeds
-  (
-    set +eo pipefail
-    # Use previous feeds status
-    cd "${OPENWRT_COMPILE_DIR}" && ./scripts/feeds list -fs > "${BUILDER_TMP_DIR}/feeds.conf.prev"
-  )
-  ret_val=$?
-  if [ $ret_val -ne 0 ]; then
-    echo "::warning::Something went wrong in previous builder. Not using last feeds.conf"
-    rm "${BUILDER_TMP_DIR}/feeds.conf.prev" || true
-  else
-    mv "${BUILDER_TMP_DIR}/feeds.conf.prev" "${OPENWRT_CUR_DIR}/feeds.conf"
-  fi
-fi
+generate_source_feeds_conf
 
 (
   cd "${OPENWRT_CUR_DIR}"
   ./scripts/feeds update -a
   ./scripts/feeds install -a
 )
-
-if [ -f "${BUILDER_TMP_DIR}/feeds.conf.bak" ]; then
-  mv "${BUILDER_TMP_DIR}/feeds.conf.bak" "${OPENWRT_CUR_DIR}/feeds.conf" 
-fi
 
 PACKAGE_DEFAULT_ROOT="package/openwrt-packages"
 
@@ -71,13 +42,15 @@ PACKAGE_DEFAULT_ROOT="package/openwrt-packages"
 # luci-app-mentohust https://github.com/BoringCat/luci-app-mentohust.git ref=1db86057
 # syslog-ng-latest https://github.com/openwrt/packages.git ref=master subdir=admin/syslog-ng rename=syslog-ng-latest
 install_package() {
-  if (( $# < 2 )); then
+  if (($# < 2)); then
     echo "install_package: wrong arguments. Usage: install_package PACKAGE_NAME GIT_URL [ref=REF] [root=ROOT] [subdir=SUBDIR] [rename=RENAME] [mkfile-dir=MKFILE_DIR] [use-latest-tag] [override]" >&2
     exit 1
   fi
   local ALL_PARAMS="$*"
-  local PACKAGE_NAME="${1}"; shift;
-  local PACKAGE_URL="${1}"; shift;
+  local PACKAGE_NAME="${1}"
+  shift
+  local PACKAGE_URL="${1}"
+  shift
   local PACKAGE_REF=""
   local PACKAGE_ROOT="${PACKAGE_DEFAULT_ROOT}"
   local PACKAGE_SUBDIR=""
@@ -88,31 +61,31 @@ install_package() {
 
   for para in "$@"; do
     case "$para" in
-      ref=*) PACKAGE_REF="${para#ref=}" ;;
-      root=*)
-        PACKAGE_ROOT="${para#root=}"
-        PACKAGE_ROOT="${PACKAGE_ROOT##/}"
-        PACKAGE_ROOT="${PACKAGE_ROOT%%/}"
-        PACKAGE_ROOT="package/${PACKAGE_ROOT}"
-        ;;
-      subdir=*)
-        PACKAGE_SUBDIR="${para#subdir=}"
-        # Remove leading and trailing slashes
-        PACKAGE_SUBDIR="${PACKAGE_SUBDIR##/}"
-        PACKAGE_SUBDIR="${PACKAGE_SUBDIR%%/}"
-        ;;
-      rename=*) PACKAGE_RENAME="${para#rename=}" ;;
-      mkfile-dir=*)
-        PACKAGE_MKFILE_DIR="${para#mkfile-dir=}"
-        PACKAGE_MKFILE_DIR="${PACKAGE_MKFILE_DIR##/}"
-        PACKAGE_MKFILE_DIR="${PACKAGE_MKFILE_DIR%%/}"
-        ;;
-      use-latest-tag) USE_LATEST_TAG=1 ;;
-      override) OVERRIDE=1 ;;
-      *)
-        echo "install_package: unknown parameter for install_package: $para" >&2
-        exit 1
-        ;;
+    ref=*) PACKAGE_REF="${para#ref=}" ;;
+    root=*)
+      PACKAGE_ROOT="${para#root=}"
+      PACKAGE_ROOT="${PACKAGE_ROOT##/}"
+      PACKAGE_ROOT="${PACKAGE_ROOT%%/}"
+      PACKAGE_ROOT="package/${PACKAGE_ROOT}"
+      ;;
+    subdir=*)
+      PACKAGE_SUBDIR="${para#subdir=}"
+      # Remove leading and trailing slashes
+      PACKAGE_SUBDIR="${PACKAGE_SUBDIR##/}"
+      PACKAGE_SUBDIR="${PACKAGE_SUBDIR%%/}"
+      ;;
+    rename=*) PACKAGE_RENAME="${para#rename=}" ;;
+    mkfile-dir=*)
+      PACKAGE_MKFILE_DIR="${para#mkfile-dir=}"
+      PACKAGE_MKFILE_DIR="${PACKAGE_MKFILE_DIR##/}"
+      PACKAGE_MKFILE_DIR="${PACKAGE_MKFILE_DIR%%/}"
+      ;;
+    use-latest-tag) USE_LATEST_TAG=1 ;;
+    override) OVERRIDE=1 ;;
+    *)
+      echo "install_package: unknown parameter for install_package: $para" >&2
+      exit 1
+      ;;
     esac
   done
 
@@ -133,7 +106,11 @@ install_package() {
     fi
     # We use /tags instead /releases because the /releases api is not consistent with its webpage, which lists all tags
     local latest_tag
-    latest_tag="$(set +eo pipefail; curl -sL --connect-timeout 10 --retry 5 "https://api.github.com/repos/${repo_name}/tags" 2>/dev/null | grep '"name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1; true)"
+    latest_tag="$(
+      set +eo pipefail
+      curl -sL --connect-timeout 10 --retry 5 "https://api.github.com/repos/${repo_name}/tags" 2>/dev/null | grep '"name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1
+      true
+    )"
     if [ -z "${latest_tag}" ]; then
       echo "install_package: no latest tag found" >&2
       exit 1
@@ -219,11 +196,13 @@ install_package() {
   fi
 }
 
-if [ -f "${BUILDER_PROFILE_DIR}/packages.txt" ]; then
-  while IFS= read -r line; do
-    if [ -n "${line// }" ] && [[ ! "${line}" =~ ^[[:blank:]]*\# ]] ; then
-      # 'eval' can help evaluate parameter quotes
-      eval "install_package ${line}"
-    fi
-  done <"${BUILDER_PROFILE_DIR}/packages.txt"
-fi
+for file in ${BUILDER_PROFILE_DIR}/source/packages*.txt; do
+  if [ -f $file ]; then
+    while IFS= read -r line; do
+      if [ -n "${line// /}" ] && [[ ! "${line}" =~ ^[[:blank:]]*\# ]]; then
+        # 'eval' can help evaluate parameter quotes
+        eval "install_package ${line}"
+      fi
+    done <$file
+  fi
+done

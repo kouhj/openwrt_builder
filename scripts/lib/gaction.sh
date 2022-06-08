@@ -35,8 +35,8 @@ _docker_set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     vars_file="$(dirname $GITHUB_ENV)/docker-vars"
-    echo "${var_name}=${var_value} >> $vars_file"
-    echo "${var_name}=${var_value}" >> $vars_file
+    echo "${var_name}=\"${var_value}\" >> $vars_file"
+    echo "${var_name}=\"${var_value}\"" >> $vars_file
   done
   echo "Appending vars $* to $vars_file"
   _dump_file $vars_file

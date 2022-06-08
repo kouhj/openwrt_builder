@@ -89,24 +89,44 @@ prepare_target() {
   else
     mkdir "${HOST_WORK_DIR}/user/current"
   fi
-  rsync -aI "${HOST_WORK_DIR}/user/${BUILD_TARGET}/" "${HOST_WORK_DIR}/user/current/"
+
+  # Manual combine user/$BUILD_TARGET into user/current instead of using rsync,
+  # which will rename the file.ext to file-$BUILD_TARGET.ext
+  cd "${HOST_WORK_DIR}/user/${BUILD_TARGET}/"
+  find . -type d -exec mkdir -p ${HOST_WORK_DIR}/user/current/{} \;
+  find . -type f -o -type l | while read file; do
+    if [ -e "${HOST_WORK_DIR}/user/current/${file}" ]; then
+      local file_name="$(basename "${file}")"
+      local base_name=${file_name%.*}
+      local ext_name=${file_name##*.}
+      if [ "x${ext_name}" != "x" ]; then  # file has extension
+        ext_name=".$ext_name"
+      fi
+
+      cp  -a $file "${HOST_WORK_DIR}/user/current/${base_name}-${BUILD_TARGET}${ext_name}"
+    fi
+  done
+
+  # Not using rsync as it cannot rename file.ext to file-$BUILD_TARGET.ext
+  #rsync -aI "${HOST_WORK_DIR}/user/${BUILD_TARGET}/" "${HOST_WORK_DIR}/user/current/"
+
   echo "Merged target profile structure:"
   tree "${HOST_WORK_DIR}/user/current"
 
-  if [ ! -f "${HOST_WORK_DIR}/user/current/config.diff" ]; then
-    echo "::error::Config file 'config.diff' does not exist" >&2
-    exit 1
-  fi
+  # if [ ! -f "${HOST_WORK_DIR}/user/current/config.diff" ]; then
+  #   echo "::error::Config file 'config.diff' does not exist" >&2
+  #   exit 1
+  # fi
 
   # Load settings
   NECESSARY_SETTING_VARS=( BUILDER_NAME BUILDER_TAG REPO_URL REPO_BRANCH OPENWRT_DOWNLOAD_SITE_URL OPT_DEBUG )
   OPT_UPLOAD_CONFIG='1'
   SETTING_VARS=( "${NECESSARY_SETTING_VARS[@]}" OPT_UPLOAD_CONFIG )
-  [ ! -f "${HOST_WORK_DIR}/user/default/settings.ini" ] || _source_vars "${HOST_WORK_DIR}/user/default/settings.ini" "${SETTING_VARS[@]}"
-  _source_vars "${HOST_WORK_DIR}/user/current/settings.ini" "${SETTING_VARS[@]}"
+  [ ! -f "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" ] || _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
+  _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
   setting_missing_vars="$(_check_missing_vars "${NECESSARY_SETTING_VARS[@]}")"
   if [ -n "${setting_missing_vars}" ]; then
-    echo "::error::Variables missing in 'user/default/settings.ini' and 'user/${BUILD_TARGET}/settings.ini': ${setting_missing_vars}"
+    echo "::error::Variables missing in 'user/${BUILD_TARGET}/settings.ini': ${setting_missing_vars}"
     exit 1
   fi
   _set_env "${SETTING_VARS[@]}"

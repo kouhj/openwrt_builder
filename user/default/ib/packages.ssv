@@ -1,0 +1,22 @@
+luci luci-app-firewall luci-app-opkg luci-mod-admin-full luci-mod-network luci-mod-status
+luci-mod-system luci-proto-ipv6 luci-proto-ppp  luci-theme-bootstrap
+luci-ssl px5g-wolfssl
+uhttpd uhttpd-mod-ubus
+bash vim byobu tmux gawk coreutils-stat ip6tables tcpdump tcpreplay netcat bind-dig iperf3 procps-ng-pkill procps-ng-watch procps-ng-ps procps-ng-w
+
+
+# James packages
+# dnspod-script smartdns luci-app-smartdns smartdns-list-update config-script chnroutes luci-app-chnroutes wireguard-script
+
+# Let's encrypt
+acme   acme-dnsapi luci-app-acme
+
+
+# VPN
+ksoftethervpn-client ksoftethervpn-server zerotier wireguard-tools luci-app-wireguard luci-i18n-wireguard-zh-cn
+
+# Routing
+bird2 bird2c keepalived monit openssh-client
+
+# python3-pip
+python3-pip

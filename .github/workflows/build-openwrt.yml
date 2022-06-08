@@ -140,27 +140,27 @@ jobs:
       run: scripts/cisteps/build-openwrt/09-prepare_config.sh
 
     # Should not call this, as we are using SDK
-    - name: Download packages
-      if: env.SKIP_TARGET == '0'
-      run: scripts/cisteps/build-openwrt/10-download_packages.sh
+    #- name: Download packages
+    #  if: env.SKIP_TARGET == '0'
+    #  run: scripts/cisteps/build-openwrt/10-download_packages.sh
 
     - name: Print disk space
       if: env.SKIP_TARGET == '0'
       run: df -h
 
-    #- name: Compile firmware and packages with multiple threads
-    #  id: mtcompile
-    #  if: env.SKIP_TARGET == '0'
-    #  continue-on-error: true
-    #  run: scripts/cisteps/build-openwrt/11-compile_multi.sh
+    - name: Compile firmware and packages with multiple threads
+     id: mtcompile
+     if: env.SKIP_TARGET == '0'
+     continue-on-error: true
+     run: scripts/cisteps/build-openwrt/11-compile_multi.sh
 
-    #- name: Compile firmware and packages with single threads when failed
-    #  if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
-    #  run: scripts/cisteps/build-openwrt/12-compile_single.sh
+    - name: Compile firmware and packages with single threads when failed
+     if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
+     run: scripts/cisteps/build-openwrt/12-compile_single.sh
 
-    #- name: Print disk space
-    #  if: env.SKIP_TARGET == '0'
-    #  run: df -h
+    - name: Print disk space
+     if: env.SKIP_TARGET == '0'
+     run: df -h
 
     # failure checking
     - name: '[Failure/Debug] Wait for SSH connection (timeout 30min)'

@@ -23,13 +23,13 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-cp "${BUILDER_PROFILE_DIR}/config.diff" "${OPENWRT_CUR_DIR}/.config"
+cp ${BUILDER_PROFILE_DIR}/source/config*.diff "${OPENWRT_CUR_DIR}/.config"
 
 echo "Applying patches..."
 if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/patches" 2>/dev/null)" ]; then
   (
     if [ "x${NONSTRICT_PATCH}" = "x1" ]; then
-        set +eo pipefail
+      set +eo pipefail
     fi
 
     find "${BUILDER_PROFILE_DIR}/patches" -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d '${OPENWRT_CUR_DIR}' -p0 --forward"
@@ -51,28 +51,29 @@ key-build*
 "
 declare -a sync_exclude_opts=()
 while IFS= read -r line; do
-  if [[ -z "${line// }" ]]; then
+  if [[ -z "${line// /}" ]]; then
     continue
   fi
-  sync_exclude_opts+=( "--exclude=${line}" )
-done <<< "${SYNC_EXCLUDES}"
+  sync_exclude_opts+=("--exclude=${line}")
+done <<<"${SYNC_EXCLUDES}"
 
 echo "Copying base files..."
 if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/files" 2>/dev/null)" ]; then
   # feeds.conf is handled in update_feeds.sh
   rsync -camv --no-t "${sync_exclude_opts[@]}" --exclude="/feeds.conf" --exclude="/.config" \
-    "${BUILDER_PROFILE_DIR}/files/" ${BUILDER_PROFILE_DIR}/key-build* "${OPENWRT_CUR_DIR}/"
+    "${BUILDER_PROFILE_DIR}/files/" "${OPENWRT_CUR_DIR}/"
 fi
 
 echo "Executing custom.sh"
-if [ -f "${BUILDER_PROFILE_DIR}/custom.sh" ]; then
+for script in ${BUILDER_PROFILE_DIR}/ib/source*.sh  ${BUILDER_WORK_DIR}/scripts/custom_ib_sdk.sh; do
   (
-    cd "${OPENWRT_CUR_DIR}"
-    /bin/bash -x "${BUILDER_PROFILE_DIR}/custom.sh"
+    if [ -f "${script}" ]; then
+      echo "Running custom script: ${script}"
+      bash "${script}"
+    fi
   )
-fi
+done
 
-/bin/bash -x "${BUILDER_WORK_DIR}/scripts/custom_ib_sdk.sh"
 
 # Restore build cache and timestamps
 if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ]; then
