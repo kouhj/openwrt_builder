@@ -23,7 +23,12 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-cp ${BUILDER_PROFILE_DIR}/source/config*.diff "${OPENWRT_CUR_DIR}/.config"
+[ -f "${OPENWRT_CUR_DIR}/.config" ] || touch "${OPENWRT_CUR_DIR}/.config"
+for file in ${BUILDER_PROFILE_DIR}/source/config*.diff; do
+  if [ -f "${file}" ]; then
+    cat ${BUILDER_PROFILE_DIR}/source/config*.diff  >> "${OPENWRT_CUR_DIR}/.config"
+  fi
+done
 
 echo "Applying patches..."
 if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/patches" 2>/dev/null)" ]; then
