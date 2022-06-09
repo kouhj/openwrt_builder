@@ -30,5 +30,3 @@ generate_packages_for_ib
 generate_openwrt_ib_config
 get_packages_for_ib
 get_disabled_services_for_ib
-
-

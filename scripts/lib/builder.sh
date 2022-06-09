@@ -47,7 +47,7 @@ config_option_select() {
 
 # Set config file $1 with key $2 to value $3
 config_option_set() {
-	if grep -w $2 $1; then # update the option if it exists
+	if grep -q -w $2 $1; then # update the option if it exists
 		sed -i -r "s~^.*($2)[= ].*\$~\1=$3~" $1
 	else # this option does not exist in the .config file
 		echo "$2=$3" >>$1
@@ -89,7 +89,7 @@ generate_openwrt_sdk_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/sdk\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in ${OPENWRT_PROFILE_DIR}/sdk/config*.diff; do
+	for file in $( compgen -G "${OPENWRT_PROFILE_DIR}/sdk/config*.diff" ); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
@@ -105,7 +105,7 @@ generate_openwrt_ib_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/ib\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in ${OPENWRT_PROFILE_DIR}/ib/config*.diff; do
+	for file in $( compgen -G "${OPENWRT_PROFILE_DIR}/ib/config*.diff" ); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
@@ -163,7 +163,7 @@ do_generate_feeds_conf() {
 	# Set SDK feeds.conf
 	cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo $2/feeds.conf
 
-	for file in ${BUILDER_PROFILE_DIR}/$1/feeds*.conf; do
+	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/$1/feeds*.conf" ); do
 		cat $file >>$2/feeds.conf
 	done
 }
@@ -185,7 +185,7 @@ update_ib_repositories_conf() {
 	add_feed_to_repositories_conf local-routing ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/routing
 	add_feed_to_repositories_conf local-telephony ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/telephony
 
-	for file in ${BUILDER_PROFILE_DIR}/ib/feeds*.conf; do
+	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/feeds*.conf" ); do
 		while read line; do
 			if ! grep -q "$line" ${OPENWRT_IB_DIR}/repositories.conf; then
 				echo "$line" >>${OPENWRT_IB_DIR}/repositories.conf
@@ -247,7 +247,9 @@ get_packages_for_ib() {
 	OPENWRT_IB_PACKAGES=$(
 		(
 			awk '{print $1}' "$OPENWRT_MF_FILE"                        # Intial packages from the manifest file
-			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile
+			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" > /dev/null; then
+				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile
+			fi
 		) | sed 's/dnsmasq //'                                      # Will be included in include/target.mk as DEFAULT_PACKAGES
 
 	)
@@ -265,7 +267,9 @@ get_packages_for_ib() {
 # 1. user/current/ib/disable-services*.txt
 get_disabled_services_for_ib() {
 	OPENWRT_IB_DISABLED_SERVICES=$(
-		get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv
+		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv" > /dev/null; then
+			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv
+		fi
 	)
 
 	_docker_set_env OPENWRT_IB_DISABLED_SERVICES
@@ -299,7 +303,7 @@ apply_patches_for_sdk() {
 }
 
 prepare_rootfs_hook() {
-	for script in ${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh; do
+	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" ); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
 			. "$script"
