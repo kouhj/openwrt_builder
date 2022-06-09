@@ -21,6 +21,7 @@ fi
 #make defconfig
 #make oldconfig
 
+set -x
 cd "${OPENWRT_SDK_DIR}"
 generate_openwrt_sdk_config
 openwrt_sdk_install_ksoftethervpn
