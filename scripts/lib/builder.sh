@@ -89,7 +89,7 @@ generate_openwrt_sdk_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/sdk\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in $( compgen -G "${OPENWRT_PROFILE_DIR}/sdk/config*.diff" ); do
+	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/sdk/config*.diff" ); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
@@ -105,7 +105,7 @@ generate_openwrt_ib_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/ib\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in $( compgen -G "${OPENWRT_PROFILE_DIR}/ib/config*.diff" ); do
+	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/config*.diff" ); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
