@@ -41,6 +41,13 @@ packages_url="https://github.com/tete1030/openwrt-buildenv/raw/master/packages.t
   fi
   true
 )
+
+# additional packages to cross run binaries in the target rootfs built by the builder
+cat >> "${packages_file}" << EOF
+proot
+qemu-user
+EOF
+
 if [ -f "${packages_file}" ]; then
   echo "Installing missing packages"
   mapfile -t all_packages < <(grep -vE -e "^\s*#" -e "^\s*\$" "${packages_file}")

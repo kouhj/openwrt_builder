@@ -24,7 +24,7 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-
+set -x
 # Compile SDK first
 echo "::info::Compiling SDK"
 cd "${OPENWRT_SDK_DIR}"
