@@ -31,10 +31,6 @@ fi
 add_sdk_keys_to_ib
 # Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files
 update_ib_repositories_conf
-# Get the list of packages to be installed by IB
-get_packages_for_ib
-# Get the list of services to be disabled by IB
-get_disabled_services_for_ib
 # Modify IB default packages
 patch_ib_default_packages
 # Apply user/current/ib/patches/*.patch to IB
