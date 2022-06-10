@@ -268,7 +268,7 @@ get_packages_for_ib() {
 # 1. user/current/ib/disable-services*.txt
 get_disabled_services_for_ib() {
 	OPENWRT_IB_DISABLED_SERVICES=$(
-		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv" > /dev/null; then
+		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv" > /dev/null; then
 			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv
 		fi
 	)
