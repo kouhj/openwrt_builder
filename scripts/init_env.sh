@@ -46,6 +46,8 @@ packages_url="https://github.com/tete1030/openwrt-buildenv/raw/master/packages.t
 cat >> "${packages_file}" << EOF
 proot
 qemu-user
+tmux
+byobu
 EOF
 
 if [ -f "${packages_file}" ]; then
