@@ -2,7 +2,7 @@
 # THIS FILE IS SOURCED BY THE BUILDER
 
 # Fix dropbear multiple instance
-pushd build_dir/target-x86_64_musl/root-x86	
+pushd "${OPENWRT_IB_ROOTFS_DIR}"
 if ! grep -q if_ipaddrs etc/init.d/dropbear; then
 	cat > /tmp/dropbear.patch  << 'EOF'
 

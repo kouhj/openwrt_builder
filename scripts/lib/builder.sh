@@ -111,6 +111,7 @@ generate_openwrt_ib_config() {
 
 	# NOTE: do not run 'make *config' here, it will cause error
 
+	get_config_option CONFIG_ARCH
 	get_config_option CONFIG_TARGET_BOARD
 	get_config_option CONFIG_TARGET_SUBTARGET
 	get_config_option CONFIG_TARGET_ARCH_PACKAGES
@@ -130,12 +131,12 @@ openwrt_sdk_install_ksoftethervpn() {
 	for pkg in feeds/kouhj feeds/luci/luci-base kernel/cryptodev-linux utils/lua; do
 		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
 	done
+	popd >/dev/null
 
 	# Update config for OpenWRT SDK
 	config_option_select "${OPENWRT_SDK_DIR}/.config" CONFIG_PACKAGE_ksoftethervpn-server yes
 	make defconfig  # Auto select the dependant packages
 
-	popd >/dev/null
 }
 
 # Modify ImageBuilder config options
