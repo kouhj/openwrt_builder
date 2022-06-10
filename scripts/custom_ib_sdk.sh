@@ -29,8 +29,6 @@ fi
 
 # Add SDK build key to IB's files/etc/opkg/ folder
 add_sdk_keys_to_ib
-# Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files
-update_ib_repositories_conf
 # Modify IB default packages
 patch_ib_default_packages
 # Apply user/current/ib/patches/*.patch to IB
