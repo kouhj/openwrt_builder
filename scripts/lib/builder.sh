@@ -95,6 +95,7 @@ generate_openwrt_sdk_config() {
 
 	# This will fix the necesary options due to the manual configuration changes above
 	make defconfig
+	cp -a ${CONFIG_FILE} ${OPENWRT_SDK_DIR}/config.check
 
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
