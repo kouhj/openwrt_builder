@@ -111,10 +111,10 @@ generate_openwrt_ib_config() {
 
 	# NOTE: do not run 'make *config' here, it will cause error
 
-	get_config_option CONFIG_ARCH
-	get_config_option CONFIG_TARGET_BOARD
-	get_config_option CONFIG_TARGET_SUBTARGET
-	get_config_option CONFIG_TARGET_ARCH_PACKAGES
+	get_config_option ${CONFIG_FILE} CONFIG_ARCH
+	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
+	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUBTARGET
+	get_config_option ${CONFIG_FILE} CONFIG_TARGET_ARCH_PACKAGES
 }
 
 openwrt_sdk_install_ksoftethervpn() {
