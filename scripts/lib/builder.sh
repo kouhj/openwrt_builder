@@ -57,7 +57,7 @@ config_option_set() {
 
 # Get config file $1 with key $2, and set it as a docker environment variable
 get_config_option() {
-	local v=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
+	$2=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
 	_set_env $2
 	_docker_set_env $2
 }
@@ -95,7 +95,6 @@ generate_openwrt_sdk_config() {
 
 	# This will fix the necesary options due to the manual configuration changes above
 	make defconfig
-	cp -a ${CONFIG_FILE} ${OPENWRT_SDK_DIR}/config.check
 
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
