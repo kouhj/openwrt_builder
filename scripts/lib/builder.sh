@@ -183,9 +183,9 @@ update_ib_repositories_conf() {
 	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/kouhj
 	add_feed_to_repositories_conf local-base file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/base
 	add_feed_to_repositories_conf local-luci file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/luci
-	add_feed_to_repositories_conf local-packages ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/packages
-	add_feed_to_repositories_conf local-routing ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/routing
-	add_feed_to_repositories_conf local-telephony ${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/telephony
+	add_feed_to_repositories_conf local-packages file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/packages
+	add_feed_to_repositories_conf local-routing file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/routing
+	add_feed_to_repositories_conf local-telephony file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/telephony
 
 	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/feeds*.conf" ); do
 		while read line; do
