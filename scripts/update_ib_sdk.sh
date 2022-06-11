@@ -27,7 +27,7 @@ fi
 
 MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/download"
 mkdir -p "${OPENWRT_COMPILE_DIR}" || true
-mkdir -p "${MY_DOWNLOAD_DIR}" || true
+mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/{ib,sdk}
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
 wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL} -O $REMOTE_FILES
@@ -40,15 +40,16 @@ for file in $OPENWRT_MF_FILE $OPENWRT_IB_FILE $OPENWRT_SDK_FILE config.buildinfo
   wget --no-check-certificate -q "${OPENWRT_DOWNLOAD_SITE_URL}/${file}" -O ${MY_DOWNLOAD_DIR}/${file}
 done
 
-OPENWRT_IB_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE%.tar.xz}"
-OPENWRT_SDK_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE%.tar.xz}"
+OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/ib/${OPENWRT_IB_FILE%.tar.xz}"
+OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
+KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
-tar -C ${MY_DOWNLOAD_DIR} -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
-tar -C ${MY_DOWNLOAD_DIR} -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+tar -C ${BUILDER_WORK_DIR}/ib  -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+tar -C ${BUILDER_WORK_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 
 # Make a backup of the config file
 cp -a ${OPENWRT_IB_DIR}/.config  ${OPENWRT_IB_DIR}/.config.orig
 
-KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
+
 
 _docker_set_env OPENWRT_MF_FILE OPENWRT_IB_DIR OPENWRT_SDK_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR
