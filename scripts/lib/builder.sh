@@ -57,7 +57,8 @@ config_option_set() {
 
 # Get config file $1 with key $2, and set it as a docker environment variable
 get_config_option() {
-	$2=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
+	local v=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
+	eval "$2=$v"
 	_set_env $2
 	_docker_set_env $2
 }
