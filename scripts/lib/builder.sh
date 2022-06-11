@@ -136,6 +136,7 @@ openwrt_sdk_install_ksoftethervpn() {
 
 	# Update config for OpenWRT SDK
 	config_option_select "${OPENWRT_SDK_DIR}/.config" CONFIG_PACKAGE_ksoftethervpn-server yes
+	config_option_select "${OPENWRT_SDK_DIR}/.config" CONFIG_PACKAGE_ksoftethervpn-client yes
 	make defconfig  # Auto select the dependant packages
 
 }
