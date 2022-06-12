@@ -21,7 +21,6 @@ fi
 #make defconfig
 #make oldconfig
 
-set -x
 cd "${OPENWRT_SDK_DIR}"
 generate_openwrt_sdk_config
 openwrt_sdk_install_ksoftethervpn
@@ -35,4 +34,6 @@ get_disabled_services_for_ib
 update_ib_repositories_conf
 
 OPENWRT_IB_ROOTFS_DIR="${OPENWRT_IB_DIR}/build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/root-${CONFIG_TARGET_BOARD}"
-_docker_set_env OPENWRT_IB_ROOTFS_DIR
+OPENWRT_IB_FIRMWARE_DIR="${OPENWRT_IB_DIR}/bin/target/${CONFIG_TARGET_BOARD}/${CONFIG_TARGET_SUBTARGET}"
+
+_docker_set_env OPENWRT_IB_ROOTFS_DIR OPENWRT_IB_FIRMWARE_DIR

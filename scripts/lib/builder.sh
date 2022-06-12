@@ -71,7 +71,9 @@ update_config_from_file() {
 	local regex_comment="^# .* is not set"
 	local regex_option="^\s*CONFIG.*=.*"
 
+	set -x
 	while read line; do
+		echo $line
 		if [[ $line =~ $regex_comment ]]; then
 			key=$(echo $line | sed -r 's/#\s+(CONFIG.*) is not set/\1/') # Get the key name from the comment
 			config_option_select $1 $key no                              # and set it into the .config file
@@ -81,6 +83,7 @@ update_config_from_file() {
 			config_option_set $1 $key $value
 		fi
 	done <$2
+	set +x
 }
 
 generate_openwrt_sdk_config() {
@@ -306,7 +309,9 @@ apply_patches_for_sdk() {
 }
 
 prepare_rootfs_hook() {
-	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" ); do
+	cd ${OPENWRT_IB_DIR}
+	set -xeo pipefail
+	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort ); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
 			. "$script" ${OPENWRT_IB_DIR}

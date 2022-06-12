@@ -200,7 +200,8 @@ jobs:
 
       - name: Upload packages
         uses: actions/upload-artifact@master
-        if: env.SKIP_TARGET == '0' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
+        # this step is always skipped
+        if: env.SKIP_TARGET == '1' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_packages_${{env.BUILD_TARGET}}
           path: ${{env.HOST_BIN_DIR}}
