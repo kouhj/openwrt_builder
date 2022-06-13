@@ -313,7 +313,7 @@ apply_patches_for_sdk() {
 
 prepare_rootfs_hook() {
 	# Load the docker env vars, as it proved that the exported dokcer env vars were not inherited in the hook
-	source "${BUILDER_WORK_DIR}/scripts/builder.sh"
+	source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
 	cd ${OPENWRT_IB_DIR}
 	set -xeo pipefail
 	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort ); do
