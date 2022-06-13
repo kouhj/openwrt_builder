@@ -25,9 +25,9 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/download"
+MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/kbuilder/download"
 mkdir -p "${OPENWRT_COMPILE_DIR}" || true
-mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/{ib,sdk}
+mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/kbuilder/{ib,sdk}
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
 wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL} -O $REMOTE_FILES
@@ -40,8 +40,8 @@ for file in $OPENWRT_MF_FILE $OPENWRT_IB_FILE $OPENWRT_SDK_FILE config.buildinfo
   wget --no-check-certificate -q "${OPENWRT_DOWNLOAD_SITE_URL}/${file}" -O ${MY_DOWNLOAD_DIR}/${file}
 done
 
-OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/ib/${OPENWRT_IB_FILE%.tar.xz}"
-OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
+OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/kbuilder/ib/${OPENWRT_IB_FILE%.tar.xz}"
+OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/kbuilder/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
 tar -C ${BUILDER_WORK_DIR}/ib  -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}

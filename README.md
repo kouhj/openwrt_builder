@@ -521,21 +521,25 @@ OPENWRT_CUR_DIR is Where Office OpenWRT GIT is cloned, which could be
 
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"          --> /home/builder/kouhj_src  (gh repo clone kouhj/kouhj_openwrt_packages)
 
-MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/download"         -->  /home/builder/download    (Where IB & SDK are downloaded)
-OPENWRT_MF_FILE="${MY_DOWNLOAD_DIR}/${MF_FILE}"                    -->  /home/builder/download/openwrt-XXX-XXX.manifest
-OPENWRT_IB_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE%.tar.xz}"     -->  /home/builder/download/openwrt-imagebuilder-XXX.Linux-x86_64
-OPENWRT_SDK_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE%.tar.xz}"   -->  /home/builder/download/openwrt-sdk-XXX_gcc-X.X.X_musl.Linux-x86_64
+MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/kbuilder/download"         -->  /home/builder/kbuilder/download    (Where IB & SDK are downloaded)
+OPENWRT_MF_FILE="${MY_DOWNLOAD_DIR}/${MF_FILE}"                    -->  /home/builder/kbuilder/download/openwrt-XXX-XXX.manifest
+OPENWRT_IB_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE%.tar.xz}"     -->  /home/builder/kbuilder/download/openwrt-imagebuilder-XXX.Linux-x86_64
+OPENWRT_SDK_DIR="${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE%.tar.xz}"   -->  /home/builder/kbuilder/download/openwrt-sdk-XXX_gcc-X.X.X_musl.Linux-x86_64
 
 ```
 
 Docker Directory Mappings:
-| Host Directory                                 | Docker Directory                                      |
-| ---------------------------------------------- | ----------------------------------------------------- |
-| ${HOST_WORK_DIR}/scripts                       | ${BUILDER_WORK_DIR}/scripts  (/home/builder/scripts)  |
-| ${HOST_WORK_DIR}/user                          | ${BUILDER_WORK_DIR}/user   (/home/builder/user)       |
-| ${HOST_BIN_DIR} (/home/builder/openwrt_bin)    | ${BUILDER_BIN_DIR}  (/home/builder/openwrt_bin)       |
-| ${HOST_TMP_DIR} (/tmp/builder)                 | ${BUILDER_TMP_DIR}  (/tmp/builder)                    |
-| ${GITHUB_ENV}                                  | ${GITHUB_ENV}                                         |
+| Host Directory                                      | Docker Directory                                       |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| ${HOST_WORK_DIR}/                                   | ${BUILDER_WORK_DIR}/                                   |
+|  /home/runner/work/openwrt_builder/openwrt_builder/ |  /home/builder/                                        |
+| ${HOST_WORK_DIR}/kbuilder                           | ${BUILDER_WORK_DIR}/kbuilder  (/home/builder/scripts)  |
+| ${HOST_WORK_DIR}/kouhj_src                          | ${BUILDER_WORK_DIR}/kouhj_src  (/home/builder/scripts) |
+| ${HOST_WORK_DIR}/scripts                            | ${BUILDER_WORK_DIR}/scripts  (/home/builder/scripts)   |
+| ${HOST_WORK_DIR}/user                               | ${BUILDER_WORK_DIR}/user   (/home/builder/user)        |
+| ${HOST_BIN_DIR} (/home/builder/openwrt_bin)         | ${BUILDER_BIN_DIR}  (/home/builder/openwrt_bin)        |
+| ${HOST_TMP_DIR} (/tmp/builder)                      | ${BUILDER_TMP_DIR}  (/tmp/builder)                     |
+| ${GITHUB_ENV}                                       | ${GITHUB_ENV}                                          |
 
 
   "
