@@ -50,6 +50,8 @@ tar -C ${BUILDER_WORK_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 # Make a backup of the config file
 cp -a ${OPENWRT_IB_DIR}/.config  ${OPENWRT_IB_DIR}/.config.orig
 
+# Make these GITHUB_ENV managed env vars also available in the 'docker-vars' file
+_docker_set_env BUILDER_PROFILE_DIR HOST_BIN_DIR
 
-
+# For following custom IB/SDK config and compile actions
 _docker_set_env OPENWRT_MF_FILE OPENWRT_IB_DIR OPENWRT_SDK_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR

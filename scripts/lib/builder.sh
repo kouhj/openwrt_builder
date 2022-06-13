@@ -9,9 +9,12 @@
 #========================================================================================
 
 # Conditional sourcing avoid sourcing twice
-if ! LC_ALL=C type -t _set_env >/dev/null; then
-	source "${BUILDER_WORK_DIR}/scripts/lib/gaction.sh"
-fi
+initialize() {}
+	if ! LC_ALL=C type -t _set_env >/dev/null; then
+		source "${BUILDER_WORK_DIR}/scripts/lib/gaction.sh"
+	fi
+	_docker_load_env
+}
 
 # Add package feed to repo with name $1 and URL $2
 add_feed_to_repositories_conf() {
@@ -309,12 +312,13 @@ apply_patches_for_sdk() {
 }
 
 prepare_rootfs_hook() {
+	initialize  # Load the docker env vars, as it proved that the exported dokcer env vars were not inherited in the hook
 	cd ${OPENWRT_IB_DIR}
 	set -xeo pipefail
 	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort ); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
-			. "$script" ${OPENWRT_IB_DIR}
+			. "$script" ${OPENWRT_IB_ROOTFS_DIR}
 		fi
 	done
 }
@@ -339,4 +343,4 @@ compile() {
 	)
 }
 
-_docker_load_env
+initialize

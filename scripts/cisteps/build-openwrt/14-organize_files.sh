@@ -4,8 +4,10 @@ set -eo pipefail
 
 shopt -s extglob
 
+set -x
 # To load the ENV variables set inside the docker
-source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
+#source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
+#/home/runner/work/openwrt_builder/openwrt_builder/scripts/lib/builder.sh
 
 sudo chown -R "$(id -u):$(id -g)" "${HOST_BIN_DIR}"
 if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
