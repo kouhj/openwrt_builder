@@ -44,8 +44,8 @@ OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/kbuilder/ib/${OPENWRT_IB_FILE%.tar.xz}"
 OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/kbuilder/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
-tar -C ${BUILDER_WORK_DIR}/ib  -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
-tar -C ${BUILDER_WORK_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+tar -C ${BUILDER_WORK_DIR}/kbuilder/ib  -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+tar -C ${BUILDER_WORK_DIR}/kbuilder/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 
 # Make a backup of the config file
 cp -a ${OPENWRT_IB_DIR}/.config  ${OPENWRT_IB_DIR}/.config.orig
