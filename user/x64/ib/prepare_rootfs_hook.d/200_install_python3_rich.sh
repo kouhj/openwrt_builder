@@ -1,10 +1,11 @@
 local GID=$(id -g)
 cat > $1/tmp/install.sh <<- EOF
-	#!/bin/sh
+	#!/bin/sh +x
 	/usr/bin/python3 -m pip install --upgrade pip
 	pip3 install textual  # implicitly installs rich
 	#find /usr ! -user $UID | xargs chown $UID:$GID
-	rm -rf /tmp/* /tmp/.cache /dev/null
+	# /tmp/resolv.conf may exist and cannot be removed
+	rm -rf /tmp/* /tmp/.cache /dev/null || true
 EOF
 
 if [ -z "$CONFIG_ARCH" ]; then
