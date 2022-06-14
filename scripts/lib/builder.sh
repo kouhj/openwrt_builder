@@ -11,7 +11,12 @@
 # Conditional sourcing avoid sourcing twice
 initialize() {
 	if ! LC_ALL=C type -t _set_env >/dev/null; then
-		source "${BUILDER_WORK_DIR}/scripts/lib/gaction.sh"
+		if [ -f /.dockerenv ]; then
+			BASE_DIR="/home/builder"
+		else
+			BASE_DIR="${HOST_WORK_DIR}"
+		fi
+		source "${BASE_DIR}/scripts/lib/gaction.sh"
 	fi
 	_docker_load_env
 }
