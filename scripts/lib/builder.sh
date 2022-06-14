@@ -261,11 +261,11 @@ patch_ib_default_packages() {
 get_packages_for_ib() {
 	OPENWRT_IB_PACKAGES=$(
 		(
-			awk '{print $1}' "$OPENWRT_MF_FILE"                        # Intial packages from the manifest file
+			awk '{print $1}' "${MY_DOWNLOAD_DIR}/${OPENWRT_MF_FILE}"       # Intial packages from the manifest file
 			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" > /dev/null; then
 				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile
 			fi
-		) | sed 's/dnsmasq //'                                      # Will be included in include/target.mk as DEFAULT_PACKAGES
+		) | sed 's/dnsmasq //'                                             # Will be included in include/target.mk as DEFAULT_PACKAGES
 
 	)
 
