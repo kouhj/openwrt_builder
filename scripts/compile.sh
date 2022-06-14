@@ -28,6 +28,7 @@ fi
 bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh
 
 echo 'Skipped compile OpenWRT full source'
+echo "::set-output name=status::success"
 exit 0
 
 cd ${OPENWRT_CUR_DIR}

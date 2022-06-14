@@ -154,9 +154,9 @@ jobs:
         continue-on-error: true
         run: scripts/cisteps/build-openwrt/11-compile_multi.sh
 
-      - name: Compile firmware and packages with single threads when failed
-        if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
-        run: scripts/cisteps/build-openwrt/12-compile_single.sh
+      #- name: Compile firmware and packages with single threads when failed
+      #  if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
+      #  run: scripts/cisteps/build-openwrt/12-compile_single.sh
 
       - name: Print disk space
         if: env.SKIP_TARGET == '0'
@@ -166,7 +166,7 @@ jobs:
       - name: "[Failure/Debug] Wait for SSH connection (timeout 30min)"
         if: |
           env.SKIP_TARGET == '0' && !cancelled()
-          && (job.status == 'failure' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+          && (job.status == 'failure' || steps.mtcompile.outputs.status != 'success' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
         env:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
