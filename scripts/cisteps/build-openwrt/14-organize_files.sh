@@ -11,7 +11,7 @@ source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 HOST_BIN_DIR="${HOST_WORK_DIR}/openwrt_bin"
 sudo chown -R "$(id -u):$(id -g)" "${HOST_BIN_DIR}"
 if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
-  mkdir "${HOST_WORK_DIR}/openwrt_firmware"
+  mkdir -p "${HOST_WORK_DIR}/openwrt_firmware"
   # shellcheck disable=SC2164
   if [ -d "${HOST_BIN_DIR}/targets/"*/* ]; then
     cd "${HOST_BIN_DIR}/targets/"*/*
@@ -20,8 +20,7 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
 
-  echo "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}"
-  find "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}"
+  sudo chown -R "$(id -u):$(id -g)" "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}"
   if [ -d "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}" ]; then
     cd ${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}
     all_firmware_files=(*)

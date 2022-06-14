@@ -96,7 +96,7 @@ prepare_target() {
   cd "${HOST_WORK_DIR}/user/${BUILD_TARGET}/"
   find . -type d -exec mkdir -p ${HOST_WORK_DIR}/user/current/{} \;
   find . -type f -o -type l | while read file; do
-    if [ -e "${HOST_WORK_DIR}/user/current/${file}" ]; then
+    if [ ! -e "${HOST_WORK_DIR}/user/current/${file}" ]; then
       local file_name="$(basename "${file}")"
       local base_name=${file_name%.*}
       local ext_name=${file_name##*.}
