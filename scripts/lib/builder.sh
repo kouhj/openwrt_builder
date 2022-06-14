@@ -265,8 +265,8 @@ get_packages_for_ib() {
 			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" > /dev/null; then
 				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile
 			fi
-		) | sed 's/dnsmasq //'                                             # Will be included in include/target.mk as DEFAULT_PACKAGES
-
+			# NOTE: stream to sed below is in the one-word-per-line format, not the space-separated format
+		) | sed 's/dnsmasq//'                                              # Will be included in include/target.mk as DEFAULT_PACKAGES
 	)
 
 	# If use the legacy firewall instead of firewall4

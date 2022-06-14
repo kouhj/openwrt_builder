@@ -53,7 +53,7 @@ _docker_load_env() {
   if [ -f $vars_file ]; then
     echo "Load vars from $vars_file"
     source $vars_file
-    cat $vars_file
+    _dump_file $vars_file
     echo "End of vars."
   else
     echo "No vars file found: $vars_file"
