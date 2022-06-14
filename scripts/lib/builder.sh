@@ -105,6 +105,7 @@ generate_openwrt_sdk_config() {
 
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
+	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUFFIX
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUBTARGET
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_ARCH_PACKAGES
 }

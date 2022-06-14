@@ -8,7 +8,13 @@ _dump_file() {
   cat $1
 }
 
-echo "GITHUB_ENV: $GITHUB_ENV"
+if [ -f /.dockerenv ]; then
+  DOCKER_PERSISTENT_VARS_FILE="/home/builder/kbuilder/docker_persistent_vars.sh"
+else
+  DOCKER_PERSISTENT_VARS_FILE="${HOST_WORK_DIR}/kbuilder/docker_persistent_vars.sh"
+fi
+echo -e "GITHUB_ENV: $GITHUB_ENV\nDOCKER_PERSISTENT_VARS_FILE: $DOCKER_PERSISTENT_VARS_FILE"
+
 _set_env() {
   for var_name in "$@" ; do
     eval "export ${var_name}"
@@ -26,7 +32,6 @@ _set_env() {
 
 # $GITHUB_ENV file is usually located at /home/runner/work/_temp/_runner_file_commands/ with name pattern "set_env_{GUID}"
 _docker_set_env() {
-  [ -f /.dockerenv ] || return 0
   for var_name in "$@" ; do
     eval "export ${var_name}"
     local var_value="${!var_name}"
@@ -34,7 +39,7 @@ _docker_set_env() {
     var_value="${var_value//$'\n'/%0A}"
     var_value="${var_value//$'\r'/%0D}"
 
-    vars_file="$(dirname $GITHUB_ENV)/docker-vars"
+    vars_file="${DOCKER_PERSISTENT_VARS_FILE}"
     echo "${var_name}=\"${var_value}\" >> $vars_file"
     echo "${var_name}=\"${var_value}\"" >> $vars_file
   done
@@ -43,13 +48,12 @@ _docker_set_env() {
 }
 
 _docker_load_env() {
-  [ -f /.dockerenv ] || return 0
-  vars_file="$(dirname $GITHUB_ENV)/docker-vars"
+  vars_file="${DOCKER_PERSISTENT_VARS_FILE}"
   if [ -f $vars_file ]; then
     echo "Load vars from $vars_file"
     source $vars_file
   else
-    echo "No vars file found at $vars_file"
+    echo "No vars file found: $vars_file"
   fi
 }
 
