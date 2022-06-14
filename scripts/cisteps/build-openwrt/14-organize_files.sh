@@ -8,6 +8,7 @@ set -x
 # To load the ENV variables that were set inside the docker
 source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 
+HOST_BIN_DIR="${HOST_WORK_DIR}/openwrt_bin"
 sudo chown -R "$(id -u):$(id -g)" "${HOST_BIN_DIR}"
 if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
   mkdir "${HOST_WORK_DIR}/openwrt_firmware"

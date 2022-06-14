@@ -279,11 +279,11 @@ get_packages_for_ib() {
 }
 
 # Generate the list of services to be disabled in the firmware built by IB, which come from the following places:
-# 1. user/current/ib/disable-services*.txt
+# 1. user/current/ib/disabled-services*.txt
 get_disabled_services_for_ib() {
 	OPENWRT_IB_DISABLED_SERVICES=$(
 		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv" > /dev/null; then
-			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disable-services*.ssv
+			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv
 		fi
 	)
 
