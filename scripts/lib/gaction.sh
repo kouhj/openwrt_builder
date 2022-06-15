@@ -44,8 +44,6 @@ _docker_set_env() {
     echo "${var_name}=\"${var_value}\"" >> $vars_file
   done
   echo "Appending vars $* to $vars_file"
-  _dump_file $vars_file
-  echo "End of vars."
 }
 
 _docker_load_env() {

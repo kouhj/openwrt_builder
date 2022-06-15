@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+[ "x${TEST}" != "x1" ] || exit 0
+
 shopt -s extglob
 
 set -x

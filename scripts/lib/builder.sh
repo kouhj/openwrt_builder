@@ -79,7 +79,7 @@ update_config_from_file() {
 	local regex_comment="^# .* is not set"
 	local regex_option="^\s*CONFIG.*=.*"
 
-	set -x
+	#set -x
 	while read line; do
 		echo $line
 		if [[ $line =~ $regex_comment ]]; then
@@ -91,7 +91,6 @@ update_config_from_file() {
 			config_option_set $1 $key $value
 		fi
 	done <$2
-	set +x
 }
 
 generate_openwrt_sdk_config() {
@@ -329,11 +328,13 @@ prepare_rootfs_hook() {
 	# Load the docker env vars, as it proved that the exported dokcer env vars were not inherited in the hook
 	source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
 	cd ${OPENWRT_IB_DIR}
-	set -xeo pipefail
+	set -eo pipefail
 	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort ); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
+			set -x
 			. "$script" ${OPENWRT_IB_ROOTFS_DIR}
+			set +x
 		fi
 	done
 }

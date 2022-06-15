@@ -57,8 +57,8 @@ jobs:
         include:
           - mode: normal
             title: Build
-          - mode: test
-            title: Fast check
+          #- mode: test
+          #  title: Fast check
     env:
       OPT_DEBUG: 1
       HOST_WORK_DIR: ${{github.workspace}}
