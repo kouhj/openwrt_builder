@@ -6,14 +6,14 @@ bash vim byobu tmux gawk coreutils-stat ip6tables tcpdump tcpreplay netcat bind-
 
 
 # James packages
-# dnspod-script smartdns luci-app-smartdns smartdns-list-update config-script chnroutes luci-app-chnroutes wireguard-script
+dnspod-script smartdns luci-app-smartdns smartdns-list-update config-script chnroutes luci-app-chnroutes wireguard-script
 
 # Let's encrypt
 acme   acme-dnsapi luci-app-acme
 
 
 # VPN
-ksoftethervpn-client ksoftethervpn-server zerotier wireguard-tools luci-app-wireguard luci-i18n-wireguard-zh-cn
+ksoftethervpn-client ksoftethervpn-server zerotier wireguard-tools luci-app-wireguard
 
 # Routing
 bird2 bird2c keepalived monit openssh-client
