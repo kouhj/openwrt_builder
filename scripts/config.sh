@@ -28,6 +28,7 @@ openwrt_sdk_install_ksoftethervpn
 cd "${OPENWRT_IB_DIR}"
 generate_openwrt_ib_config
 get_packages_for_ib
+get_profiles_for_ib
 get_disabled_services_for_ib
 
 # Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files

@@ -262,15 +262,15 @@ patch_ib_default_packages() {
 	fi
 }
 
-# Generate the list of packages to be installed in the IB, which come from the following places:
+# Get the list of packages to be installed in the IB, which come from the following places:
 # 1. The list of packages from official openwrt-*.manifest file of the pre-built firmware
-# 1. The list of packages from the user/current/ib/packages*.txt files
+# 2. The list of packages from the user/current/ib/packages*.txt files
 get_packages_for_ib() {
 	OPENWRT_IB_PACKAGES=$(
 		(
 			awk '{print $1}' "${MY_DOWNLOAD_DIR}/${OPENWRT_MF_FILE}"       # Intial packages from the manifest file
 			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" > /dev/null; then
-				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile
+				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile dir
 			fi
 			# NOTE: stream to sed below is in the one-word-per-line format, not the space-separated format
 		) | sed 's/dnsmasq//'                                              # Will be included in include/target.mk as DEFAULT_PACKAGES
@@ -283,6 +283,16 @@ get_packages_for_ib() {
 	fi
 
 	_docker_set_env OPENWRT_IB_PACKAGES
+}
+
+# Get the list of profiles to be compiled by the IB
+get_profiles_for_ib() {
+	OPENWRT_IB_PROFILES=$(
+		if compgen -G "${BUILDER_PROFILE_DIR}/ib/profiles*.ssv" > /dev/null; then
+			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/profiles*.ssv # Additional PROFILES
+		fi
+	)
+	_docker_set_env OPENWRT_IB_PROFILES
 }
 
 # Generate the list of services to be disabled in the firmware built by IB, which come from the following places:
