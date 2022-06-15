@@ -135,7 +135,9 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
+	set -x
 	mkdir -p feeds feeds/luci kernel libs utils pacakges/curl packages/gawk
+	find . -type d
 
 	# Extra package dependencies for ksoftethervpn
 	for lib in zlib libiconv ncurses openssl readline; do
