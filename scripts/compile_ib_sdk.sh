@@ -36,8 +36,7 @@ echo "Start Compiling..."
 if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
   compile
 else
-  compile "package/compile"
-  compile "package/index"
+  compile "package/compile" && compile "package/index"
 fi
 
 

@@ -25,12 +25,17 @@ if [ -f "${BUILDER_PROFILE_DIR}/source/pre_compile.sh" ]; then
   /bin/bash "${BUILDER_PROFILE_DIR}/source/pre_compile.sh"
 fi
 
-bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh
+if bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh; then
+  echo "::set-output name=status::success"
+  exit 0
+else
+  echo "::set-output name=status::failure"
+  exit 1
+fi
 
+
+##### UNREACHABLE CODE #####
 echo 'Skipped compile OpenWRT full source'
-echo "::set-output name=status::success"
-exit 0
-
 cd ${OPENWRT_CUR_DIR}
 echo "Compiling..."
 if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
