@@ -35,7 +35,7 @@ add_feed_to_feeds_conf() {
 	fi
 }
 
-# Select config file $1 with key $2 to value $3(yes|no)
+# Select config file $1 with key $2 to value $3(yes|no|module)
 config_option_select() {
 	if grep -q -w $2 $1; then # update the option if it exists
 		[[ "$3" == 'y' || "$3" == 'yes' || "$3" == 'm' || "$3" == 'module' ]] && (
@@ -44,8 +44,8 @@ config_option_select() {
 			sed -i -r "s/^($2)=.*/\# \1 is not set/" $1
 		)
 	else # this option does not exist in the .config file
-		[[ "$3" == 'y' || "$3" == 'yes' ]] && (
-			echo "$2=y" >>$1
+		[[ "$3" == 'y' || "$3" == 'yes' || "$3" == 'm' || "$3" == 'module' ]] && (
+			echo "$2=${3:0:1}" >>$1
 		) || (
 			echo "# $2 is not set" >>$1
 		)
