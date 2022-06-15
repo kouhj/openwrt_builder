@@ -20,6 +20,11 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
 
+  if [ -z "${OPENWRT_IB_FIRMWARE_DIR}" ]; then
+    echo "::error::'OPENWRT_IB_FIRMWARE_DIR' is empty, meaning no firmwares were built." >&2
+    exit 1
+  fi
+
   sudo chown -R "$(id -u):$(id -g)" "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}"
   if [ -d "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}" ]; then
     cd ${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}
