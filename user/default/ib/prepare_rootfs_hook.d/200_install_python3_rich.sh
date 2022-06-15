@@ -15,7 +15,7 @@ elif compgen -c qemu-${CONFIG_ARCH} > /dev/null; then
 	if [ "$CONFIG_ARCH" == "x86_64" ]; then
 		proot -r $1 -0 -b /etc/resolv.conf /bin/sh /tmp/install.sh
 	else
-		proot -R $1 -0 -b /etc/resolv.conf -q qemu-${CONFIG_ARCH} /bin/sh /tmp/install.sh
+		proot -r $1 -0 -b /etc/resolv.conf -q qemu-${CONFIG_ARCH} /bin/sh /tmp/install.sh
 	fi
 else
 	echo "CONFIG_ARCH=$CONFIG_ARCH is not supported by qemu-user."
