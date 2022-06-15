@@ -38,8 +38,8 @@ add_feed_to_feeds_conf() {
 # Select config file $1 with key $2 to value $3(yes|no)
 config_option_select() {
 	if grep -q -w $2 $1; then # update the option if it exists
-		[[ "$3" == 'y' || "$3" == 'yes' ]] && (
-			sed -i -r "s/^# ($2) is not set/\1=y/" $1
+		[[ "$3" == 'y' || "$3" == 'yes' || "$3" == 'm' || "$3" == 'module' ]] && (
+			sed -i -r "s~^.*($2)[= ].*\$~\1=${3:0:1}~" $1
 		) || (
 			sed -i -r "s/^($2)=.*/\# \1 is not set/" $1
 		)
@@ -135,7 +135,7 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
-	mkdir -p feeds feeds/luci kernel libs utils
+	mkdir -p feeds feeds/luci kernel libs utils pacakges/curl packages/gawk
 
 	# Extra package dependencies for ksoftethervpn
 	for lib in zlib libiconv ncurses openssl readline; do
@@ -144,11 +144,18 @@ openwrt_sdk_install_ksoftethervpn() {
 	for pkg in feeds/kouhj feeds/luci/luci-base kernel/cryptodev-linux utils/lua; do
 		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
 	done
+
+	# Extra package dependencies for config-script etc.
+	for pkg in feeds/packages/curl feeds/packages/gawk feeds/luci/luci-compat; do
+		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
+	done
+	
 	popd >/dev/null
 
 	# Update config for OpenWRT SDK
-	config_option_select "${OPENWRT_SDK_DIR}/.config" CONFIG_PACKAGE_ksoftethervpn-server yes
-	config_option_select "${OPENWRT_SDK_DIR}/.config" CONFIG_PACKAGE_ksoftethervpn-client yes
+	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update; do
+		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
+	done
 	make defconfig  # Auto select the dependant packages
 
 }
