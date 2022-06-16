@@ -287,12 +287,12 @@ get_packages_for_ib() {
 
 # Get the list of profiles to be compiled by the IB
 get_profiles_for_ib() {
-	OPENWRT_IB_PROFILES=$(
-		if compgen -G "${BUILDER_PROFILE_DIR}/ib/profiles*.ssv" > /dev/null; then
-			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/profiles*.ssv # Additional PROFILES
+	OPENWRT_IB_PROFILE=$( # OpenWRT supprts only one PROFILE at a time
+		if [ -f ${BUILDER_PROFILE_DIR}/ib/profile.ssv ]; then
+			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/profile.ssv
 		fi
 	)
-	_docker_set_env OPENWRT_IB_PROFILES
+	_docker_set_env OPENWRT_IB_PROFILE
 }
 
 # Generate the list of services to be disabled in the firmware built by IB, which come from the following places:
