@@ -27,7 +27,7 @@ _set_env() {
     echo "${var_name}=${var_value}" >> $GITHUB_ENV
   done
   echo "Appending vars $* to $GITHUB_ENV"
-  _dump_file $GITHUB_ENV
+  #_dump_file $GITHUB_ENV
 }
 
 # $GITHUB_ENV file is usually located at /home/runner/work/_temp/_runner_file_commands/ with name pattern "set_env_{GUID}"
