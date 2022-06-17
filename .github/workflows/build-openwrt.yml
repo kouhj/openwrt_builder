@@ -195,8 +195,13 @@ jobs:
         uses: actions/upload-artifact@master
         if: env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_${{env.BUILD_TARGET}}
+          name: OpenWrt_firmware_${{env.BUILD_TARGET}}_${{env.FILE_DATE}}
           path: openwrt_firmware
+
+      - name: Upload firmware to transfer.sh
+        id: transfersh
+        if: job.status == 'success'
+        run: scripts/cisteps/build-openwrt/15-upload_to_transfer.sh
 
       - name: Upload packages
         uses: actions/upload-artifact@master
@@ -205,6 +210,40 @@ jobs:
         with:
           name: OpenWrt_packages_${{env.BUILD_TARGET}}
           path: ${{env.HOST_BIN_DIR}}
+
+      - name: Generate release tag
+        id: tag
+        if: job.status == 'success' && !cancelled()
+        run: |
+          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+          touch release.txt
+          echo "🔗 [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
+          echo "::set-output name=status::success"
+
+      - name: Upload firmware to release
+        uses: softprops/action-gh-release@v1
+        if: steps.tag.outputs.status == 'success' && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          body_path: release.txt
+          files: ${{ steps.transfersh.outputs.archive }}
+
+      - name: Delete workflow runs
+        uses: GitRML/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3
+
+      - name: Remove old Releases
+        uses: dev-drprasad/delete-older-releases@v0.1.0
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          keep_latest: 3
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # failure checking
       - name: "[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)"
