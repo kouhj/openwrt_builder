@@ -84,9 +84,10 @@ jobs:
       - name: Check if skip this job
         run: scripts/cisteps/build-openwrt/02-check_target.sh
 
-      - name: Clean up for extra space
-        if: env.SKIP_TARGET == '0' && env.TEST != '1'
-        run: scripts/cisteps/build-openwrt/03-clean_up.sh
+      # James: We have enough disk space, don't cleanup to save time
+      #- name: Clean up for extra space
+      #  if: env.SKIP_TARGET == '0' && env.TEST != '1'
+      #  run: scripts/cisteps/build-openwrt/03-clean_up.sh
 
       # https://github.com/docker/setup-qemu-action
       # install QEMU static binaries.
