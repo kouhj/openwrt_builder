@@ -12,6 +12,8 @@ set -eo pipefail
 
 [ "x${TEST}" != "x1" ] || exit 0
 
+shopt -s extglob
+
 # To load the ENV variables that were set inside the docker
 source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 
@@ -20,13 +22,14 @@ transfer() {
   echo
 }
 
-if [ -d "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}" ]; then
-  cd ${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}
-  all_firmware_files=(!(*kernel*|*rootfs*|*firmware*))
+if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
+  cd ${HOST_WORK_DIR}/openwrt_firmware
+  all_firmware_files=(!(*firmware*|*factory*))
   FW_ARTIFACTS_FN="OpenWrt_firmware_${BUILD_TARGET}_${FILE_DATE}.tar"
   if [ ${#all_firmware_files[@]} -gt 0 ]; then
     tar cf $FW_ARTIFACTS_FN "${all_firmware_files[@]}"
     FW_ARTIFACTS_URL=$(transfer $FW_ARTIFACTS_FN)
+    rm -f ${FW_ARTIFACTS_FN}
     echo "::set-output name=archive::$PWD/${FW_ARTIFACTS_FN}}"
     echo "::set-output name=url::${FW_ARTIFACTS_URL}}"
   fi
