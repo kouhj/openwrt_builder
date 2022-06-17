@@ -27,7 +27,7 @@ if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
   all_firmware_files=(!(*firmware*|*factory*))
   FW_ARTIFACTS_FN="OpenWrt_firmware_${BUILD_TARGET}_${FILE_DATE}.tar"
   if [ ${#all_firmware_files[@]} -gt 0 ]; then
-    tar cf $FW_ARTIFACTS_FN "${all_firmware_files[@]}"
+    tar cf $FW_ARTIFACTS_FN "${{all_firmware_files[@]}"
     FW_ARTIFACTS_URL=$(transfer $FW_ARTIFACTS_FN)
     rm -f ${FW_ARTIFACTS_FN}
     echo "::set-output name=archive::$PWD/${FW_ARTIFACTS_FN}}"
