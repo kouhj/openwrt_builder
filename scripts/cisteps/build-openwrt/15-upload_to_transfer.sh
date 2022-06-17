@@ -18,7 +18,7 @@ shopt -s extglob
 source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 
 transfer() {
-  curl --progress-bar --upload-file "$1" https://transfer.sh/$(basename "$1") | tee /dev/null
+  curl --upload-file "$1" https://transfer.sh/$(basename "$1") | tee /dev/null
   echo
 }
 
