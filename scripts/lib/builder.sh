@@ -100,7 +100,7 @@ generate_openwrt_sdk_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/sdk\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/sdk/config*.diff" ); do
+	for file in $(compgen -G "${BUILDER_PROFILE_DIR}/sdk/config*.diff"); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
@@ -122,7 +122,7 @@ generate_openwrt_ib_config() {
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/ib\""
 
 	# Update config file with new values from user/current/sdk/config*.diff
-	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/config*.diff" ); do
+	for file in $(compgen -G "${BUILDER_PROFILE_DIR}/ib/config*.diff"); do
 		update_config_from_file ${CONFIG_FILE} ${file}
 	done
 
@@ -149,14 +149,14 @@ openwrt_sdk_install_ksoftethervpn() {
 	for pkg in feeds/packages/curl feeds/packages/gawk feeds/luci/luci-compat; do
 		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
 	done
-	
+
 	popd >/dev/null
 
 	# Update config for OpenWRT SDK
 	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update; do
 		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
 	done
-	make defconfig  # Auto select the dependant packages
+	make defconfig # Auto select the dependant packages
 
 }
 
@@ -185,7 +185,7 @@ do_generate_feeds_conf() {
 	# Set SDK feeds.conf
 	cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo $2/feeds.conf
 
-	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/$1/feeds*.conf" ); do
+	for file in $(compgen -G "${BUILDER_PROFILE_DIR}/$1/feeds*.conf"); do
 		cat $file >>$2/feeds.conf
 	done
 }
@@ -207,7 +207,7 @@ update_ib_repositories_conf() {
 	add_feed_to_repositories_conf local-routing file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/routing
 	add_feed_to_repositories_conf local-telephony file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/telephony
 
-	for file in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/feeds*.conf" ); do
+	for file in $(compgen -G "${BUILDER_PROFILE_DIR}/ib/feeds*.conf"); do
 		while read line; do
 			if ! grep -q "$line" ${OPENWRT_IB_DIR}/repositories.conf; then
 				echo "$line" >>${OPENWRT_IB_DIR}/repositories.conf
@@ -268,12 +268,12 @@ patch_ib_default_packages() {
 get_packages_for_ib() {
 	OPENWRT_IB_PACKAGES=$(
 		(
-			awk '{print $1}' "${MY_DOWNLOAD_DIR}/${OPENWRT_MF_FILE}"       # Intial packages from the manifest file
-			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" > /dev/null; then
+			awk '{print $1}' "${MY_DOWNLOAD_DIR}/${OPENWRT_MF_FILE}" # Intial packages from the manifest file
+			if compgen -G "${BUILDER_PROFILE_DIR}/ib/packages*.ssv" >/dev/null; then
 				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile dir
 			fi
 			# NOTE: stream to sed below is in the one-word-per-line format, not the space-separated format
-		) | sed 's/dnsmasq//'                                              # Will be included in include/target.mk as DEFAULT_PACKAGES
+		) | sed 's/dnsmasq//' # Will be included in include/target.mk as DEFAULT_PACKAGES
 	)
 
 	# If use the legacy firewall instead of firewall4
@@ -287,7 +287,7 @@ get_packages_for_ib() {
 
 # Get the list of profiles to be compiled by the IB
 get_profiles_for_ib() {
-	OPENWRT_IB_PROFILE=$( # OpenWRT supprts only one PROFILE at a time
+	OPENWRT_IB_PROFILE=$(# OpenWRT supprts only one PROFILE at a time
 		if [ -f ${BUILDER_PROFILE_DIR}/ib/profile.ssv ]; then
 			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/profile.ssv
 		fi
@@ -299,7 +299,7 @@ get_profiles_for_ib() {
 # 1. user/current/ib/disabled-services*.txt
 get_disabled_services_for_ib() {
 	OPENWRT_IB_DISABLED_SERVICES=$(
-		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv" > /dev/null; then
+		if compgen -G "${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv" >/dev/null; then
 			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/disabled-services*.ssv
 		fi
 	)
@@ -339,7 +339,7 @@ prepare_rootfs_hook() {
 	source "${BUILDER_WORK_DIR}/scripts/lib/builder.sh"
 	cd ${OPENWRT_IB_DIR}
 	set -eo pipefail
-	for script in $( compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort ); do
+	for script in $(compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
 			set -x
@@ -351,7 +351,46 @@ prepare_rootfs_hook() {
 
 export -f prepare_rootfs_hook
 
+housekeep_local_downloads() {
+	# Delete old files
+	find ${MY_DOWNLOAD_DIR} -type f -ctime +7 -delete
+}
 
+# Download the specified file $1 from OpenWRT site and save as $2, without checking checksum before downloading
+download_openwrt_file() {
+	[ "${2:0:1}" == '/' ] && OUTFILE=$2 || OUTFILE="${MY_DOWNLOAD_DIR}/$2"
+	[ -z "$2" ] && OUTFILE="${MY_DOWNLOAD_DIR}/$1"
+	[ "$1" == '/' ] && OUTFILE="${MY_DOWNLOAD_DIR}/list"
+	wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL}/$1 -O ${OUTFILE}
+}
+
+# Download the specified file $1 from OpenWRT site and save as $1. If the checksum hasn't changed, download is skipped.
+download_openwrt_latest_file() {
+	local DOWNLOAD_NEEDED=0
+	if [ -f $1 ]; then
+		if grep $1 sha256sums | sha256sum -c -; then
+			echo "File $1 is up to date"
+		else
+			echo "File $1 is not up to date"
+			rm $1
+			DOWNLOAD_NEEDED=1
+		fi
+	else
+		echo "File $1 does not exist"
+		DOWNLOAD_NEEDED=1
+	fi
+
+	if [ $DOWNLOAD_NEEDED -eq 1 ]; then
+		echo "Downloading $1"
+		if download_openwrt_file $1; then
+			return 0
+		else
+			return 1
+		fi
+	else
+		return 1
+	fi
+}
 
 compile() {
 	(
