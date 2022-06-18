@@ -24,12 +24,12 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/kbuilder/download"
+MY_DOWNLOAD_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/download"
 mkdir -p "${OPENWRT_COMPILE_DIR}" || true
-mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/kbuilder/{ib,sdk}
+mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/{ib,sdk}
 cd ${MY_DOWNLOAD_DIR}
 
-REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
+REMOTE_FILES="${MY_DOWNLOAD_DIR}/${BUILD_TARGET}/list"
 for file in '/' sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
 done
@@ -38,12 +38,12 @@ OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE
 OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
 OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
 
-OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/kbuilder/ib/${OPENWRT_IB_FILE%.tar.xz}"
-OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/kbuilder/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
+OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib/${OPENWRT_IB_FILE%.tar.xz}"
+OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
 # Maintain the current IB/SDK being used
-CURRENT_IB_SDK_INFO_FILE="${MY_DOWNLOAD_DIR}/cureent_ib_sdk.inf"
+CURRENT_IB_SDK_INFO_FILE="${MY_DOWNLOAD_DIR}/${BUILD_TARGET}/cureent_ib_sdk.inf"
 if [ -f $CURRENT_IB_SDK_INFO_FILE ]; then
   source $CURRENT_IB_SDK_INFO_FILE
   # Remove the old IB/SDK extracted dir(s) and the tarball if the dir name changes
@@ -54,10 +54,10 @@ fi
 # Download files, and extract the tarball when necessary
 download_openwrt_latest_file $OPENWRT_MF_FILE
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
-  tar -C ${BUILDER_WORK_DIR}/kbuilder/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+  tar -C ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
 fi
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
-  tar -C ${BUILDER_WORK_DIR}/kbuilder/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+  tar -C ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 fi
 
 # Update current IB/SDK info
