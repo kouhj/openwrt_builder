@@ -19,7 +19,6 @@ source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 
 transfer() {
   curl --upload-file "$1" https://transfer.sh/$(basename "$1") | tee /dev/null
-  echo
 }
 
 if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
@@ -30,7 +29,6 @@ if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
   if [ ${#all_firmware_files[@]} -gt 0 ]; then
     tar cf $FW_ARTIFACTS_FN "${all_firmware_files[@]}"
     FW_ARTIFACTS_URL=$(transfer $FW_ARTIFACTS_FN)
-    rm -f ${FW_ARTIFACTS_FN}
     echo "transer.sh download URL: $FW_ARTIFACTS_URL, local file: ${FW_ARTIFACTS_FN}"
     echo "::set-output name=archive::$PWD/${FW_ARTIFACTS_FN}"
     echo "::set-output name=url::${FW_ARTIFACTS_URL}"
