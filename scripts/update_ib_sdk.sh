@@ -30,7 +30,7 @@ mkdir -p "${MY_DOWNLOAD_DIR}" ${BUILDER_WORK_DIR}/kbuilder/{ib,sdk}
 cd ${MY_DOWNLOAD_DIR}
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
-for file in '/' sha256sum config.buildinfo feeds.buildinfo; do
+for file in '/' sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
 done
 
