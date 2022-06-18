@@ -65,6 +65,9 @@ jobs:
       BUILD_MODE: ${{matrix.mode}}
       BUILD_TARGET: ${{matrix.target}}
 
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -216,7 +219,7 @@ jobs:
         id: tag
         if: job.status == 'success' && !cancelled()
         run: |
-          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+          echo "::set-output name=release_tag::$(date +"%Y%m%d-%H%M")"
           touch release.txt
           echo "🔗 [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
           echo "::set-output name=status::success"
