@@ -13,7 +13,7 @@ install_commands() {
 setup_envs() {
   # Do not change
   BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
-  BUILDER_CONTAINER_ID="builder"
+  BUILDER_CONTAINER_ID="builder-${BUILD_TARGET}"
   BUILDER_WORK_DIR="/home/builder"
   BUILDER_TMP_DIR="/tmp/builder"
   HOST_TMP_DIR="/tmp/builder"
@@ -24,7 +24,6 @@ setup_envs() {
     -v '${HOST_WORK_DIR}/scripts:${BUILDER_WORK_DIR}/scripts'
     -v '${HOST_WORK_DIR}/user:${BUILDER_WORK_DIR}/user'
     -v '${HOST_WORK_DIR}/kouhj_src:${BUILDER_WORK_DIR}/kouhj_src'
-    -v '${HOST_WORK_DIR}/kbuilder:${BUILDER_WORK_DIR}/kbuilder'
     -v '${HOST_BIN_DIR}:${BUILDER_BIN_DIR}'
     -v '${HOST_TMP_DIR}:${BUILDER_TMP_DIR}'
     -v '${GITHUB_ENV}:${GITHUB_ENV}'

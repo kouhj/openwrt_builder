@@ -19,6 +19,8 @@ _set_env OPENWRT_CUR_DIR
 
 [ "x${TEST}" != "x1" ] || exit 0
 
+exit 0 # All dependant package should be ready by kouhj/openwrt-buildenv container
+
 # Install missing packages in current env from a remote list
 sudo -E apt-get -qq update
 sudo -E apt-get -qq upgrade -y

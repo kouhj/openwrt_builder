@@ -17,26 +17,9 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
   # shellcheck disable=SC2164
   if [ -d "${HOST_BIN_DIR}/targets/"*/* ]; then
     cd "${HOST_BIN_DIR}/targets/"*/*
-    all_firmware_files=(!(packages))
+    all_firmware_files=( !(*kernel*|*rootfs*) )
     # shellcheck disable=SC2015
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
-  fi
-
-  if [ -z "${OPENWRT_IB_FIRMWARE_DIR}" ]; then
-    echo "::error::'OPENWRT_IB_FIRMWARE_DIR' is empty, meaning no firmwares were built." >&2
-    exit 1
-  fi
-
-  sudo chown -R "$(id -u):$(id -g)" "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}"
-  if [ -d "${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}" ]; then
-    cd ${HOST_WORK_DIR}/${OPENWRT_IB_FIRMWARE_DIR}
-    # Exclude files with 'kernel' and 'rootfs', which means only the following files are kept:
-    #   openwrt*.manifest
-    #   openwrt-*-squashfs-*.img.gz
-    #   profiles.json
-    #   sha256sums
-    all_firmware_files=( !(*kernel*|*rootfs*) )
-    [ ${#all_firmware_files[@]} -gt 0 ] && mv -f "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
 fi
 #echo "::set-output name=status::failure" # to enter SSH

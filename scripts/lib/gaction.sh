@@ -9,9 +9,9 @@ _dump_file() {
 }
 
 if [ -f /.dockerenv ]; then
-  DOCKER_PERSISTENT_VARS_FILE="/home/builder/kbuilder/docker_persistent_vars.sh"
+  DOCKER_PERSISTENT_VARS_FILE="${BUILDER_TMP_DIR}/docker_persistent_vars.sh"
 else
-  DOCKER_PERSISTENT_VARS_FILE="${HOST_WORK_DIR}/kbuilder/docker_persistent_vars.sh"
+  DOCKER_PERSISTENT_VARS_FILE="${HOST_TMP_DIR}/docker_persistent_vars.sh"
 fi
 echo -e "GITHUB_ENV: $GITHUB_ENV\nDOCKER_PERSISTENT_VARS_FILE: $DOCKER_PERSISTENT_VARS_FILE"
 

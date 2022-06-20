@@ -54,3 +54,7 @@ make image PROFILE="$OPENWRT_IB_PROFILE" ADD_LOCAL_KEY=1 FILES=files PACKAGES="$
   DISABLED_SERVICES="$OPENWRT_IB_DISABLED_SERVICES" PREPARE_ROOTFS_HOOK=prepare_rootfs_hook
   
 find bin/targets/${CONFIG_TARGET_BOARD}/${CONFIG_TARGET_SUBTARGET}
+
+mkdir -p ${BUILDER_BIN_DIR}/targets/${CONFIG_TARGET_BOARD}/
+# Move to the folder that is accessible by the Host out of the docker
+mv -f bin/targets/${CONFIG_TARGET_BOARD}/${CONFIG_TARGET_SUBTARGET}  ${BUILDER_BIN_DIR}/targets/${CONFIG_TARGET_BOARD}/
