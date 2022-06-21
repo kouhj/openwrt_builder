@@ -12,8 +12,6 @@ install_commands() {
 
 setup_envs() {
   # Do not change
-  BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
-  BUILDER_CONTAINER_ID="builder-${BUILD_TARGET}"
   BUILDER_WORK_DIR="/home/builder"
   BUILDER_TMP_DIR="/tmp/builder"
   HOST_TMP_DIR="/tmp/builder"
@@ -40,7 +38,7 @@ setup_envs() {
   source "${HOST_WORK_DIR}/scripts/lib/utils.sh"
 
   _set_env HOST_TMP_DIR HOST_BIN_DIR
-  _set_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILDER_MOUNT_OPTS
+  _set_env BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILDER_MOUNT_OPTS
   append_docker_exec_env BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR
   _set_env DK_EXEC_ENVS
 
@@ -134,6 +132,10 @@ prepare_target() {
   _set_env "${SETTING_VARS[@]}"
   append_docker_exec_env "${SETTING_VARS[@]}"
   _set_env DK_EXEC_ENVS
+
+  BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
+  BUILDER_CONTAINER_ID="${BUILDER_NAME}-${BUILD_TARGET}" # $BUILDER_NAME is from settings.ini
+  _set_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
 }
 
 # Load building options
