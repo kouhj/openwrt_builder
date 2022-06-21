@@ -133,7 +133,7 @@ prepare_target() {
   append_docker_exec_env "${SETTING_VARS[@]}"
   _set_env DK_EXEC_ENVS
 
-  BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
+  BUILDER_IMAGE_ID_BUILDENV="tete1030/openwrt-buildenv:latest"
   BUILDER_CONTAINER_ID="${BUILDER_NAME}-${BUILD_TARGET}" # $BUILDER_NAME is from settings.ini
   _set_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
 }
