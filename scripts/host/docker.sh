@@ -94,7 +94,8 @@ docker_exec() {
     for env_name in ${DK_EXEC_ENVS}; do
       exec_envs+=( -e "${env_name}=${!env_name}" )
     done
-    docker exec -u 0 -it "${exec_envs[@]}" /bin/bash "$@"
+    local container=$1; shift
+    docker exec -u 0 -it "${exec_envs[@]}" $container /bin/bash "$@"
   )
 }
 
