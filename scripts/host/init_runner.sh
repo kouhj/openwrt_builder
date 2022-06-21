@@ -182,7 +182,7 @@ main() {
     BUILD_OPTS="update_feeds update_repo rebase rebuild debug push_when_fail package_only"
   fi
 
-  install_commands
+  # install_commands # all required commands are installed in container kouhj/openwrt-buildenv
   setup_envs
   check_test
   load_task
