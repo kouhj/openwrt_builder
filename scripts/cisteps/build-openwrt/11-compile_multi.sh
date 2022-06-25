@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -xeo pipefail
 
 # shellcheck disable=SC1090
 source "${HOST_WORK_DIR}/scripts/host/docker.sh"
