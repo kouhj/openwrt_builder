@@ -136,6 +136,7 @@ prepare_target() {
   BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
   BUILDER_CONTAINER_ID="${BUILDER_NAME}-${BUILD_TARGET}" # $BUILDER_NAME is from settings.ini
   _set_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
+  append_docker_exec_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
 }
 
 # Load building options
