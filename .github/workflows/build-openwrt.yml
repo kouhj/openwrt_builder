@@ -69,6 +69,11 @@ jobs:
       contents: write
 
     steps:
+      - name: Setup timezone
+        uses: zcong1993/setup-timezone@master
+        with:
+          timezone: Asia/Shanghai
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -219,9 +224,9 @@ jobs:
         id: tag
         if: job.status == 'success' && !cancelled()
         run: |
-          echo "::set-output name=release_tag::$(date +"%Y%m%d-%H%M")"
+          echo "::set-output name=release_tag::OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")"
           touch release.txt
-          echo "🔗 [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
+          echo "🔗 Download firmware from [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
           echo "::set-output name=status::success"
 
       - name: Upload firmware to release
