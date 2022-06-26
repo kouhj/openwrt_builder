@@ -52,7 +52,7 @@ if [ -f $CURRENT_IB_SDK_INFO_FILE ]; then
 fi
 
 # Download files, and extract the tarball when necessary
-download_openwrt_latest_file $OPENWRT_MF_FILE
+download_openwrt_latest_file $OPENWRT_MF_FILE || true # continue when exists
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
   tar -C ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
 fi
