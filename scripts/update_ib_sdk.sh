@@ -42,21 +42,33 @@ OPENWRT_IB_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib/${OPENWRT_IB_FIL
 OPENWRT_SDK_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
+# Status file indicating the dir has been customized and configured
+OPENWRT_IB_DIR_CUSTOMIZED_FILE="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib/.customized"
+OPENWRT_SDK_DIR_CUSTOMIZED_FILE="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk/.customized"
+OPENWRT_CUR_DIR_CUSTOMIZED_FILE="${OPENWRT_CUR_DIR}/.customized"
+OPENWRT_IB_DIR_CONFIGURED_FILE="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib/.configured"
+OPENWRT_SDK_DIR_CONFIGURED_FILE="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk/.configured"
+OPENWRT_CUR_DIR_CONFIGURED_FILE="${OPENWRT_CUR_DIR}/.configured"
+
 # Maintain the current IB/SDK being used
 CURRENT_IB_SDK_INFO_FILE="${MY_DOWNLOAD_DIR}/${BUILD_TARGET}/cureent_ib_sdk.inf"
 if [ -f $CURRENT_IB_SDK_INFO_FILE ]; then
   source $CURRENT_IB_SDK_INFO_FILE
   # Remove the old IB/SDK extracted dir(s) and the tarball if the dir name changes
-  [ "$OPENWRT_IB_DIR" != "$CUR_IB_DIR" ] && rm -rf ${CUR_IB_DIR}*
-  [ "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}*
+  [ "$OPENWRT_IB_DIR" != "$CUR_IB_DIR" ] && rm -rf ${CUR_IB_DIR}* ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib/.c*
+  [ "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}* ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk/.c*
 fi
 
 # Download files, and extract the tarball when necessary
 download_openwrt_latest_file $OPENWRT_MF_FILE || true # continue when exists
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
+  [ -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE] && rm -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE
+  [ -f $OPENWRT_IB_DIR_CONFIGURED_FILE] && rm -f $OPENWRT_IB_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
 fi
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
+  [ -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE] && rm -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE
+  [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 fi
 
@@ -71,3 +83,5 @@ _docker_set_env BUILDER_PROFILE_DIR
 
 # For following custom IB/SDK config and compile actions
 _docker_set_env OPENWRT_MF_FILE OPENWRT_IB_DIR OPENWRT_SDK_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR
+_docker_set_env OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_CUR_DIR_CUSTOMIZED_FILE \
+                OPENWRT_IB_DIR_CONFIGURED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE OPENWRT_CUR_DIR_CONFIGURED_FILE

@@ -19,7 +19,11 @@ _set_env OPENWRT_CUR_DIR
 
 [ "x${TEST}" != "x1" ] || exit 0
 
+# Remove stale GITHUB env files (created for more than 1 day ago)
+find $(dirname $GITHUB_ENV) -type f -ctime +1 -delete;
+
 exit 0 # All dependant package should be ready by kouhj/openwrt-buildenv container
+############################# CODE UNREACHABLE FROM THIS POINT BEYOND ######################################
 
 # Install missing packages in current env from a remote list
 sudo -E apt-get -qq update

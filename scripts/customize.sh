@@ -23,50 +23,55 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
-[ -f "${OPENWRT_CUR_DIR}/.config" ] || touch "${OPENWRT_CUR_DIR}/.config"
-for file in ${BUILDER_PROFILE_DIR}/source/config*.diff; do
-  if [ -f "${file}" ]; then
-    cat ${BUILDER_PROFILE_DIR}/source/config*.diff  >> "${OPENWRT_CUR_DIR}/.config"
-  fi
-done
 
-echo "Applying patches..."
-if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/patches" 2>/dev/null)" ]; then
-  (
-    if [ "x${NONSTRICT_PATCH}" = "x1" ]; then
-      set +eo pipefail
+if [ ! -f "${OPENWRT_CUR_DIR_CUSTOMIZED_FILE}" ]; then
+  [ -f "${OPENWRT_CUR_DIR}/.config" ] || touch "${OPENWRT_CUR_DIR}/.config"
+  for file in ${BUILDER_PROFILE_DIR}/source/config*.diff; do
+    if [ -f "${file}" ]; then
+      cat ${BUILDER_PROFILE_DIR}/source/config*.diff  >> "${OPENWRT_CUR_DIR}/.config"
     fi
+  done
 
-    find "${BUILDER_PROFILE_DIR}/patches" -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d '${OPENWRT_CUR_DIR}' -p0 --forward"
-    # To set final status of the subprocess to 0, because outside the parentheses the '-eo pipefail' is still on
-    true
-  )
-fi
+  echo "Applying patches..."
+  if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/patches" 2>/dev/null)" ]; then
+    (
+      if [ "x${NONSTRICT_PATCH}" = "x1" ]; then
+        set +eo pipefail
+      fi
 
-SYNC_EXCLUDES="
-/bin
-/dl
-/tmp
-/build_dir
-/staging_dir
-/toolchain
-/logs
-*.o
-key-build*
-"
-declare -a sync_exclude_opts=()
-while IFS= read -r line; do
-  if [[ -z "${line// /}" ]]; then
-    continue
+      find "${BUILDER_PROFILE_DIR}/patches" -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d '${OPENWRT_CUR_DIR}' -p0 --forward"
+      # To set final status of the subprocess to 0, because outside the parentheses the '-eo pipefail' is still on
+      true
+    )
   fi
-  sync_exclude_opts+=("--exclude=${line}")
-done <<<"${SYNC_EXCLUDES}"
 
-echo "Copying base files..."
-if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/files" 2>/dev/null)" ]; then
-  # feeds.conf is handled in update_feeds.sh
-  rsync -camv --no-t "${sync_exclude_opts[@]}" --exclude="/feeds.conf" --exclude="/.config" \
-    "${BUILDER_PROFILE_DIR}/files/" "${OPENWRT_CUR_DIR}/"
+  SYNC_EXCLUDES="
+  /bin
+  /dl
+  /tmp
+  /build_dir
+  /staging_dir
+  /toolchain
+  /logs
+  *.o
+  key-build*
+  "
+  declare -a sync_exclude_opts=()
+  while IFS= read -r line; do
+    if [[ -z "${line// /}" ]]; then
+      continue
+    fi
+    sync_exclude_opts+=("--exclude=${line}")
+  done <<<"${SYNC_EXCLUDES}"
+
+  echo "Copying base files..."
+  if [ -n "$(ls -A "${BUILDER_PROFILE_DIR}/files" 2>/dev/null)" ]; then
+    # feeds.conf is handled in update_feeds.sh
+    rsync -camv --no-t "${sync_exclude_opts[@]}" --exclude="/feeds.conf" --exclude="/.config" \
+      "${BUILDER_PROFILE_DIR}/files/" "${OPENWRT_CUR_DIR}/"
+  fi
+
+  touch "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}"
 fi
 
 echo "Executing custom.sh"
@@ -92,4 +97,3 @@ if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ]; then
   _set_env OPENWRT_CUR_DIR
 fi
 
-true
