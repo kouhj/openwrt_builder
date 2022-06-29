@@ -7,7 +7,7 @@
 # Author: kouhj
 #========================================================================================
 
-set -eo pipefail
+set -xeo pipefail
 source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 if [ -z "${MY_DOWNLOAD_DIR}" ] || [ -z "${OPENWRT_IB_DIR}" ] || [ -z "${OPENWRT_SDK_DIR}" ]; then
