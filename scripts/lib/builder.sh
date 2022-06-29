@@ -319,8 +319,8 @@ do_apply_patches_for_ib_or_sdk() {
 			fi
 
 			find "${PATCH_FILE_DIR}/patches" -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d '${PATCH_DEST_DIR}' -p0 --forward"
-			# To set final status of the subprocess to 0, because outside the parentheses the '-eo pipefail' is still on
-			true
+			## To set final status of the subprocess to 0, because outside the parentheses the '-eo pipefail' is still on
+			#true
 		)
 	fi
 }
