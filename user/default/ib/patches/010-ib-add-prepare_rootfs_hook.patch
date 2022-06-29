@@ -1,12 +1,12 @@
 --- Makefile
 +++ Makefile
-@@ -178,6 +178,9 @@
-			$(SCRIPT_DIR)/opkg-key add $(BUILD_KEY).pub \
-		) \
-	)
+@@ -179,6 +179,9 @@
+ 			$(SCRIPT_DIR)/opkg-key add $(BUILD_KEY).pub \
+ 		) \
+ 	)
 +	$(if $(PREPARE_ROOTFS_HOOK), \
 +		$(PREPARE_ROOTFS_HOOK) $(TARGET_DIR) \
 +	)
-	$(call prepare_rootfs,$(TARGET_DIR),$(USER_FILES),$(DISABLED_SERVICES))
-
+ 	$(call prepare_rootfs,$(TARGET_DIR),$(USER_FILES),$(DISABLED_SERVICES))
+ 
  build_image: FORCE
