@@ -38,6 +38,7 @@ if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   touch ${OPENWRT_IB_DIR_CUSTOMIZED_FILE}
 fi
 
+ls -l `dirname ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}`
 if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
   # Copy key-build* files to OpenWRT_CUR_DIR and OPENWRT_SDK_DIR
   copy_build_keys
@@ -58,3 +59,5 @@ if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
 
   touch ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}
 fi
+
+echo "::set-output name=status::success"
