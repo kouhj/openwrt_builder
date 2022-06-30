@@ -31,6 +31,8 @@ if [ ! -f "${OPENWRT_SDK_DIR_CONFIGURED_FILE}" ]; then
   touch "${OPENWRT_SDK_DIR_CONFIGURED_FILE}"
 fi
 
+get_openwrt_sdk_config_options
+
 if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
   cd "${OPENWRT_IB_DIR}"
   generate_openwrt_ib_config
@@ -43,8 +45,6 @@ if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
 
   touch "${OPENWRT_IB_DIR_CONFIGURED_FILE}"
 fi
-
-get_openwrt_sdk_config_options
 
 OPENWRT_IB_ROOTFS_DIR="${OPENWRT_IB_DIR}/build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/root-${CONFIG_TARGET_BOARD}"
 _docker_set_env OPENWRT_IB_ROOTFS_DIR
