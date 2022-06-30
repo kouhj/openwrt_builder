@@ -71,7 +71,7 @@ if [ ! -f "${OPENWRT_CUR_DIR_CUSTOMIZED_FILE}" ]; then
       "${BUILDER_PROFILE_DIR}/files/" "${OPENWRT_CUR_DIR}/"
   fi
 
-  touch "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}"
+  touch "${OPENWRT_CUR_DIR_CUSTOMIZED_FILE}"
 fi
 
 echo "Executing custom.sh"
