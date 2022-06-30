@@ -27,6 +27,7 @@ fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
+ls -la `dirname ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}`
 if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   # Add SDK build key to IB's files/etc/opkg/ folder
   add_sdk_keys_to_ib
@@ -38,7 +39,7 @@ if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   touch ${OPENWRT_IB_DIR_CUSTOMIZED_FILE}
 fi
 
-ls -l `dirname ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}`
+ls -la `dirname ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}`
 if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
   # Copy key-build* files to OpenWRT_CUR_DIR and OPENWRT_SDK_DIR
   copy_build_keys
