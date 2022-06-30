@@ -96,6 +96,7 @@ update_config_from_file() {
 generate_openwrt_sdk_config() {
 	local CONFIG_FILE="${OPENWRT_SDK_DIR}/.config"
 
+	cd "${OPENWRT_SDK_DIR}"
 	cp -a ${OPENWRT_IB_DIR}/.config.orig ${CONFIG_FILE}
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/sdk\""
 
@@ -110,6 +111,7 @@ generate_openwrt_sdk_config() {
 
 
 get_openwrt_sdk_config_options() {
+	cd "${OPENWRT_SDK_DIR}"
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUFFIX
@@ -121,6 +123,7 @@ get_openwrt_sdk_config_options() {
 generate_openwrt_ib_config() {
 	local CONFIG_FILE="${OPENWRT_IB_DIR}/.config"
 
+	cd "${OPENWRT_IB_DIR}"
 	cp -a ${OPENWRT_IB_DIR}/.config.orig ${CONFIG_FILE}
 
 	config_option_set ${CONFIG_FILE} CONFIG_DOWNLOAD_FOLDER "\"${MY_DOWNLOAD_DIR}/ib\""

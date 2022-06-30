@@ -25,7 +25,6 @@ if [ ! -f "${OPENWRT_CUR_DIR_CONFIGURED_FILE}" ]; then
 fi
 
 if [ ! -f "${OPENWRT_SDK_DIR_CONFIGURED_FILE}" ]; then
-  cd "${OPENWRT_SDK_DIR}"
   generate_openwrt_sdk_config
   openwrt_sdk_install_ksoftethervpn
   touch "${OPENWRT_SDK_DIR_CONFIGURED_FILE}"
@@ -34,7 +33,6 @@ fi
 get_openwrt_sdk_config_options
 
 if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
-  cd "${OPENWRT_IB_DIR}"
   generate_openwrt_ib_config
   get_packages_for_ib
   get_profiles_for_ib
