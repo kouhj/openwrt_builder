@@ -111,6 +111,8 @@ generate_openwrt_sdk_config() {
 
 
 get_openwrt_sdk_config_options() {
+	local CONFIG_FILE="${OPENWRT_SDK_DIR}/.config"
+		
 	cd "${OPENWRT_SDK_DIR}"
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
