@@ -106,13 +106,17 @@ generate_openwrt_sdk_config() {
 
 	# This will fix the necesary options due to the manual configuration changes above
 	make defconfig
+}
 
+
+get_openwrt_sdk_config_options() {
 	get_config_option ${CONFIG_FILE} CONFIG_ARCH
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_BOARD
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUFFIX
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_SUBTARGET
 	get_config_option ${CONFIG_FILE} CONFIG_TARGET_ARCH_PACKAGES
 }
+
 
 generate_openwrt_ib_config() {
 	local CONFIG_FILE="${OPENWRT_IB_DIR}/.config"
