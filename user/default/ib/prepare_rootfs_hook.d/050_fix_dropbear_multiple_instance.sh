@@ -37,8 +37,8 @@ if ! grep -q if_ipaddrs etc/init.d/dropbear; then
  	[ "${enable}" = "0" ] && return 1
 EOF
 
-patch -p1 < /tmp/dropbear.patch
-rm -f /tmp/dropbear.patch
+	patch -p1 < /tmp/dropbear.patch
+	rm -f /tmp/dropbear.patch
 fi
 popd
 
