@@ -27,6 +27,8 @@ fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
+exec &> >( tee ${BUILDER_ARCH_BASE_DIR}/test.log )
+
 ls -la `dirname ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}`
 if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   # Add SDK build key to IB's files/etc/opkg/ folder
