@@ -259,8 +259,10 @@ get_list_from_file() {
 
 # copy build keys from the private repo
 copy_build_keys() {
-	cp -a ${KOUHJ_SRC_DIR}/key-build* ${OPENWRT_SDK_DIR}/
-	cp -a ${KOUHJ_SRC_DIR}/key-build* ${OPENWRT_CUR_DIR}/
+	for file in ${KOUHJ_SRC_DIR}/key-build*; do
+		cp -u $file ${OPENWRT_SDK_DIR}/
+		cp -u $file ${OPENWRT_CUR_DIR}/
+	done
 }
 
 # Modify some default packages used by IB

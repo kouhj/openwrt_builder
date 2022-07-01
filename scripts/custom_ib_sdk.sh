@@ -38,9 +38,11 @@ if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   touch ${OPENWRT_IB_DIR_CUSTOMIZED_FILE}
 fi
 
+
+# Copy key-build* files to OpenWRT_CUR_DIR and OPENWRT_SDK_DIR
+copy_build_keys  # Put this outside of the if-block below to ensure the keys exist every time
+
 if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
-  # Copy key-build* files to OpenWRT_CUR_DIR and OPENWRT_SDK_DIR
-  copy_build_keys
   # Generate feeds.conf from IB's feeds.buildinfo and user/current/feeds.conf
   generate_sdk_feeds_conf
   # Apply user/current/sdk/patches/*.patch to SDK
