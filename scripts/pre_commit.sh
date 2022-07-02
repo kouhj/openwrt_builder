@@ -20,3 +20,7 @@ fi
 if [ -d "${OPENWRT_SOURCE_DIR}" ]; then
     rm -rf "${OPENWRT_SOURCE_DIR}"
 fi
+
+# Save the env vars shared between host and container for the next build
+source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
+save_docker_env_file_in_container

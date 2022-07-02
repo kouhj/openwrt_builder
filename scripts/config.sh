@@ -27,10 +27,10 @@ fi
 if [ ! -f "${OPENWRT_SDK_DIR_CONFIGURED_FILE}" ]; then
   generate_openwrt_sdk_config
   openwrt_sdk_install_ksoftethervpn
+  get_openwrt_sdk_config_options
   touch "${OPENWRT_SDK_DIR_CONFIGURED_FILE}"
 fi
 
-get_openwrt_sdk_config_options
 
 if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
   generate_openwrt_ib_config
@@ -41,9 +41,10 @@ if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
   # Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files
   update_ib_repositories_conf
 
+  OPENWRT_IB_ROOTFS_DIR="${OPENWRT_IB_DIR}/build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/root-${CONFIG_TARGET_BOARD}"
+  _docker_set_env OPENWRT_IB_ROOTFS_DIR
+
   touch "${OPENWRT_IB_DIR_CONFIGURED_FILE}"
 fi
 
-OPENWRT_IB_ROOTFS_DIR="${OPENWRT_IB_DIR}/build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/root-${CONFIG_TARGET_BOARD}"
-_docker_set_env OPENWRT_IB_ROOTFS_DIR
 echo "::set-output name=status::success"

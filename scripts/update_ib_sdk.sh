@@ -25,13 +25,46 @@ if [ "x${TEST}" = "x1" ]; then
 fi
 
 BUILDER_ARCH_BASE_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}"
+CURRENT_IB_SDK_INFO_FILE="${BUILDER_ARCH_BASE_DIR}/cureent_ib_sdk.inf" # Info of IB/SDK
+[ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE
+
+KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
+KOUHJ_SRC_REVISION=$(cd $KOUHJ_SRC_DIR; git rev-parse HEAD)
+[ "${CUR_KOUHJ_SRC_REVISION}" == "${KOUHJ_SRC_REVISION}" ]; KOUHJ_SRC_UPDATED=$?
+
 MY_DOWNLOAD_DIR="${BUILDER_ARCH_BASE_DIR}/download"
 mkdir -p "${OPENWRT_COMPILE_DIR}" || true
 mkdir -p "${BUILDER_ARCH_BASE_DIR}"/{download,ib,sdk}
 cd ${MY_DOWNLOAD_DIR}
 
 REMOTE_FILES="${MY_DOWNLOAD_DIR}/list"
-for file in '/' sha256sums config.buildinfo feeds.buildinfo; do
+download_openwrt_file '/' ${REMOTE_FILES}
+SNAPSHOT_LIST_STATUS=$?
+if [ "$SNAPSHOT_LIST_STATUS" -eq 2 ]; then
+  echo 'Failed to list OpenWRT download folder.'
+  exit 1
+fi
+
+##################################### DECESION MATRIX #######################################
+## $SNAPSHOT_LIST_STATUS  $KOUHJ_SRC_UPDATED   |   TO DOWNLOAD SDK/IB    TO REBUILD SDK/IB
+## --------------------------------------------+---------------------------------------------     
+##          1                     0            |           NO                  NO
+##          1                     1            |           NO                  YES
+##          0                    0/1           |           YES                 YES
+## --------------------------------------------+---------------------------------------------     
+
+if   [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 0 ]; then
+  # Nothing to do
+  echo "::set-output name=build_needed::no"
+  exit 0
+elif [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 1 ]; then
+  echo "::set-output name=build_needed::yes"
+  exit 0
+elif [ "$SNAPSHOT_LIST_STATUS" -eq 0 ]; then
+  echo "::set-output name=build_needed::yes"
+fi
+
+for file in sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
 done
 
@@ -41,7 +74,6 @@ OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_F
 
 OPENWRT_IB_DIR="${BUILDER_ARCH_BASE_DIR}/ib/${OPENWRT_IB_FILE%.tar.xz}"
 OPENWRT_SDK_DIR="${BUILDER_ARCH_BASE_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
-KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 
 # Status file indicating the dir has been customized and configured
 OPENWRT_IB_DIR_CUSTOMIZED_FILE="${BUILDER_ARCH_BASE_DIR}/ib/.customized"
@@ -51,39 +83,39 @@ OPENWRT_IB_DIR_CONFIGURED_FILE="${BUILDER_ARCH_BASE_DIR}/ib/.configured"
 OPENWRT_SDK_DIR_CONFIGURED_FILE="${BUILDER_ARCH_BASE_DIR}/sdk/.configured"
 OPENWRT_CUR_DIR_CONFIGURED_FILE="${OPENWRT_CUR_DIR}/.configured"
 
+_docker_set_env BUILDER_PROFILE_DIR BUILDER_ARCH_BASE_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR \
+                OPENWRT_CUR_DIR_CUSTOMIZED_FILE OPENWRT_CUR_DIR_CONFIGURED_FILE
+
 # Maintain the current IB/SDK being used
-CURRENT_IB_SDK_INFO_FILE="${BUILDER_ARCH_BASE_DIR}/cureent_ib_sdk.inf"
-if [ -f $CURRENT_IB_SDK_INFO_FILE ]; then
-  source $CURRENT_IB_SDK_INFO_FILE
-  # Remove the old IB/SDK extracted dir(s) and the tarball if the dir name changes
-  [ "$OPENWRT_IB_DIR" != "$CUR_IB_DIR" ] && rm -rf ${CUR_IB_DIR}* ${BUILDER_ARCH_BASE_DIR}/ib/.c*
-  [ "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}* ${BUILDER_ARCH_BASE_DIR}/sdk/.c*
-fi
+# Remove the old IB/SDK extracted dir(s) and the tarball if the dir name changes
+[ -n "$CUR_IB_DIR"  -a "$OPENWRT_IB_DIR"  != "$CUR_IB_DIR"  ] && rm -rf ${CUR_IB_DIR}*  ${BUILDER_ARCH_BASE_DIR}/ib/.c*
+[ -n "$CUR_SDK_DIR" -a "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}* ${BUILDER_ARCH_BASE_DIR}/sdk/.c*
+# Delete files that may be stale
+housekeep_local_downloads
 
 # Download files, and extract the tarball when necessary
-download_openwrt_latest_file $OPENWRT_MF_FILE || true # continue when exists
+if download_openwrt_latest_file $OPENWRT_MF_FILE; then
+  _docker_set_env OPENWRT_MF_FILE
+fi
+
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
   [ -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_IB_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_IB_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+  _docker_set_env OPENWRT_IB_DIR OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_IB_DIR_CONFIGURED_FILE
 fi
+
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   [ -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+  _docker_set_env OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
 
 # Update current IB/SDK info
-echo -e "CUR_IB_DIR='$OPENWRT_IB_DIR'\nCUR_SDK_DIR='$OPENWRT_SDK_DIR'" >$CURRENT_IB_SDK_INFO_FILE
+echo -e "CUR_IB_DIR='$OPENWRT_IB_DIR'\nCUR_SDK_DIR='$OPENWRT_SDK_DIR'\nCUR_KOUHJ_SRC_REVISION='$KOUHJ_SRC_REVISION'" >$CURRENT_IB_SDK_INFO_FILE
 
 # Make a backup of the config file
 cp -a ${OPENWRT_IB_DIR}/.config ${OPENWRT_IB_DIR}/.config.orig
 
-# Make these GITHUB_ENV managed env vars also available in the 'docker-vars' file
-_docker_set_env BUILDER_PROFILE_DIR
-
-# For following custom IB/SDK config and compile actions
-_docker_set_env OPENWRT_MF_FILE OPENWRT_IB_DIR OPENWRT_SDK_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR
-_docker_set_env OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_CUR_DIR_CUSTOMIZED_FILE \
-                OPENWRT_IB_DIR_CONFIGURED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE OPENWRT_CUR_DIR_CONFIGURED_FILE \
-                BUILDER_ARCH_BASE_DIR
+                

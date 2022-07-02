@@ -12,9 +12,9 @@
 initialize() {
 	if ! LC_ALL=C type -t _set_env >/dev/null; then
 		if [ -f /.dockerenv ]; then
-			BASE_DIR="/home/builder"
+			local BASE_DIR="/home/builder"
 		else
-			BASE_DIR="${HOST_WORK_DIR}"
+			local BASE_DIR="${HOST_WORK_DIR}"
 		fi
 		source "${BASE_DIR}/scripts/lib/gaction.sh"
 	fi
@@ -66,8 +66,7 @@ config_option_set() {
 # Get config file $1 with key $2, and set it as a docker environment variable
 get_config_option() {
 	local v=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
-	eval "$2=$v"
-	_set_env $2
+	eval "export $2=$v"
 	_docker_set_env $2
 }
 
@@ -371,8 +370,16 @@ housekeep_local_downloads() {
 download_openwrt_file() {
 	[ "${2:0:1}" == '/' ] && OUTFILE=$2 || OUTFILE="${MY_DOWNLOAD_DIR}/$2"
 	[ -z "$2" ] && OUTFILE="${MY_DOWNLOAD_DIR}/$1"
-	[ "$1" == '/' ] && OUTFILE="${MY_DOWNLOAD_DIR}/list"
-	wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL}/$1 -O ${OUTFILE}
+	TMPFILE="/tmp/$(basename $OUTFILE)"
+	if wget --no-check-certificate -q ${OPENWRT_DOWNLOAD_SITE_URL}/$1 -O ${TMPFILE}; then
+		if cmp -s ${TMPFILE} ${OUTFILE}; then
+			return 1 # the new download is the same as local
+		else
+			cp -af ${TMPFILE} ${OUTFILE}
+		fi
+	else
+		return 2 # download failure
+	fi
 }
 
 # Download the specified file $1 from OpenWRT site and save as $1. If the checksum hasn't changed, download is skipped.

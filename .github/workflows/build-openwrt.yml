@@ -130,11 +130,12 @@ jobs:
         run: scripts/cisteps/build-openwrt/06-get_builder.sh
 
       - name: Clone/update OpenWrt
+        id: update
         if: env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/07-download_openwrt.sh
 
       - name: Apply customizations
-        if: env.SKIP_TARGET == '0'
+        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/08-customize.sh
 
       # Allow intermediate customization
@@ -145,7 +146,7 @@ jobs:
         uses: tete1030/safe-debugger-action@dev
 
       - name: Prepare config file
-        if: env.SKIP_TARGET == '0'
+        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/09-prepare_config.sh
 
       # Should not call this, as we are using SDK
@@ -159,7 +160,7 @@ jobs:
 
       - name: Compile firmware and packages with multiple threads
         id: mtcompile
-        if: env.SKIP_TARGET == '0'
+        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         continue-on-error: true
         run: scripts/cisteps/build-openwrt/11-compile_multi.sh
 
@@ -174,7 +175,7 @@ jobs:
       # failure checking
       - name: "[Failure/Debug] Wait for SSH connection (timeout 30min)"
         if: |
-          env.SKIP_TARGET == '0' && !cancelled()
+          steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
           && (job.status == 'failure' || steps.mtcompile.outputs.status != 'success' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
         env:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
@@ -182,7 +183,7 @@ jobs:
 
       - name: Upload builder
         if: |
-          env.SKIP_TARGET == '0' && !cancelled() && (
+          steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled() && (
             job.status == 'success'
             || env.OPT_PUSH_WHEN_FAIL == '1'
           )
@@ -197,32 +198,36 @@ jobs:
 
       - name: Organize files
         id: organize
-        if: env.SKIP_TARGET == '0' && !cancelled()
+        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
         run: scripts/cisteps/build-openwrt/14-organize_files.sh
 
       - name: Upload firmware
         uses: actions/upload-artifact@master
-        if: env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && steps.organize.outputs.status == 'success' && !cancelled()
+        if: |
+          env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && 
+          steps.update.outputs.build_needed == 'yes' && steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_firmware_${{env.BUILD_TARGET}}_${{env.FILE_DATE}}
           path: openwrt_firmware
 
       - name: Upload firmware to transfer.sh
         id: transfersh
-        if: job.status == 'success'
+        if: steps.update.outputs.build_needed == 'yes' && job.status == 'success'
         run: scripts/cisteps/build-openwrt/15-upload_to_transfer.sh
 
       - name: Upload packages
         uses: actions/upload-artifact@master
         # this step is always skipped
-        if: env.SKIP_TARGET == '1' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
+        if: |
+          steps.update.outputs.build_needed == 'yes' && 
+          env.SKIP_TARGET == '1' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_packages_${{env.BUILD_TARGET}}
           path: ${{env.HOST_BIN_DIR}}
 
       - name: Generate release tag
         id: tag
-        if: job.status == 'success' && !cancelled()
+        if: steps.update.outputs.build_needed == 'yes' && job.status == 'success' && !cancelled()
         run: |
           echo "::set-output name=release_tag::OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")"
           touch release.txt
@@ -231,7 +236,7 @@ jobs:
 
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v1
-        if: steps.tag.outputs.status == 'success' && !cancelled()
+        if: steps.update.outputs.build_needed == 'yes' && steps.tag.outputs.status == 'success' && !cancelled()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -248,7 +253,7 @@ jobs:
 
       - name: Remove old Releases
         uses: dev-drprasad/delete-older-releases@v0.1.0
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        if: steps.update.outputs.build_needed == 'yes' && env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           keep_latest: 3
           delete_tags: true

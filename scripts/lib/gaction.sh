@@ -8,10 +8,11 @@ _dump_file() {
   cat $1
 }
 
+DOCKER_PERSISTENT_VARS_FILE_BASENAME='docker_persistent_vars.sh'
 if [ -f /.dockerenv ]; then
-  DOCKER_PERSISTENT_VARS_FILE="${BUILDER_TMP_DIR}/docker_persistent_vars.sh"
+  DOCKER_PERSISTENT_VARS_FILE="${BUILDER_TMP_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME}"
 else
-  DOCKER_PERSISTENT_VARS_FILE="${HOST_TMP_DIR}/docker_persistent_vars.sh"
+  DOCKER_PERSISTENT_VARS_FILE="${HOST_TMP_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME}"
 fi
 echo -e "GITHUB_ENV: $GITHUB_ENV\nDOCKER_PERSISTENT_VARS_FILE: $DOCKER_PERSISTENT_VARS_FILE"
 
@@ -39,11 +40,17 @@ _docker_set_env() {
     var_value="${var_value//$'\n'/%0A}"
     var_value="${var_value//$'\r'/%0D}"
 
-    vars_file="${DOCKER_PERSISTENT_VARS_FILE}"
-    echo "${var_name}=\"${var_value}\" >> $vars_file"
-    echo "${var_name}=\"${var_value}\"" >> $vars_file
+    var_file="${DOCKER_PERSISTENT_VARS_FILE}"
+    if greq -q "${var_name}=\"${var_value}\""; then # NOP when the var does not change
+      :
+    elif grep -q -w $var_name $var_file; then # update the var if it exists
+      echo "updating ${var_name}=\"${var_value}\" in $var_file"
+		  sed -i -r "s~^.*($var_name)=.*\$~\1=$var_value~" $var_file
+	  else # this var does not exist in the file
+      echo "setting ${var_name}=\"${var_value}\" to $var_file"
+      echo "${var_name}=\"${var_value}\"" >> $var_file
+	  fi
   done
-  echo "Appending vars $* to $vars_file"
 }
 
 _docker_load_env() {
@@ -56,6 +63,25 @@ _docker_load_env() {
   else
     echo "No vars file found: $vars_file"
   fi
+}
+
+# The docker env vars file is physically in the host machine, and mounted to container by "-v" option.
+# When the build completes, it's required to make a backup into the container for the load build.
+save_docker_env_file_in_container() {
+  if [ -n "BUILDER_ARCH_BASE_DIR" ]; then
+    cp -u ${DOCKER_PERSISTENT_VARS_FILE} ${BUILDER_ARCH_BASE_DIR}/
+  else
+    echo "Folder $BUILDER_ARCH_BASE_DIR is not set"
+    echo "::set-output name=status::failure"
+    exit 1
+  fi
+}
+
+# Load the docer env vars file from the container back into the host
+load_docker_env_file_from_container() {
+  BUILDER_ARCH_BASE_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}"
+  [ -f ${BUILDER_ARCH_BASE_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME} ] &&
+    cp -a ${BUILDER_ARCH_BASE_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME} ${DOCKER_PERSISTENT_VARS_FILE}
 }
 
 _set_env_prefix() {
