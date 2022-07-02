@@ -80,8 +80,9 @@ save_docker_env_file_in_container() {
 # Load the docer env vars file from the container back into the host
 load_docker_env_file_from_container() {
   BUILDER_ARCH_BASE_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}"
-  [ -f ${BUILDER_ARCH_BASE_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME} ] &&
+  if [ -f ${BUILDER_ARCH_BASE_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME} ]; then
     cp -a ${BUILDER_ARCH_BASE_DIR}/${DOCKER_PERSISTENT_VARS_FILE_BASENAME} ${DOCKER_PERSISTENT_VARS_FILE}
+  fi
 }
 
 _set_env_prefix() {

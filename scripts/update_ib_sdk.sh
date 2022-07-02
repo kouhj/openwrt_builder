@@ -26,7 +26,7 @@ fi
 
 BUILDER_ARCH_BASE_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}"
 CURRENT_IB_SDK_INFO_FILE="${BUILDER_ARCH_BASE_DIR}/cureent_ib_sdk.inf" # Info of IB/SDK
-[ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE
+[ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE || true
 
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 KOUHJ_SRC_REVISION=$(cd $KOUHJ_SRC_DIR; git rev-parse HEAD)
@@ -88,8 +88,8 @@ _docker_set_env BUILDER_PROFILE_DIR BUILDER_ARCH_BASE_DIR MY_DOWNLOAD_DIR KOUHJ_
 
 # Maintain the current IB/SDK being used
 # Remove the old IB/SDK extracted dir(s) and the tarball if the dir name changes
-[ -n "$CUR_IB_DIR"  -a "$OPENWRT_IB_DIR"  != "$CUR_IB_DIR"  ] && rm -rf ${CUR_IB_DIR}*  ${BUILDER_ARCH_BASE_DIR}/ib/.c*
-[ -n "$CUR_SDK_DIR" -a "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}* ${BUILDER_ARCH_BASE_DIR}/sdk/.c*
+[ -n "$CUR_IB_DIR"  -a "$OPENWRT_IB_DIR"  != "$CUR_IB_DIR"  ] && rm -rf ${CUR_IB_DIR}*  ${BUILDER_ARCH_BASE_DIR}/ib/.c* || true
+[ -n "$CUR_SDK_DIR" -a "$OPENWRT_SDK_DIR" != "$CUR_SDK_DIR" ] && rm -rf ${CUR_SDK_DIR}* ${BUILDER_ARCH_BASE_DIR}/sdk/.c* || true
 # Delete files that may be stale
 housekeep_local_downloads
 
