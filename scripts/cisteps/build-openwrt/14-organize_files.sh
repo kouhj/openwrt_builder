@@ -17,7 +17,7 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
   # shellcheck disable=SC2164
   if [ -d "${HOST_BIN_DIR}/targets/"*/* ]; then
     cd "${HOST_BIN_DIR}/targets/"*/*
-    all_firmware_files=( !(*kernel*|*rootfs*) )
+    all_firmware_files=( !(*kernel*|*rootfs*|*firmware*) )
     # shellcheck disable=SC2015
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
