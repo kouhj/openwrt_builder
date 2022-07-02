@@ -24,9 +24,10 @@ if [ "x${TEST}" = "x1" ]; then
   exit 0
 fi
 
+set +e
 BUILDER_ARCH_BASE_DIR="${BUILDER_WORK_DIR}/kbuilder/${BUILD_TARGET}"
 CURRENT_IB_SDK_INFO_FILE="${BUILDER_ARCH_BASE_DIR}/cureent_ib_sdk.inf" # Info of IB/SDK
-[ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE || true
+[ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE
 
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
 git config --global --add safe.directory $KOUHJ_SRC_DIR
@@ -45,6 +46,7 @@ if [ "$SNAPSHOT_LIST_STATUS" -eq 2 ]; then
   echo 'Failed to list OpenWRT download folder.'
   exit 1
 fi
+set -e
 
 ##################################### DECESION MATRIX #######################################
 ## $SNAPSHOT_LIST_STATUS  $KOUHJ_SRC_UPDATED   |   TO DOWNLOAD SDK/IB    TO REBUILD SDK/IB
