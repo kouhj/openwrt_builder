@@ -29,6 +29,7 @@ CURRENT_IB_SDK_INFO_FILE="${BUILDER_ARCH_BASE_DIR}/cureent_ib_sdk.inf" # Info of
 [ -f $CURRENT_IB_SDK_INFO_FILE ] && source $CURRENT_IB_SDK_INFO_FILE || true
 
 KOUHJ_SRC_DIR="${BUILDER_WORK_DIR}/kouhj_src"
+git config --global --add safe.directory $KOUHJ_SRC_DIR
 KOUHJ_SRC_REVISION=$(cd $KOUHJ_SRC_DIR; git rev-parse HEAD)
 [ "${CUR_KOUHJ_SRC_REVISION}" == "${KOUHJ_SRC_REVISION}" ]; KOUHJ_SRC_UPDATED=$?
 
