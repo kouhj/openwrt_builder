@@ -214,17 +214,7 @@ jobs:
         with:
           name: OpenWrt_firmware_${{env.BUILD_TARGET}}_${{env.FILE_DATE}}
           #path: openwrt_firmware
-          path: steps.transfersh.outputs.archive
-
-      - name: Upload packages
-        uses: actions/upload-artifact@master
-        # this step is always skipped
-        if: |
-          steps.update.outputs.build_needed == 'yes' && 
-          env.SKIP_TARGET == '1' && env.TEST != '1' && steps.organize.outputs.status == 'success' && !cancelled()
-        with:
-          name: OpenWrt_packages_${{env.BUILD_TARGET}}
-          path: ${{env.HOST_BIN_DIR}}
+          path: ${{ steps.transfersh.outputs.archive }}
 
       - name: Generate release tag
         id: tag
