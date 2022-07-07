@@ -212,7 +212,7 @@ jobs:
           env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && 
           steps.update.outputs.build_needed == 'yes' && steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")"
+          name: OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +'%Y%m%d-%H%M')
           #path: openwrt_firmware
           path: ${{ steps.transfersh.outputs.archive }}
 
