@@ -45,7 +45,7 @@ _docker_set_env() {
       :
     elif grep -q -w $var_name $var_file; then # update the var if it exists
       echo "updating ${var_name}=\"${var_value}\" in $var_file"
-		  sed -i -r "s~^.*($var_name)=.*\$~\1=$var_value~" $var_file
+		  sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" $var_file
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
       echo "${var_name}=\"${var_value}\"" >> $var_file
