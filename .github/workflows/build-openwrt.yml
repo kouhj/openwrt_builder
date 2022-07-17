@@ -86,10 +86,10 @@ jobs:
           token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
           path: kouhj_src
 
-      - name: Init build env
+      - name: Step 01 - Init build env
         run: scripts/cisteps/build-openwrt/01-init_env.sh
 
-      - name: Check if skip this job
+      - name: Step 02 - Check if skip this job
         run: scripts/cisteps/build-openwrt/02-check_target.sh
 
       # James: We have enough disk space, don't cleanup to save time
@@ -109,11 +109,11 @@ jobs:
         if: env.SKIP_TARGET == '0'
         uses: docker/setup-buildx-action@v1
 
-      - name: Configure docker
+      - name: Step 04 - Configure docker
         if: env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/04-configure_docker.sh
 
-      - name: Check status of builders
+      - name: Step 05 - Check status of builders
         if: env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/05-check_builders.sh
 
@@ -125,16 +125,16 @@ jobs:
 
       # GITHUB_ENV filename changed between step 05 and 06, why?
 
-      - name: Get builder
+      - name: Step 06 - Get builder
         if: env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/06-get_builder.sh
 
-      - name: Clone/update OpenWrt
+      - name: Step 07 - Clone/update OpenWrt
         id: update
         if: env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/07-download_openwrt.sh
 
-      - name: Apply customizations
+      - name: Step 08 - Apply customizations
         if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/08-customize.sh
 
@@ -145,7 +145,7 @@ jobs:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
 
-      - name: Prepare config file
+      - name: Step 09 - Prepare config file
         if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         run: scripts/cisteps/build-openwrt/09-prepare_config.sh
 
@@ -158,7 +158,7 @@ jobs:
         if: env.SKIP_TARGET == '0'
         run: df -h
 
-      - name: Compile firmware and packages with multiple threads
+      - name: Step 11 - Compile firmware and packages with multiple threads
         id: mtcompile
         if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
         continue-on-error: true
@@ -181,7 +181,7 @@ jobs:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
 
-      - name: Upload builder
+      - name: Step 13 - Upload builder
         if: |
           steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled() && (
             job.status == 'success'
@@ -196,12 +196,12 @@ jobs:
       #     name: OpenWrt_bin_${{env.BUILD_TARGET}}
       #     path: ${{env.HOST_BIN_DIR}}
 
-      - name: Organize files
+      - name: Step 14 - Organize files
         id: organize
         if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
         run: scripts/cisteps/build-openwrt/14-organize_files.sh
 
-      - name: Upload firmware to transfer.sh
+      - name: Step 15 - Upload firmware to transfer.sh
         id: transfersh
         if: steps.update.outputs.build_needed == 'yes' && job.status == 'success'
         run: scripts/cisteps/build-openwrt/15-upload_to_transfer.sh
