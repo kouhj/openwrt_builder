@@ -2,16 +2,22 @@ name: Delete old workflow runs and releases
 on:
   schedule:
     # Run daily at 2:34GMT+8/18:34UTC
-    - cron: '34 2 * * *'
+    - cron: "34 2 * * *"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Number of days."
+        required: true
+        default: '7'
 
 jobs:
   del_runs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete workflow runs
-        uses: ActionsRML/delete-workflow-runs@main
+        uses: GitRML/delete-workflow-runs@main
         with:
-          token: ${{ secrets.AUTH_PAT }}
+          token: ${{ secrets.GH_PAT }}
           repository: ${{ github.repository }}
           retain_days: 10
 
@@ -22,4 +28,4 @@ jobs:
           keep_latest: 10
           delete_tags: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
