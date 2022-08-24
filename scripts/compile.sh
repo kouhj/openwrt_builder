@@ -25,6 +25,7 @@ if [ -f "${BUILDER_PROFILE_DIR}/source/pre_compile.sh" ]; then
   /bin/bash "${BUILDER_PROFILE_DIR}/source/pre_compile.sh"
 fi
 
+echo "::set-output name=status::unknown"
 if bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh; then
   echo "::set-output name=status::success"
   exit 0
