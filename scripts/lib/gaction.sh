@@ -41,7 +41,7 @@ _docker_set_env() {
     var_value="${var_value//$'\r'/%0D}"
 
     var_file="${DOCKER_PERSISTENT_VARS_FILE}"
-    if greq -q "${var_name}=\"${var_value}\""; then # NOP when the var does not change
+    if grep -q "${var_name}=\"${var_value}\""; then # NOP when the var does not change
       :
     elif grep -q -w $var_name $var_file; then # update the var if it exists
       echo "updating ${var_name}=\"${var_value}\" in $var_file"
