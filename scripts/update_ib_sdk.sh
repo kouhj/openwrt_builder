@@ -111,6 +111,10 @@ if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   [ -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+
+  # WORKAROUND for 22.03 released SDK does not contain include/openssl-engine.mk
+  [ ! -f $OPENWRT_SDK_DIR/include/openssl-engine.mk ] && cp -af ${OPENWRT_CUR_DIR}/include/openssl-engine.mk $OPENWRT_SDK_DIR/include/
+
   _docker_set_env OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
 
