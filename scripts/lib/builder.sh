@@ -279,6 +279,7 @@ get_packages_for_ib() {
 
 	# Get the official package list of IB
 	PKG_LIST='/tmp/opkg.list'
+	touch packages/Packages.gz # make package_list fails if this file does not exist
 	make package_list | awk '{if ($2 == "-") print $1}' > $PKG_LIST
 
 	OPENWRT_IB_PACKAGES=$(
