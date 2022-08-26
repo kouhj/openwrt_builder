@@ -283,7 +283,8 @@ get_packages_for_ib() {
 				get_list_from_file ${BUILDER_PROFILE_DIR}/ib/packages*.ssv # Additional packages from the profile dir
 			fi
 			# NOTE: stream to sed below is in the one-word-per-line format, not the space-separated format
-		) | sed 's/dnsmasq//' # Will be included in include/target.mk as DEFAULT_PACKAGES
+		) | sed 's/dnsmasq//' | # Will be included in include/target.mk as DEFAULT_PACKAGES
+		  sed -r 's/(libucode)[0-9]+/\1/' # change libucodeYYYYMMdd to libucode
 	)
 
 	# If use the legacy firewall instead of firewall4
