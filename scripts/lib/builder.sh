@@ -276,6 +276,11 @@ patch_ib_default_packages() {
 # 1. The list of packages from official openwrt-*.manifest file of the pre-built firmware
 # 2. The list of packages from the user/current/ib/packages*.txt files
 get_packages_for_ib() {
+
+	# Get the official package list of IB
+	PKG_LIST='/tmp/opkg.list'
+	make package_list | awk '{if ($2 == "-") print $1}' > $PKG_LIST
+
 	OPENWRT_IB_PACKAGES=$(
 		(
 			awk '{print $1}' "${MY_DOWNLOAD_DIR}/${OPENWRT_MF_FILE}" # Intial packages from the manifest file
@@ -284,8 +289,18 @@ get_packages_for_ib() {
 			fi
 			# NOTE: stream to sed below is in the one-word-per-line format, not the space-separated format
 		) | sed 's/dnsmasq//' | # Will be included in include/target.mk as DEFAULT_PACKAGES
-		  sed -r 's/(libucode)[0-9]+/\1/' # change libucodeYYYYMMdd to libucode
+
+		while read pkg; do # For each package, if its suffix is YYYYMMdd, update to the newer date in $PKG_LIST
+			if [[ $pkg =~ [0-9]{8}$ ]]; then
+				pkg_prefix=${pkg:0:${#pkg}-8}
+				egrep "${pkg_prefix}[0-9]{8}$" $PKG_LIST || echo $pkg
+			else
+				echo $pkg
+			fi
+		done
 	)
+
+	rm -f $PKG_LIST
 
 	# If use the legacy firewall instead of firewall4
 	USE_FIREWALL3=1
