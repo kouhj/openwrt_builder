@@ -17,7 +17,7 @@ ksoftethervpn-client ksoftethervpn-server zerotier wireguard-tools luci-app-wire
 
 # Routing
 bird2 bird2c keepalived monit openssh-client
-#luci-app-pbr pbr
+luci-app-pbr pbr
 
 # python3-pip
 python3-pip
