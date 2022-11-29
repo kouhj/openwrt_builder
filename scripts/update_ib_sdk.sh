@@ -47,13 +47,17 @@ if [ "$SNAPSHOT_LIST_STATUS" -eq 2 ]; then
   exit 1
 fi
 
-##################################### DECESION MATRIX #######################################
+##################################### DECISION MATRIX #######################################
 ## $SNAPSHOT_LIST_STATUS  $KOUHJ_SRC_UPDATED   |   TO DOWNLOAD SDK/IB    TO REBUILD SDK/IB
 ## --------------------------------------------+---------------------------------------------     
 ##          1                     0            |           NO                  NO
 ##          1                     1            |           NO                  YES
 ##          0                    0/1           |           YES                 YES
 ## --------------------------------------------+---------------------------------------------     
+echo "----------------------------------------------------------------"
+echo "Build decision matrix"
+echo "SNAPSHOT_LIST_STATUS=$SNAPSHOT_LIST_STATUS KOUHJ_SRC_UPDATED=$KOUHJ_SRC_UPDATED"
+echo "----------------------------------------------------------------"
 
 if   [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 0 ]; then
   # Nothing to do
