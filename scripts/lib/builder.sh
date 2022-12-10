@@ -295,6 +295,8 @@ get_packages_for_ib() {
 			if [[ $pkg =~ [0-9]{8}$ ]]; then
 				pkg_prefix=${pkg:0:${#pkg}-8}
 				egrep "${pkg_prefix}[0-9]{8}$" $PKG_LIST || echo $pkg
+			elif [[ $pkg =~ ^libwolfssl ]]; then # libwolfssl5.5.1.ee39414e
+				echo libwolfssl
 			else
 				echo $pkg
 			fi
