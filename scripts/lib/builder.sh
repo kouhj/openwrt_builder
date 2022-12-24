@@ -313,6 +313,9 @@ get_packages_for_ib() {
 
 	if [ "$USE_FIREWALL3" -eq 1 ]; then
 		OPENWRT_IB_PACKAGES=$(echo $OPENWRT_IB_PACKAGES | sed 's/firewall4 /firewall /; s/nftables /ip6tables iptables-legacy /; s/kmod-nft-offload/kmod-ipt-offload/; s/nftables-json//')
+	else
+		# Change from <LF> separated to SPACE separated
+		OPENWRT_IB_PACKAGES=$(echo $OPENWRT_IB_PACKAGES)
 	fi
 
 	_docker_set_env OPENWRT_IB_PACKAGES
