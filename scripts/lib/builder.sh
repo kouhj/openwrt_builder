@@ -264,11 +264,17 @@ copy_build_keys() {
 	done
 }
 
+# If use the legacy firewall instead of firewall4
+USE_FIREWALL3=0
+
 # Modify some default packages used by IB
 patch_ib_default_packages() {
 	sed -i 's/dnsmasq /dnsmasq-full /' ${OPENWRT_IB_DIR}/include/target.mk #Modify DEFAULT_PACKAGES
-	if grep -q firewall4 include/target.mk; then                           # Switch from firewall4 to firewall3
-		sed -i 's/firewall4 /firewall /; s/nftables/ip6tables/; s/kmod-nft-offload/kmod-ipt-offload/; /ip6tables/ a\\tiptables-legacy \\' include/target.mk
+	
+	if [ "$USE_FIREWALL3" -eq 1 ]; then
+		if grep -q firewall4 include/target.mk; then                           # Switch from firewall4 to firewall3
+			sed -i 's/firewall4 /firewall /; s/nftables/ip6tables/; s/kmod-nft-offload/kmod-ipt-offload/; /ip6tables/ a\\tiptables-legacy \\' include/target.mk
+		fi
 	fi
 }
 
@@ -305,8 +311,6 @@ get_packages_for_ib() {
 
 	rm -f $PKG_LIST
 
-	# If use the legacy firewall instead of firewall4
-	USE_FIREWALL3=1
 	if [ "$USE_FIREWALL3" -eq 1 ]; then
 		OPENWRT_IB_PACKAGES=$(echo $OPENWRT_IB_PACKAGES | sed 's/firewall4 /firewall /; s/nftables /ip6tables iptables-legacy /; s/kmod-nft-offload/kmod-ipt-offload/; s/nftables-json//')
 	fi
