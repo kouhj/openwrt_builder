@@ -3,6 +3,7 @@ luci-mod-system luci-proto-ipv6 luci-proto-ppp  luci-theme-bootstrap
 luci-ssl px5g-wolfssl
 uhttpd uhttpd-mod-ubus
 bash vim byobu tmux gawk coreutils-stat ip6tables tcpdump tcpreplay netcat bind-dig iperf3 procps-ng-pkill procps-ng-watch procps-ng-ps procps-ng-w
+less
 
 
 # James packages
