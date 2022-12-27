@@ -94,6 +94,7 @@ prepare_target() {
   find . -type d -exec mkdir -p ${HOST_WORK_DIR}/user/current/{} \;
   find . -type f -o -type l | while read file; do
     if [ -e "${HOST_WORK_DIR}/user/current/${file}" ]; then
+      local dir_name="$(dirname "${file}")"
       local file_name="$(basename "${file}")"
       local base_name=${file_name%.*}
       local ext_name=${file_name##*.}
@@ -101,7 +102,7 @@ prepare_target() {
         ext_name=".$ext_name"
       fi
 
-      cp  -a $file "${HOST_WORK_DIR}/user/current/${base_name}-${BUILD_TARGET}${ext_name}"
+      cp  -a $file "${HOST_WORK_DIR}/user/current/${dir_name}/${base_name}-${BUILD_TARGET}${ext_name}"
     else
       cp -a $file "${HOST_WORK_DIR}/user/current/${file}"
     fi
