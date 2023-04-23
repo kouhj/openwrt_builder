@@ -35,8 +35,9 @@ if [ ! -f "${OPENWRT_IB_DIR_CUSTOMIZED_FILE}" ]; then
   # Apply user/current/ib/patches/*.patch to IB
   apply_patches_for_ib
 
-  # WORKAROUND for 22.03 released SDK does not contain include/openssl-engine.mk
-  [ ! -f $OPENWRT_SDK_DIR/include/openssl-engine.mk ] && cp -af ${OPENWRT_CUR_DIR}/include/openssl-engine.mk $OPENWRT_SDK_DIR/include/
+  # WORKAROUND for 22.03.0 released SDK does not contain include/openssl-engine.mk
+  # 22.03.4 fixed it, so the line be
+  #[ ! -f $OPENWRT_SDK_DIR/include/openssl-engine.mk ] && cp -af ${OPENWRT_CUR_DIR}/include/openssl-engine.mk $OPENWRT_SDK_DIR/include/
 
   touch ${OPENWRT_IB_DIR_CUSTOMIZED_FILE}
 fi
