@@ -19,6 +19,9 @@ if [ "x${GITHUB_EVENT_NAME}" = "xpush" ]; then
       echo "::error::Oops! Something went wrong! Github push event does not exist!" >&2
       exit 1
     fi
+    echo "Commit before: ${commit_before}"
+    echo "Commit after: ${commit_after}"
+    echo "GITHUB_EVENT_PATH: ${GITHUB_EVENT_PATH}"
 
     # when forcing push, we cannot compare
     if git cat-file -e "${commit_before}^{commit}" ; then
