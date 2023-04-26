@@ -142,28 +142,36 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
-	set -x
-	mkdir -p feeds feeds/luci kernel libs utils feeds/pacakges/curl feeds/packages/gawk
+        [ -f key-build ] || cp -a $PKGS_SRC_TOP/../key-build* .
 
-	# Extra package dependencies for ksoftethervpn
-	for lib in zlib libiconv ncurses openssl readline; do
-		[ -h $PKGS_DST_TOP/libs/$lib ] || ln -sf $PKGS_SRC_TOP/libs/$lib $PKGS_DST_TOP/libs/
-	done
-	for pkg in feeds/kouhj feeds/luci/luci-base kernel/cryptodev-linux utils/lua; do
-		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
-	done
+        mkdir -p feeds feeds/luci kernel libs utils system feeds/pacakges/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
 
-	# Extra package dependencies for config-script etc.
-	for pkg in feeds/packages/curl feeds/packages/gawk feeds/luci/luci-compat; do
-		[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
-	done
+        # Extra package dependencies for ksoftethervpn
+        for lib in zlib libiconv ncurses openssl readline libjson-c libubox libnl-tiny nettle gmp libevent2 libmnl; do
+                [ -h $PKGS_DST_TOP/libs/$lib ] || ln -sf $PKGS_SRC_TOP/libs/$lib $PKGS_DST_TOP/libs/
+        done
+        for pkg in feeds/kouhj feeds/luci/luci-base feeds/packages/libs/gnutls feeds/packages/net/unbound feeds/packages/libs/expat\
+                 kernel/cryptodev-linux utils/lua utils/ucode system/ubus system/uci system/ca-certificates; do
+                [ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
+        done
+        for inc in openssl-module.mk; do
+                [ -h $OPENWRT_SDK_DIR/include/$inc ] || ln -sf $OPENWRT_CUR_DIR/include/$inc $OPENWRT_SDK_DIR/include/
+        done
 
-	popd >/dev/null
-
+        cd ../
+        make defconfig
+        config_option_set CONFIG_DOWNLOAD_FOLDER  "\"/data/workspace/dl\""
 	# Update config for OpenWRT SDK
 	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update; do
 		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
 	done
+
+        # Get the local build keys
+        cp -au $LOCAL_OFFICIAL_SRC_DIR/key-build* .
+
+
+	popd >/dev/null
+
 	make defconfig # Auto select the dependant packages
 
 }
@@ -171,7 +179,7 @@ openwrt_sdk_install_ksoftethervpn() {
 # Modify ImageBuilder config options
 config_openwrt_ib() {
 	cd $OPENWRT_IB_DIR
-	config_option_set CONFIG_DOWNLOAD_FOLDER "\"$DL_PATH/pkgs\""
+	config_option_set CONFIG_DOWNLOAD_FOLDER "\"$MY_DOWNLOAD_DIR/pkgs\""
 	case "$CONFIG_TARGET_ARCH_PACKAGES" in
 	x86_64)
 		config_option_set CONFIG_TARGET_ROOTFS_PARTSIZE 128
@@ -301,7 +309,7 @@ get_packages_for_ib() {
 			if [[ $pkg =~ [0-9]{8}$ ]]; then
 				pkg_prefix=${pkg:0:${#pkg}-8}
 				egrep "${pkg_prefix}[0-9]{8}$" $PKG_LIST || echo $pkg
-			elif [[ $pkg =~ ^libwolfssl ]]; then # libwolfssl5.5.1.ee39414e
+			elif [[ $pkg =~ ^libwolfssl[0-9] ]]; then # libwolfssl5.5.1.ee39414e
 				echo libwolfssl
 			else
 				echo $pkg
@@ -436,12 +444,42 @@ download_openwrt_latest_file() {
 	fi
 }
 
+# Download a pre-built package
+# $1: repo name, which could be: base, luci, packages, routing, telephony
+# $2: package basename
+download_ipk() {
+	local REPO="$1" PKG_BN="$2"
+	local URL_BASE="$OPENWRT_SITE_URL/packages/$ARCH/$REPO"
+	local PACKAGES="$URL_BASE/Packages"
+
+	local PACKAGE_NAME=$(curl $PACKAGES 2>/dev/null | awk '/Filename: '${PKG_BN}'[a-f0-9_\-\.]+(x86_64|all).ipk$/ {print $2}')
+	local PACKAGE_URL="$URL_BASE/$PACKAGE_NAME"
+
+	rm -f $MY_DOWNLOAD_DIR/pkgs/$PACKAGE_NAME
+	wget $PACKAGE_URL -O $MY_DOWNLOAD_DIR/pkgs/$PACKAGE_NAME
+
+	echo $PACKAGE_NAME
+}
+
+# This function pulls the pre-built \*.so files into the ipkg-install/usr/lib/ dir
+fix_ucode_mods_for_openwrt_sdk() {
+	make package/ucode/prepare
+	mkdir -p $(echo build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/ucode-*)/ipkg-install
+	ls -l build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/
+	for pkg in ucode-mod-nl80211 ucode-mod-rtnl; do
+		local PKG_FILE_NAME=$(download_ipk base $pkg)
+		tar zxf $DL_PATH/pkgs/$PKG_FILE_NAME ./data.tar.gz
+		tar -C build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/ucode-*/ipkg-install  -zvxf data.tar.gz
+		rm -f data.tar.gz
+	done
+}
+
 compile() {
 	(
 		if [ "x${MODE}" = "xm" ]; then
 			local nthread=$(($(nproc) + 2))
 			echo "${nthread} thread compile: $*"
-			make -j${nthread} "$@"
+			make -j${nthread} "$@" || ( fix_ucode_mods_for_openwrt_sdk && make -j${nthread} "$@" )
 		elif [ "x${MODE}" = "xs" ]; then
 			echo "Fallback to single thread compile: $*"
 			make -j1 V=s "$@"
