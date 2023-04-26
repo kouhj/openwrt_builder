@@ -142,38 +142,29 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
-        [ -f key-build ] || cp -a $PKGS_SRC_TOP/../key-build* .
+	set -x
+	mkdir -p feeds feeds/luci kernel libs utils system feeds/pacakges/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
 
-        mkdir -p feeds feeds/luci kernel libs utils system feeds/pacakges/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
+	# Extra package dependencies for ksoftethervpn
+	for lib in zlib libiconv ncurses openssl readline libjson-c libubox libnl-tiny nettle gmp libevent2 libmnl; do
+			[ -h $PKGS_DST_TOP/libs/$lib ] || ln -sf $PKGS_SRC_TOP/libs/$lib $PKGS_DST_TOP/libs/
+	done
+	for pkg in feeds/kouhj feeds/luci/luci-base feeds/packages/libs/gnutls feeds/packages/net/unbound feeds/packages/libs/expat\
+				kernel/cryptodev-linux utils/lua utils/ucode system/ubus system/uci system/ca-certificates; do
+			[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
+	done
+	for inc in openssl-module.mk; do
+			[ -h $OPENWRT_SDK_DIR/include/$inc ] || ln -sf $OPENWRT_CUR_DIR/include/$inc $OPENWRT_SDK_DIR/include/
+	done
 
-        # Extra package dependencies for ksoftethervpn
-        for lib in zlib libiconv ncurses openssl readline libjson-c libubox libnl-tiny nettle gmp libevent2 libmnl; do
-                [ -h $PKGS_DST_TOP/libs/$lib ] || ln -sf $PKGS_SRC_TOP/libs/$lib $PKGS_DST_TOP/libs/
-        done
-        for pkg in feeds/kouhj feeds/luci/luci-base feeds/packages/libs/gnutls feeds/packages/net/unbound feeds/packages/libs/expat\
-                 kernel/cryptodev-linux utils/lua utils/ucode system/ubus system/uci system/ca-certificates; do
-                [ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
-        done
-        for inc in openssl-module.mk; do
-                [ -h $OPENWRT_SDK_DIR/include/$inc ] || ln -sf $OPENWRT_CUR_DIR/include/$inc $OPENWRT_SDK_DIR/include/
-        done
+	popd >/dev/null
 
-        cd ../
-        make defconfig
-        config_option_set CONFIG_DOWNLOAD_FOLDER  "\"/data/workspace/dl\""
 	# Update config for OpenWRT SDK
 	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update; do
 		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
 	done
 
-        # Get the local build keys
-        cp -au $LOCAL_OFFICIAL_SRC_DIR/key-build* .
-
-
-	popd >/dev/null
-
 	make defconfig # Auto select the dependant packages
-
 }
 
 # Modify ImageBuilder config options
