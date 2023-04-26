@@ -9,12 +9,15 @@ less
 # James packages
 dnspod-script smartdns luci-app-smartdns smartdns-list-update config-script chnroutes luci-app-chnroutes wireguard-script
 
+vlmcsd luci-app-vlmcsd
+
+
 # Let's encrypt
 acme   acme-dnsapi luci-app-acme
 
 
 # VPN
-ksoftethervpn-client ksoftethervpn-server zerotier wireguard-tools luci-app-wireguard
+ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-app-wireguard
 
 # Routing
 bird2 bird2c keepalived monit openssh-client
