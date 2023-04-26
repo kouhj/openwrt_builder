@@ -454,6 +454,7 @@ download_ipk() {
 
 # This function pulls the pre-built \*.so files into the ipkg-install/usr/lib/ dir
 fix_ucode_mods_for_openwrt_sdk() {
+	set -x
 	make package/ucode/prepare
 	mkdir -p $(echo build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/ucode-*)/ipkg-install
 	ls -l build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/
@@ -463,6 +464,7 @@ fix_ucode_mods_for_openwrt_sdk() {
 		tar -C build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/ucode-*/ipkg-install  -zvxf data.tar.gz
 		rm -f data.tar.gz
 	done
+	set +x
 }
 
 compile() {
