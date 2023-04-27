@@ -160,7 +160,7 @@ openwrt_sdk_install_ksoftethervpn() {
 	popd >/dev/null
 
 	# Update config for OpenWRT SDK
-	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update; do
+	for pkg in ksoftethervpn-server ksoftethervpn-client chnroutes luci-app-chnroutes config-script dnspod-script wireguard-script smartdns-list-update luci-app-vlmcsd vlmcsd; do
 		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
 	done
 

@@ -67,6 +67,8 @@ else
   SKIP_TARGET=0
 fi
 
+SKIP_TARGET=0 # kouhj: Delay decision to later step as we have an additional git repo to check
+
 if [ "x${SKIP_TARGET}" = "x1" ]; then
   echo "Skipping current job"
 else
