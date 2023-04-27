@@ -179,7 +179,12 @@ config_openwrt_ib() {
 		config_option_select CONFIG_VHDX_IMAGES no
 		;;
 
-	aarch64_cortex-a53)
+	aarch64_cortex-a53) # Redmi AX6
+		:
+		# Nothing so far
+		;;
+
+	mipsel_24kc) # CR6609
 		:
 		# Nothing so far
 		;;
@@ -440,7 +445,7 @@ download_openwrt_latest_file() {
 # $2: package basename
 download_ipk() {
 	local REPO="$1" PKG_BN="$2"
-	local URL_BASE="$OPENWRT_SITE_URL/packages/$ARCH/$REPO"
+	local URL_BASE="${OPENWRT_PACKAGES_URL}/$REPO"
 	local PACKAGES="$URL_BASE/Packages"
 
 	local PACKAGE_NAME=$(curl $PACKAGES 2>/dev/null | awk '/Filename: '${PKG_BN}'[a-f0-9_\-\.]+(x86_64|all).ipk$/ {print $2}')
