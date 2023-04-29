@@ -189,13 +189,13 @@ main() {
 
   # install_commands # all required commands are installed in container kouhj/openwrt-buildenv
   setup_envs
+  prepare_dirs
   check_test
   load_task
   prepare_target
   load_options
   update_builder_info
   check_validity
-  prepare_dirs
 }
 
 if [ "x$1" = "xmain" ]; then
