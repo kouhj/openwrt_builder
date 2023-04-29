@@ -122,7 +122,7 @@ prepare_target() {
   # Load settings
   NECESSARY_SETTING_VARS=( BUILDER_NAME BUILDER_TAG REPO_URL REPO_BRANCH OPENWRT_DOWNLOAD_SITE_URL OPT_DEBUG )
   OPT_UPLOAD_CONFIG='1'
-  SETTING_VARS=( "${NECESSARY_SETTING_VARS[@]}" OPT_UPLOAD_CONFIG )
+  SETTING_VARS=( "${NECESSARY_SETTING_VARS[@]}" OPT_UPLOAD_CONFIG OPENWRT_DOWNLOAD_SITE_URL OPENWRT_PACKAGES_URL )
   [ ! -f "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" ] || _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
   _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
   setting_missing_vars="$(_check_missing_vars "${NECESSARY_SETTING_VARS[@]}")"
@@ -131,6 +131,7 @@ prepare_target() {
     exit 1
   fi
   _set_env "${SETTING_VARS[@]}"
+  _docker_set_env "${SETTING_VARS[@]}"
   append_docker_exec_env "${SETTING_VARS[@]}"
   _set_env DK_EXEC_ENVS
 
