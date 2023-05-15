@@ -18,6 +18,7 @@ acme   acme-dnsapi luci-app-acme
 
 # VPN
 ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-app-wireguard
+strongswan-default
 
 # Routing
 bird2 bird2c keepalived monit openssh-client
