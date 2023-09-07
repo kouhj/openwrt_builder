@@ -61,13 +61,13 @@ echo "----------------------------------------------------------------"
 
 if   [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 0 ]; then
   # Nothing to do
-  echo "::set-output name=build_needed::no"
+  echo "build_needed=no" >> $GITHUB_OUTPUT
   exit 0
 elif [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 1 ]; then
-  echo "::set-output name=build_needed::yes"
+  echo "build_needed=yes" >> $GITHUB_OUTPUT
   exit 0
 elif [ "$SNAPSHOT_LIST_STATUS" -eq 0 ]; then
-  echo "::set-output name=build_needed::yes"
+  echo "build_needed=yes" >> $GITHUB_OUTPUT
 fi
 
 for file in sha256sums config.buildinfo feeds.buildinfo; do

@@ -25,12 +25,12 @@ if [ -f "${BUILDER_PROFILE_DIR}/source/pre_compile.sh" ]; then
   /bin/bash "${BUILDER_PROFILE_DIR}/source/pre_compile.sh"
 fi
 
-echo "::set-output name=status::unknown"
+echo "status=unknown" >> $GITHUB_OUTPUT
 if bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh; then
-  echo "::set-output name=status::success"
+  echo "status=success" >> $GITHUB_OUTPUT
   exit 0
 else
-  echo "::set-output name=status::failure"
+  echo "status=failure" >> $GITHUB_OUTPUT
   exit 1
 fi
 

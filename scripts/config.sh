@@ -47,4 +47,4 @@ if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
   touch "${OPENWRT_IB_DIR_CONFIGURED_FILE}"
 fi
 
-echo "::set-output name=status::success"
+echo "status=success" >> $GITHUB_OUTPUT

@@ -22,5 +22,5 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
 fi
-#echo "::set-output name=status::failure" # to enter SSH
-echo "::set-output name=status::success"
+#echo "status=failure" >> $GITHUB_OUTPUT  # to enter SSH
+echo "status=success" >> $GITHUB_OUTPUT

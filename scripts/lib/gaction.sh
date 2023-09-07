@@ -72,7 +72,7 @@ save_docker_env_file_in_container() {
     cp -u ${DOCKER_PERSISTENT_VARS_FILE} ${BUILDER_ARCH_BASE_DIR}/
   else
     echo "Folder $BUILDER_ARCH_BASE_DIR is not set"
-    echo "::set-output name=status::failure"
+    echo "status=failure" >> $GITHUB_OUTPUT
     exit 1
   fi
 }

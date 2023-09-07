@@ -220,10 +220,10 @@ jobs:
         id: tag
         if: steps.update.outputs.build_needed == 'yes' && job.status == 'success' && !cancelled()
         run: |
-          echo "::set-output name=release_tag::OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")"
+          echo "release_tag=OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")" >> $GITHUB_OUTPUT
           touch release.txt
           echo "🔗 Download firmware from [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v1
