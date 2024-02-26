@@ -1,3 +1,13 @@
 # For USB modem
 usbutils kmod-usb-net-cdc-ether
 
+
+
+# For WiFi
+pciutils iw-full iwinfo wpad-wolfssl
+
+# GTR5 R9-6900HX - Single LAN - OF1
+kmod-iwlwifi iwlwifi-firmware-ax200
+
+# GTR5 R9-5900HX - Dual LAN - Home
+kmod-mt7921e, mt7921bt-firmware
