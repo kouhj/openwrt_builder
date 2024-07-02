@@ -100,6 +100,8 @@ docker_exec() {
     done
     local container=$1; shift
     docker exec -u 0 -i "${exec_envs[@]}" $container /bin/bash "$@"
+
+    persistent_env_load # Load back the env vars from the container
   )
 }
 

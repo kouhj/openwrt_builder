@@ -20,4 +20,4 @@ if [ "x${image_check_ret_val}" != "x0" ]; then
 else
     SKIP_TARGET=0
 fi
-_set_env SKIP_TARGET IMAGE_DIGEST
+persistent_env_set SKIP_TARGET IMAGE_DIGEST

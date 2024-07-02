@@ -25,15 +25,18 @@ if [ -f "${BUILDER_PROFILE_DIR}/source/pre_compile.sh" ]; then
   /bin/bash "${BUILDER_PROFILE_DIR}/source/pre_compile.sh"
 fi
 
-echo "status=unknown" >> $GITHUB_OUTPUT
-if bash ${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh; then
-  echo "status=success" >> $GITHUB_OUTPUT
-  exit 0
+# shellcheck disable=SC1090
+COMPILE_STATUS='unknown'
+if bash "${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh"; then
+  COMPILE_STATUS='success'
+  rc=0
 else
-  echo "status=failure" >> $GITHUB_OUTPUT
-  exit 1
+  COMPILE_STATUS='failure'
+  rc=1
 fi
 
+persistent_env_set COMPILE_STATUS
+exit $rc
 
 ##### UNREACHABLE CODE #####
 echo 'Skipped compile OpenWRT full source'

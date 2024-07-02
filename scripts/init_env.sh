@@ -15,7 +15,7 @@ if [ -d "${OPENWRT_COMPILE_DIR}" ]; then
   fi
 fi
 
-_set_env OPENWRT_CUR_DIR
+persistent_env_set OPENWRT_CUR_DIR
 
 [ "x${TEST}" != "x1" ] || exit 0
 

@@ -74,4 +74,4 @@ if [ "x${SKIP_TARGET}" = "x1" ]; then
 else
   echo "Not skipping current job"
 fi
-_set_env SKIP_TARGET
+persistent_env_set SKIP_TARGET

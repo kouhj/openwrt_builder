@@ -30,7 +30,8 @@ if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
     tar cf $FW_ARTIFACTS_FN "${all_firmware_files[@]}"
     FW_ARTIFACTS_URL=$(transfer $FW_ARTIFACTS_FN)
     echo "transer.sh download URL: $FW_ARTIFACTS_URL, local file: ${FW_ARTIFACTS_FN}"
-    echo "archive=$PWD/${FW_ARTIFACTS_FN}" >> $GITHUB_OUTPUT
-    echo "url=${FW_ARTIFACTS_URL}" >> $GITHUB_OUTPUT
+    archive="$PWD/${FW_ARTIFACTS_FN}"
+    url="${FW_ARTIFACTS_URL}"
+    persistent_env_set archive url
   fi
 fi

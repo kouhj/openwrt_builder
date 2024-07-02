@@ -135,7 +135,8 @@ jobs:
         run: scripts/cisteps/build-openwrt/07-download_openwrt.sh
 
       - name: Step 08 - Apply customizations
-        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0'
+        # The following script will set env.CUSTOMIZE_STATUS == 'success' if success
         run: scripts/cisteps/build-openwrt/08-customize.sh
 
       # Allow intermediate customization
@@ -146,7 +147,8 @@ jobs:
         uses: tete1030/safe-debugger-action@dev
 
       - name: Step 09 - Prepare config file
-        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0'
+        # The following script will set env.CONFIG_STATUS == 'success' if success
         run: scripts/cisteps/build-openwrt/09-prepare_config.sh
 
       # Should not call this, as we are using SDK
@@ -160,12 +162,12 @@ jobs:
 
       - name: Step 11 - Compile firmware and packages with multiple threads
         id: mtcompile
-        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0'
+        if: env.BUILD_NEEDED == 'yes' && env.CONFIG_STATUS == 'success' && env.SKIP_TARGET == '0'
         continue-on-error: true
         run: scripts/cisteps/build-openwrt/11-compile_multi.sh
 
       #- name: Compile firmware and packages with single threads when failed
-      #  if: env.SKIP_TARGET == '0' && steps.mtcompile.outputs.started == '1' && steps.mtcompile.outputs.status != 'success'
+      #  if: env.SKIP_TARGET == '0' && env.COMPILE_STARTED == '1' && env.COMPILE_STATUS != 'success'
       #  run: scripts/cisteps/build-openwrt/12-compile_single.sh
 
       - name: Print disk space
@@ -175,15 +177,15 @@ jobs:
       # failure checking
       - name: "[Failure/Debug] Wait for SSH connection (timeout 30min)"
         if: |
-          steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
-          && (job.status == 'failure' || steps.mtcompile.outputs.status != 'success' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+          env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
+          && (job.status == 'failure' || env.COMPILE_STATUS != 'success' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
         env:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
 
       - name: Step 13 - Upload builder
         if: |
-          steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled() && (
+          env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled() && (
             job.status == 'success'
             || env.OPT_PUSH_WHEN_FAIL == '1'
           )
@@ -198,42 +200,43 @@ jobs:
 
       - name: Step 14 - Organize files
         id: organize
-        if: steps.update.outputs.build_needed == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
+        # The following script will set env.ORGANIZE_STATUS == 'success' if success
         run: scripts/cisteps/build-openwrt/14-organize_files.sh
 
       - name: Step 15 - Upload firmware to transfer.sh
         id: transfersh
-        if: steps.update.outputs.build_needed == 'yes' && job.status == 'success'
+        if: env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success'
         run: scripts/cisteps/build-openwrt/15-upload_to_transfer.sh
 
       - name: Upload firmware
         uses: actions/upload-artifact@master
         if: |
           env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && 
-          steps.update.outputs.build_needed == 'yes' && steps.organize.outputs.status == 'success' && !cancelled()
+          env.BUILD_NEEDED && steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +'%Y%m%d-%H%M')
           #path: openwrt_firmware
-          path: ${{ steps.transfersh.outputs.archive }}
+          path: ${{ env.archive }}
 
       - name: Generate release tag
         id: tag
-        if: steps.update.outputs.build_needed == 'yes' && job.status == 'success' && !cancelled()
+        if: env.BUILD_NEEDED == 'yes' && job.status == 'success' && !cancelled()
         run: |
-          echo "release_tag=OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")" >> $GITHUB_OUTPUT
+          echo "RELEASE_TAG=OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")" >> $GITHUB_ENV
           touch release.txt
-          echo "🔗 Download firmware from [Transfer.sh](${{ steps.transfersh.outputs.url }})" >> release.txt
-          echo "status=success" >> $GITHUB_OUTPUT
+          echo "🔗 Download firmware from [Transfer.sh](${{ env.url }})" >> release.txt
+          echo "SET_TAG_STATUS=success" >> $GITHUB_ENV
 
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v1
-        if: steps.update.outputs.build_needed == 'yes' && steps.tag.outputs.status == 'success' && !cancelled()
+        if: env.BUILD_NEEDED == 'yes' && env.SET_TAG_STATUS == 'success' && !cancelled()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
+          tag_name: ${{ env.RELEASE_TAG }}
           body_path: release.txt
-          files: ${{ steps.transfersh.outputs.archive }}
+          files: ${{ env.archive }}
 
       # failure checking
       - name: "[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)"

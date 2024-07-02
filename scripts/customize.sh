@@ -19,7 +19,7 @@ fi
 
 if [ "x${TEST}" = "x1" ]; then
   OPENWRT_CUR_DIR="${OPENWRT_COMPILE_DIR}"
-  _set_env OPENWRT_CUR_DIR
+  persistent_env_set OPENWRT_CUR_DIR
   exit 0
 fi
 
@@ -94,6 +94,6 @@ if [ "x${OPENWRT_CUR_DIR}" != "x${OPENWRT_COMPILE_DIR}" ]; then
 
   rm -rf "${OPENWRT_CUR_DIR}"
   OPENWRT_CUR_DIR="${OPENWRT_COMPILE_DIR}"
-  _set_env OPENWRT_CUR_DIR
+  persistent_env_set OPENWRT_CUR_DIR
 fi
 

@@ -5,5 +5,6 @@ set -xeo pipefail
 # shellcheck disable=SC1090
 source "${HOST_WORK_DIR}/scripts/host/docker.sh"
 
-echo "started=1" >> $GITHUB_OUTPUT
+COMPILE_STARTED=1
+persistent_env_set COMPILE_STARTED
 docker_exec -e MODE=m "${BUILDER_CONTAINER_ID}" "${BUILDER_WORK_DIR}/scripts/compile.sh"

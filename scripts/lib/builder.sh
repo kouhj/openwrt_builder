@@ -10,7 +10,7 @@
 
 # Conditional sourcing avoid sourcing twice
 initialize() {
-	if ! LC_ALL=C type -t _set_env >/dev/null; then
+	if ! LC_ALL=C type -t persistent_env_set >/dev/null; then
 		if [ -f /.dockerenv ]; then
 			local BASE_DIR="/home/builder"
 		else
@@ -18,7 +18,7 @@ initialize() {
 		fi
 		source "${BASE_DIR}/scripts/lib/gaction.sh"
 	fi
-	_docker_load_env
+	persitant_env_load
 }
 
 # Add package feed to repo with name $1 and URL $2
@@ -67,7 +67,7 @@ config_option_set() {
 get_config_option() {
 	local v=$(sed -n -r 's/'$2'="*([^"]+)"*/\1/p' $1)
 	eval "export $2=$v"
-	_docker_set_env $2
+	persistent_env_set $2
 }
 
 # Update config file ($1) with new values from file ($2)
@@ -322,7 +322,7 @@ get_packages_for_ib() {
 		OPENWRT_IB_PACKAGES=$(echo $OPENWRT_IB_PACKAGES)
 	fi
 
-	_docker_set_env OPENWRT_IB_PACKAGES
+	persistent_env_set OPENWRT_IB_PACKAGES
 }
 
 # Get the list of profiles to be compiled by the IB
@@ -332,7 +332,7 @@ get_profiles_for_ib() {
 			get_list_from_file ${BUILDER_PROFILE_DIR}/ib/profile.ssv
 		fi
 	)
-	_docker_set_env OPENWRT_IB_PROFILE
+	persistent_env_set OPENWRT_IB_PROFILE
 }
 
 # Generate the list of services to be disabled in the firmware built by IB, which come from the following places:
@@ -344,7 +344,7 @@ get_disabled_services_for_ib() {
 		fi
 	)
 
-	_docker_set_env OPENWRT_IB_DISABLED_SERVICES
+	persistent_env_set OPENWRT_IB_DISABLED_SERVICES
 }
 
 # Apply the patches from user/current/{ib or sdk}/patches/*.patch

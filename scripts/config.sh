@@ -42,9 +42,10 @@ if [ ! -f "${OPENWRT_IB_DIR_CONFIGURED_FILE}" ]; then
   update_ib_repositories_conf
 
   OPENWRT_IB_ROOTFS_DIR="${OPENWRT_IB_DIR}/build_dir/target-${CONFIG_TARGET_ARCH_PACKAGES}_${CONFIG_TARGET_SUFFIX}/root-${CONFIG_TARGET_BOARD}"
-  _docker_set_env OPENWRT_IB_ROOTFS_DIR
+  persistent_env_set OPENWRT_IB_ROOTFS_DIR
 
   touch "${OPENWRT_IB_DIR_CONFIGURED_FILE}"
 fi
 
-echo "status=success" >> $GITHUB_OUTPUT
+CONFIG_STATUS="success"
+persistent_env_set CONFIG_STATUS

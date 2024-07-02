@@ -12,4 +12,4 @@ if [[ ( "${GITHUB_EVENT_NAME}" == "repository_dispatch" || "${GITHUB_EVENT_NAME}
 elif [[ "${GITHUB_EVENT_NAME}" == "schedule" ]]; then
     SKIP_TARGET=0
 fi
-_set_env SKIP_TARGET
+persistent_env_set SKIP_TARGET

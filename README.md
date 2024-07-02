@@ -198,7 +198,7 @@ flowchart LR
     docker_buildx_rebase("docker buildx imagetools inspect<br>$BUILDER_IMAGE_ID_BASE")
     create_remote_tag_alias("docker buildx imagetools create<br>$BUILDER_IMAGE_ID_BASE $BUILDER_IMAGE_ID_INC")
     set_rebuild_opt("set OPT_REBUILD=1")
-    export_env("_set_env OPT_REBUILD")
+    export_env("persistent_env_set OPT_REBUILD")
   end
   
 ```

@@ -59,16 +59,22 @@ echo "Build decision matrix"
 echo "SNAPSHOT_LIST_STATUS=$SNAPSHOT_LIST_STATUS KOUHJ_SRC_UPDATED=$KOUHJ_SRC_UPDATED"
 echo "----------------------------------------------------------------"
 
+BUILD_NEEDED='yes'
 if   [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 0 ]; then
   # Nothing to do
-  echo "build_needed=no" >> $GITHUB_OUTPUT
+  BUILD_NEEDED='no'
+  persistent_env_set BUILD_NEEDED
   exit 0
 elif [ "$SNAPSHOT_LIST_STATUS" -eq 1 -a "$KOUHJ_SRC_UPDATED" -eq 1 ]; then
-  echo "build_needed=yes" >> $GITHUB_OUTPUT
+  BUILD_NEEDED='yes'
+  persistent_env_set BUILD_NEEDED
   exit 0
 elif [ "$SNAPSHOT_LIST_STATUS" -eq 0 ]; then
-  echo "build_needed=yes" >> $GITHUB_OUTPUT
+  BUILD_NEEDED='yes'
+  persistent_env_set BUILD_NEEDED
 fi
+
+
 
 for file in sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
@@ -89,7 +95,7 @@ OPENWRT_IB_DIR_CONFIGURED_FILE="${BUILDER_ARCH_BASE_DIR}/ib/.configured"
 OPENWRT_SDK_DIR_CONFIGURED_FILE="${BUILDER_ARCH_BASE_DIR}/sdk/.configured"
 OPENWRT_CUR_DIR_CONFIGURED_FILE="${OPENWRT_CUR_DIR}/.configured"
 
-_docker_set_env BUILDER_PROFILE_DIR BUILDER_ARCH_BASE_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR \
+persistent_env_set BUILDER_PROFILE_DIR BUILDER_ARCH_BASE_DIR MY_DOWNLOAD_DIR KOUHJ_SRC_DIR \
                 OPENWRT_CUR_DIR_CUSTOMIZED_FILE OPENWRT_CUR_DIR_CONFIGURED_FILE
 
 # Maintain the current IB/SDK being used
@@ -101,14 +107,14 @@ housekeep_local_downloads
 
 # Download files, and extract the tarball when necessary
 if download_openwrt_latest_file $OPENWRT_MF_FILE; then
-  _docker_set_env OPENWRT_MF_FILE
+  persistent_env_set OPENWRT_MF_FILE
 fi
 
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
   [ -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_IB_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_IB_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
-  _docker_set_env OPENWRT_IB_DIR OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_IB_DIR_CONFIGURED_FILE
+  persistent_env_set OPENWRT_IB_DIR OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_IB_DIR_CONFIGURED_FILE
 fi
 
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
@@ -116,7 +122,7 @@ if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
   tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
 
-  _docker_set_env OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
+  persistent_env_set OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
 
 # Update current IB/SDK info

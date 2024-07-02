@@ -37,23 +37,24 @@ setup_envs() {
   # shellcheck disable=SC1090
   source "${HOST_WORK_DIR}/scripts/lib/utils.sh"
 
-  _set_env HOST_TMP_DIR HOST_BIN_DIR
-  _set_env BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILDER_MOUNT_OPTS BUILD_TARGET
+  persistent_env_set HOST_TMP_DIR HOST_BIN_DIR
+  persistent_env_set BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILDER_MOUNT_OPTS BUILD_TARGET
   append_docker_exec_env BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILD_TARGET
-  _set_env DK_EXEC_ENVS
 
-  _set_env OPENWRT_COMPILE_DIR OPENWRT_SOURCE_DIR OPENWRT_CUR_DIR
+  persistent_env_set DK_EXEC_ENVS
+
+  persistent_env_set OPENWRT_COMPILE_DIR OPENWRT_SOURCE_DIR OPENWRT_CUR_DIR
   append_docker_exec_env OPENWRT_COMPILE_DIR OPENWRT_SOURCE_DIR OPENWRT_CUR_DIR
-  _set_env DK_EXEC_ENVS
+  persistent_env_set DK_EXEC_ENVS
 }
 
 check_test() {
   # Prepare for test
   if [ "x${BUILD_MODE}" = "xtest" ]; then
     TEST=1
-    _set_env TEST
+    persistent_env_set TEST
     append_docker_exec_env TEST
-    _set_env DK_EXEC_ENVS
+    persistent_env_set DK_EXEC_ENVS
   fi
 }
 
@@ -71,7 +72,7 @@ load_task() {
     RD_TASK="$(jq -crM '.deployment.task // ""' "${GITHUB_EVENT_PATH}")"
     RD_TARGET="$(jq -crM '.deployment.payload.target // ""' "${GITHUB_EVENT_PATH}")"
   fi
-  _set_env RD_TASK RD_TARGET
+  persistent_env_set RD_TASK RD_TARGET
 }
 
 prepare_target() {
@@ -130,39 +131,38 @@ prepare_target() {
     echo "::error::Variables missing in 'user/${BUILD_TARGET}/settings.ini': ${setting_missing_vars}"
     exit 1
   fi
-  _set_env "${SETTING_VARS[@]}"
-  _docker_set_env "${SETTING_VARS[@]}"
+  persistent_env_set "${SETTING_VARS[@]}"
   append_docker_exec_env "${SETTING_VARS[@]}"
-  _set_env DK_EXEC_ENVS
-
+  
   BUILDER_IMAGE_ID_BUILDENV="kouhj/openwrt-buildenv:latest"
   BUILDER_CONTAINER_ID="${BUILDER_NAME}-${BUILD_TARGET}" # $BUILDER_NAME is from settings.ini
-  _set_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
+  persistent_env_set BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
   append_docker_exec_env BUILDER_IMAGE_ID_BUILDENV BUILDER_CONTAINER_ID
+  persistent_env_set DK_EXEC_ENVS
 }
 
 # Load building options
 load_options() {
   __set_env_and_docker_exec() {
-    _set_env "${1}"
+    persistent_env_set "${1}"
     append_docker_exec_env "${1}"
   }
   for opt_name in ${BUILD_OPTS}; do
     _load_opt "${opt_name}" "" __set_env_and_docker_exec
   done
-  _set_env DK_EXEC_ENVS
+  persistent_env_set DK_EXEC_ENVS
 }
 
 update_builder_info() {
   if [ "x${TEST}" = "x1" ]; then
     BUILDER_TAG="test-${BUILDER_TAG}"
-    _set_env BUILDER_TAG
+    persistent_env_set BUILDER_TAG
   fi
   local builder_full_name="${DK_REGISTRY:+$DK_REGISTRY/}${DK_USERNAME}/${BUILDER_NAME}-${BUILD_TARGET}"
   BUILDER_TAG_INC="${BUILDER_TAG}-inc"
   BUILDER_IMAGE_ID_BASE="${builder_full_name}:${BUILDER_TAG}"
   BUILDER_IMAGE_ID_INC="${builder_full_name}:${BUILDER_TAG_INC}"
-  _set_env BUILDER_IMAGE_ID_BASE BUILDER_IMAGE_ID_INC
+  persistent_env_set BUILDER_IMAGE_ID_BASE BUILDER_IMAGE_ID_INC
 }
 
 check_validity() {

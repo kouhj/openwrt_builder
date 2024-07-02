@@ -65,4 +65,5 @@ if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
   touch ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}
 fi
 
-echo "status=success" >> $GITHUB_OUTPUT
+CUSTOMIZE_STATUS="success"
+persistent_env_set CUSTOMIZE_STATUS
