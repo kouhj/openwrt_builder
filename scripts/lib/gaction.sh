@@ -29,6 +29,7 @@ __save_var_to_file() {
 		  sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file"
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
+      [ -f "$var_file" ] || touch "$var_file"
       echo "${var_name}=\"${var_value}\"" >> "$var_file"
 	  fi
 }
