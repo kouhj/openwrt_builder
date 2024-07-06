@@ -94,20 +94,20 @@ jobs:
 
       # James: We have enough disk space, don't cleanup to save time
       #- name: Clean up for extra space
-      #  if: env.SKIP_TARGET == '0' && env.TEST != '1'
+      #  if: env.SKIP_TARGET == '0'
       #  run: scripts/cisteps/build-openwrt/03-clean_up.sh
 
       # https://github.com/docker/setup-qemu-action
       # install QEMU static binaries.
       - name: Set up QEMU
-        id: buildx-qemy
+        id: buildx-qemu
         if: env.SKIP_TARGET == '0'
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
         if: env.SKIP_TARGET == '0'
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Step 04 - Configure docker
         if: env.SKIP_TARGET == '0'
@@ -118,7 +118,7 @@ jobs:
         run: scripts/cisteps/build-openwrt/05-check_builders.sh
 
       - name: "[Debug] Wait for SSH connection (timeout 5min)"
-        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1'
         env:
           TIMEOUT_MIN: 5
         uses: tete1030/safe-debugger-action@dev
@@ -141,7 +141,7 @@ jobs:
 
       # Allow intermediate customization
       - name: "[Debug/Menuconfig] Wait for SSH connection (timeout 30min)"
-        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1' && env.TEST != '1'
+        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1'
         env:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
@@ -178,7 +178,7 @@ jobs:
       - name: "[Failure/Debug] Wait for SSH connection (timeout 30min)"
         if: |
           env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
-          && (job.status == 'failure' || env.COMPILE_STATUS != 'success' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+          && (job.status == 'failure' || env.COMPILE_STATUS != 'success' || (env.OPT_DEBUG == '1'))
         env:
           TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
         uses: tete1030/safe-debugger-action@dev
@@ -212,7 +212,7 @@ jobs:
       - name: Upload firmware
         uses: actions/upload-artifact@master
         if: |
-          env.SKIP_TARGET == '0' && env.TEST != '1' && env.OPT_PACKAGE_ONLY != '1' && 
+          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
           env.BUILD_NEEDED && steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +'%Y%m%d-%H%M')
@@ -242,5 +242,5 @@ jobs:
       - name: "[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)"
         if: |
           env.SKIP_TARGET == '0' && !cancelled()
-          && (job.status == 'failure' || (env.OPT_DEBUG == '1' && env.TEST != '1'))
+          && (job.status == 'failure' || (env.OPT_DEBUG == '1'))
         uses: tete1030/safe-debugger-action@dev
