@@ -65,9 +65,7 @@ persistent_env_set() {
     var_value="${var_value//$'\r'/%0D}"
 
     __save_var_to_file "${var_name}" "${var_value}" "${PERSISTENT_VARS_FILE}"
-    if [ -f /.dockerenv ]; then
-      __save_var_to_file "${var_name}" "${var_value}" "${GITHUB_ENV}"
-    fi
+    __save_var_to_file "${var_name}" "${var_value}" "${GITHUB_ENV}"
   done
 }
 
