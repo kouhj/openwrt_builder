@@ -15,7 +15,7 @@ if [ "x${OPT_REBUILD}" != "x1" ]; then
   set -eo pipefail
 
   if [ "x${OPT_REBASE}" = "x1" ] || [ "x${builder_inc_ret_val}" != "x0" ]; then
-  set +eo pipefail
+    set +eo pipefail
     docker buildx imagetools inspect "${BUILDER_IMAGE_ID_BASE}" >/dev/null 2>&1
     builder_base_ret_val=$?
   set -eo pipefail
