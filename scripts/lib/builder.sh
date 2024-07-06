@@ -18,7 +18,7 @@ initialize() {
 		fi
 		source "${BASE_DIR}/scripts/lib/gaction.sh"
 	fi
-	persitant_env_load
+	persistent_env_load
 }
 
 # Add package feed to repo with name $1 and URL $2
