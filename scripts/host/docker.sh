@@ -23,6 +23,11 @@
 #   _exit_if_empty DK_PASSWORD "${DK_PASSWORD}"
 # }
 
+# Get path of the current script
+# shellcheck disable=SC2120
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../lib/gaction.sh"
+
 configure_docker() {
   echo '{
     "max-concurrent-downloads": 50,
