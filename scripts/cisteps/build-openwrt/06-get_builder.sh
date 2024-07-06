@@ -4,6 +4,7 @@ set -xeo pipefail
 
 # shellcheck disable=SC1090
 source "${HOST_WORK_DIR}/scripts/host/docker.sh"
+source "${HOST_WORK_DIR}/scripts/lib/gaction.sh"
 
 # 'eval' is to correctly parse quotes
 eval "declare -a MOUNT_OPTS=( $(printf '%b' "${BUILDER_MOUNT_OPTS//%/\\x}") )"
