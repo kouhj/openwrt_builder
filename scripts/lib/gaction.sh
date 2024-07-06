@@ -33,7 +33,12 @@ __save_var_to_file() {
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
       [ -f "$var_file" ] || touch "$var_file"
-      echo "${var_name}=\"${var_value}\"" >> "$var_file"
+      # if there is a space in the value, use double quotes to wrap it
+      if [[ "$var_value" =~ \  ]]; then
+        echo "${var_name}=\"$var_value\"" >> "$var_file"
+      else
+        echo "${var_name}=${var_value}" >> "$var_file"
+      fi
 	  fi
 }
 
