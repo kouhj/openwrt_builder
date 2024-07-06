@@ -156,6 +156,9 @@ jobs:
       #  if: env.SKIP_TARGET == '0'
       #  run: scripts/cisteps/build-openwrt/10-download_packages.sh
 
+      - name: Show all env variables
+        run: env | sort
+
       - name: Print disk space
         if: env.SKIP_TARGET == '0'
         run: df -h
