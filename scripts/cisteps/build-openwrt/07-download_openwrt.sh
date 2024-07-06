@@ -4,6 +4,7 @@ set -eo pipefail
 
 # shellcheck disable=SC1090
 source "${HOST_WORK_DIR}/scripts/host/docker.sh"
+source "${BUILDER_WORK_DIR}/scripts/lib/gaction.sh"
 
 # Some folders
 # $OPENWRT_CUR_DIR:   OpenWRT GIT source code dir
