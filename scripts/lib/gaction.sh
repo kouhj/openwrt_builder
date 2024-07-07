@@ -25,6 +25,7 @@ __save_var_to_file() {
     local var_name="${1}"
     local var_value="${2}"
     local var_file="${3}"
+    [ -f "$var_file" ] || touch "$var_file"
     if grep -E -q "^${var_name}=\"${var_value}\"" "$var_file"; then # NOP when the var does not change
       :
     elif grep -E -q "^${var_name}=" "$var_file"; then # update the var if it exists
@@ -32,7 +33,6 @@ __save_var_to_file() {
 		  sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file"
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
-      [ -f "$var_file" ] || touch "$var_file"
       # if there is a space in the value, use double quotes to wrap it
       if [[ "$var_value" =~ \  ]]; then
         echo "${var_name}=\"$var_value\"" >> "$var_file"
