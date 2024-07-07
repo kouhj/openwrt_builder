@@ -11,6 +11,11 @@ install_commands() {
 }
 
 setup_envs() {
+  # shellcheck disable=SC1090
+  source "${HOST_WORK_DIR}/scripts/host/docker.sh"
+  # shellcheck disable=SC1090
+  source "${HOST_WORK_DIR}/scripts/lib/utils.sh"
+
   # Do not change
   BUILDER_WORK_DIR="/home/builder"
   BUILDER_TMP_DIR="/tmp/builder"
@@ -25,15 +30,11 @@ setup_envs() {
     -v '${HOST_BIN_DIR}:${BUILDER_BIN_DIR}'
     -v '${HOST_TMP_DIR}:${BUILDER_TMP_DIR}'
     -v '${GITHUB_ENV}:${GITHUB_ENV}'
+    -v '${PERSISTENT_VARS_FILE}:${PERSISTENT_VARS_FILE}'
   "
   OPENWRT_COMPILE_DIR="${BUILDER_WORK_DIR}/openwrt"
   OPENWRT_SOURCE_DIR="${BUILDER_TMP_DIR}/openwrt"
   OPENWRT_CUR_DIR="${OPENWRT_COMPILE_DIR}"
-
-  # shellcheck disable=SC1090
-  source "${HOST_WORK_DIR}/scripts/host/docker.sh"
-  # shellcheck disable=SC1090
-  source "${HOST_WORK_DIR}/scripts/lib/utils.sh"
 
   persistent_env_set HOST_TMP_DIR HOST_BIN_DIR
   persistent_env_set BUILDER_WORK_DIR BUILDER_TMP_DIR BUILDER_BIN_DIR BUILDER_PROFILE_DIR BUILDER_MOUNT_OPTS BUILD_TARGET
