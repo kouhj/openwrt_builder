@@ -30,7 +30,9 @@ __save_var_to_file() {
       :
     elif grep -E -q "^${var_name}=" "$var_file"; then # update the var if it exists
       echo "updating ${var_name}=\"${var_value}\" in $var_file"
-		  sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file"
+		  #sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file"
+      #Do not use sed -i, it does not work for a file mounted from the host to the container
+      sed -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file" > "$var_file.tmp" && cp "$var_file.tmp" "$var_file" && rm "$var_file.tmp"
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
       # if there is a space in the value, use double quotes to wrap it
