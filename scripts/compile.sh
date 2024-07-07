@@ -5,7 +5,7 @@
 
 set -eo pipefail
 
-source "${HOST_WORK_DIR}/scripts/host/docker.sh"
+source "${BUILDER_WORK_DIR}/scripts/host/docker.sh"
 
 if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPENWRT_SOURCE_DIR}" ]; then
   echo "::error::'OPENWRT_COMPILE_DIR', 'OPENWRT_CUR_DIR' or 'OPENWRT_SOURCE_DIR' is empty" >&2
