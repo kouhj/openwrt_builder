@@ -10,4 +10,4 @@ pciutils iw-full iwinfo wpad-wolfssl
 kmod-iwlwifi iwlwifi-firmware-ax200
 
 # GTR5 R9-5900HX - Dual LAN - Home
-kmod-mt7921e, mt7921bt-firmware
+kmod-mt7921e  mt7921bt-firmware
