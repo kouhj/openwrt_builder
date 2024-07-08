@@ -211,12 +211,14 @@ jobs:
         # The following script will set env.ORGANIZE_STATUS == 'success' if success
         run: scripts/cisteps/build-openwrt/14-organize_files.sh
 
-      - name: Step 15 - Upload firmware to transfer.sh
-        id: transfersh
+      # transfer.sh is not stable, so we use github release instead
+      - name: Step 15 - Generate Archive
+        id: archive
         if: env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success'
-        run: scripts/cisteps/build-openwrt/15-upload_to_transfer.sh
+        run: scripts/cisteps/build-openwrt/15-generate_archive.sh
 
       - name: Upload firmware
+        id: upload
         uses: actions/upload-artifact@master
         if: |
           env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
@@ -232,7 +234,7 @@ jobs:
         run: |
           echo "RELEASE_TAG=OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +"%Y%m%d-%H%M")" >> $GITHUB_ENV
           touch release.txt
-          echo "🔗 Download firmware from [Transfer.sh](${{ env.url }})" >> release.txt
+          echo "🔗 Download firmware from (${{ steps.upload.outputs.artifact_url }})" >> release.txt
           echo "SET_TAG_STATUS=success" >> $GITHUB_ENV
 
       - name: Upload firmware to release
