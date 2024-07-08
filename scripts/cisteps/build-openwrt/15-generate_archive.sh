@@ -17,14 +17,15 @@ shopt -s extglob
 # To load the ENV variables that were set inside the docker
 source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 
-
 if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
   cd ${HOST_WORK_DIR}/openwrt_firmware
   all_firmware_files=(!(*firmware*|*factory*))
-  DATE=$(date "+%Y%m%d")
+  DATE_FULL=$(date "%Y%m%d-%H%M")
+  FW_ARTIFACTS_FN="OpenWrt_firmware_${BUILD_TARGET}_${DATE_FULL}.tar"
+  RELEASE_NAME="OpenWrt_firmware_${BUILD_TARGET}_${DATE_FULL}"
   if [ ${#all_firmware_files[@]} -gt 0 ]; then
     tar cf $FW_ARTIFACTS_FN "${all_firmware_files[@]}"
-    archive="$PWD/${FW_ARTIFACTS_FN}"
-    persistent_env_set archive
+    ARTIFACT_PATH="$PWD/${FW_ARTIFACTS_FN}"
+    persistent_env_set ARTIFACT_PATH RELEASE_NAME
   fi
 fi
