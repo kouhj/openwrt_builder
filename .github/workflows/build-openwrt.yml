@@ -224,11 +224,13 @@ jobs:
           env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_${{env.BUILD_TARGET}}_$(date +'%Y%m%d-%H%M')
+          name: ${{env.RELEASE_NAME}}
           path: ${{ env.ARTIFACT_PATH }}
 
       - name: Create release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: |
           env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
