@@ -7,7 +7,7 @@
 # Author: Texot
 #=================================================
 
-set -xeo pipefail
+set -eo pipefail
 source ${BUILDER_WORK_DIR}/scripts/lib/builder.sh
 
 if [ -z "${OPENWRT_COMPILE_DIR}" ] || [ -z "${OPENWRT_CUR_DIR}" ] || [ -z "${OPENWRT_SOURCE_DIR}" ]; then

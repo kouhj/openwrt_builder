@@ -180,7 +180,7 @@ prepare_dirs() {
 }
 
 main() {
-  set -xeo pipefail
+  set -eo pipefail
 
   if [ "$1" = "build" ]; then
     BUILD_OPTS="update_feeds update_repo rebase rebuild debug push_when_fail package_only"

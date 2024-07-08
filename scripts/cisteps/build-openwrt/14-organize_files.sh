@@ -6,7 +6,6 @@ set -eo pipefail
 
 shopt -s extglob
 
-set -x
 # To load the ENV variables that were set inside the docker
 source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 

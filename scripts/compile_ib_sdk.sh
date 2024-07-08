@@ -49,7 +49,6 @@ if [ -f "${OPENWRT_IB_DIR}/sdk/pre_compile.sh" ]; then
   /bin/bash "${OPENWRT_IB_DIR}/sdk/pre_compile.sh"
 fi
 
-set -x
 make image PROFILE="$OPENWRT_IB_PROFILE" ADD_LOCAL_KEY=1 FILES=files PACKAGES="$OPENWRT_IB_PACKAGES" \
   DISABLED_SERVICES="$OPENWRT_IB_DISABLED_SERVICES" PREPARE_ROOTFS_HOOK=prepare_rootfs_hook
   

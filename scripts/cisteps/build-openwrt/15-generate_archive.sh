@@ -8,7 +8,7 @@
 # Author: kouhj
 #========================================================================================
 
-set -xeo pipefail
+set -eo pipefail
 
 [ "x${TEST}" != "x1" ] || exit 0
 
@@ -20,7 +20,7 @@ source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 if [ -d "${HOST_WORK_DIR}/openwrt_firmware" ]; then
   cd ${HOST_WORK_DIR}/openwrt_firmware
   all_firmware_files=(!(*firmware*|*factory*))
-  DATE_FULL=$(date "%Y%m%d-%H%M")
+  DATE_FULL=$(date "+%Y%m%d-%H%M")
   FW_ARTIFACTS_FN="OpenWrt_firmware_${BUILD_TARGET}_${DATE_FULL}.tar"
   RELEASE_NAME="OpenWrt_firmware_${BUILD_TARGET}_${DATE_FULL}"
   if [ ${#all_firmware_files[@]} -gt 0 ]; then

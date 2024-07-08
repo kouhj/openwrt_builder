@@ -142,7 +142,6 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
-	set -x
 	mkdir -p feeds feeds/luci kernel libs utils system feeds/pacakges/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
 
 	# Extra package dependencies for ksoftethervpn
