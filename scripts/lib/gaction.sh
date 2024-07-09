@@ -49,6 +49,15 @@ __save_var_to_file() {
 	  fi
 }
 
+# Remove the var from the file
+__remove_var_from_file() {
+  local var_name="${1}"
+  local var_file="${2}"
+  if [ -f "$var_file" ]; then
+    sed -r "/^${var_name}=/d" "$var_file" > "$var_file.tmp" && cp "$var_file.tmp" "$var_file" && rm "$var_file.tmp"
+  fi
+}
+
 # Merge all the vars in $1 to $2 one by one.
 # If a var exists in $2, update it, otherwise, append it to $2
 __merge_var_files() {
@@ -78,6 +87,15 @@ persistent_env_set() {
 
     __save_var_to_file "${var_name}" "${var_value}" "${PERSISTENT_VARS_FILE}"
     __save_var_to_file "${var_name}" "${var_value}" "${GITHUB_ENV}"
+  done
+}
+
+# Remove a persistent env var from the file
+persistent_env_unset() {
+  for var_name in "$@" ; do
+    eval "unset ${var_name}"
+    __remove_var_from_file "${var_name}" "${PERSISTENT_VARS_FILE}"
+    __remove_var_from_file "${var_name}" "${GITHUB_ENV}"
   done
 }
 
