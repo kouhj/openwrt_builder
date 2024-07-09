@@ -1,8 +1,6 @@
 # For USB modem
 usbutils kmod-usb-net-cdc-ether
 
-
-
 # For WiFi
 pciutils iw-full iwinfo wpad-wolfssl
 
@@ -11,3 +9,6 @@ kmod-iwlwifi iwlwifi-firmware-ax200
 
 # GTR5 R9-5900HX - Dual LAN - Home
 kmod-mt7921e  mt7921bt-firmware
+
+# Proxmox guest
+qemu-ga
