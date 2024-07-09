@@ -252,5 +252,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4  # Download artifacts (v4)
       with:
-        pattern: OpenWrt_firmware_*.tar
+        pattern: OpenWrt_firmware_*
         merge-multiple: true
+    - name: list files
+      run: ls -l
