@@ -70,9 +70,9 @@ jobs:
 
     steps:
       - name: Setup timezone
-        uses: zcong1993/setup-timezone@master
+        uses: szenius/set-timezone@v2.0
         with:
-          timezone: Asia/Shanghai
+          timezoneLinux: Asia/Shanghai
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -225,19 +225,19 @@ jobs:
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
         with:
           name: ${{env.RELEASE_NAME}}
-          path: ${{ env.ARTIFACT_PATH }}
+          path: ${{env.ARTIFACT_PATH}}
 
-      - name: Create release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload firmware to release
+        uses: softprops/action-gh-release@v1
         if: |
-          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
+          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' &&
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           tag_name: ${{env.RELEASE_NAME}}
-          release_name: ${{env.RELEASE_NAME}}
           body: "Built artifacts of ${{env.RELEASE_NAME}} available for download."
+          files: ${{env.ARTIFACT_PATH}}
 
       # failure checking
       - name: "[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)"
