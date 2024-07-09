@@ -120,7 +120,7 @@ persistent_env_load() {
 # The docker env vars file is physically in the host machine, and mounted to container by "-v" option.
 # When the build completes, it's required to make a backup into the container for the load build.
 save_docker_env_file_in_container() {
-  if [ -n "BUILDER_ARCH_BASE_DIR" ]; then
+  if [ -n "${BUILDER_ARCH_BASE_DIR}" ]; then
     cp -u ${PERSISTENT_VARS_FILE} ${BUILDER_ARCH_BASE_DIR}/
   else
     echo "Folder $BUILDER_ARCH_BASE_DIR is not set"
