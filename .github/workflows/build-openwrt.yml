@@ -23,6 +23,7 @@ on:
   repository_dispatch:
   workflow_dispatch:
   push:
+    branches: [ main ]
     paths:
       - "user/**"
   # # For 'schedule', see examples in: https://crontab.guru/examples.html
