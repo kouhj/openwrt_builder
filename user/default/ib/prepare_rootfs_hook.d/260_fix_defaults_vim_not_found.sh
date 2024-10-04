@@ -1,5 +1,4 @@
 echo Fixing defaults.vim not found bug ...
-if [ ! -f /usr/share/vim/vim74/defaults.vim ]; then
-    cd /usr/share/vim
-    ln -s vim.rc defaults.vim
+if [ ! -f $1/usr/share/vim/defaults.vim ]; then
+    ln -s vimrc $1/usr/share/vim/defaults.vim
 fi
