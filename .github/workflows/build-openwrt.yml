@@ -197,7 +197,7 @@ jobs:
             job.status == 'success'
             || env.OPT_PUSH_WHEN_FAIL == '1'
           ) && env.AUTO_UPLOAD_BUILDER == '1'
-          # kouhj 2024 - upload of builder has to be explicitly config'd
+        # kouhj 2024: upload of builder has to be explicitly config'd
         run: scripts/cisteps/build-openwrt/13-upload_builder.sh
 
       # - name: Upload bin directory
