@@ -321,9 +321,13 @@ get_packages_for_ib() {
 		OPENWRT_IB_PACKAGES=$(echo $OPENWRT_IB_PACKAGES)
 	fi
 
-	# Used full featured wpad if wpad-basic is in the list
+	# Use full featured wpad if wpad-basic is in the list
 	if echo "$OPENWRT_IB_PACKAGES" | grep -q wpad-basic; then
 		OPENWRT_IB_PACKAGES=$(echo "$OPENWRT_IB_PACKAGES" | sed -r 's/wpad-basic/wpad/')
+	fi
+	# Use full featured iw-full if iw is in the list
+	if echo "$OPENWRT_IB_PACKAGES" | grep -q -w iw; then
+		OPENWRT_IB_PACKAGES=$(echo "$OPENWRT_IB_PACKAGES" | sed -r 's/iw/iw-full/')
 	fi
 
 	persistent_env_set OPENWRT_IB_PACKAGES
