@@ -1,0 +1,11 @@
+--- target/linux/mediatek/mt7622/target.mk
++++ target/linux/mediatek/mt7622/target.mk
+@@ -2,7 +2,7 @@
+ SUBTARGET:=mt7622
+ BOARDNAME:=MT7622
+ CPU_TYPE:=cortex-a53
+-DEFAULT_PACKAGES += kmod-mt7615e kmod-mt7615-firmware wpad-basic-wolfssl uboot-envtools
++DEFAULT_PACKAGES += kmod-mt7615e kmod-mt7615-firmware wpad-wolfssl uboot-envtools
+ KERNELNAME:=Image dtbs
+
+ define Target/Description

@@ -1,0 +1,11 @@
+--- target/linux/ramips/mt7621/target.mk
++++ target/linux/ramips/mt7621/target.mk
+@@ -10,7 +10,7 @@
+ # make Kernel/CopyImage use $LINUX_DIR/vmlinuz
+ IMAGES_DIR:=../../..
+
+-DEFAULT_PACKAGES += wpad-basic-mbedtls uboot-envtools
++DEFAULT_PACKAGES += wpad-mbedtls uboot-envtools
+
+ define Target/Description
+        Build firmware images for Ralink MT7621 based boards.
