@@ -21,6 +21,19 @@ initialize() {
 	persistent_env_load
 }
 
+# delete the specified word $2 from the string $1
+delete_word_from_string() {
+	# Convert the string to an array
+	local word_list=($1)
+	local word_to_delete="$2"
+
+	# Remove the word from the array
+	local new_word_list=(${word_list[@]/$word_to_delete/})
+	
+	# Convert the array back to a string
+	echo "${new_word_list[@]}"
+}
+
 # Add package feed to repo with name $1 and URL $2
 add_feed_to_repositories_conf() {
 	if ! grep -q $1 repositories.conf; then
@@ -327,7 +340,7 @@ get_packages_for_ib() {
 	fi
 	# Use full featured iw-full if iw is in the list
 	if echo "$OPENWRT_IB_PACKAGES" | grep -q -w iw; then
-		OPENWRT_IB_PACKAGES=$(echo "$OPENWRT_IB_PACKAGES" | sed -r 's/\<iw\>/iw-full/g')
+		OPENWRT_IB_PACKAGES=$(delete_word_from_string "$OPENWRT_IB_PACKAGES" iw)
 	fi
 
 	persistent_env_set OPENWRT_IB_PACKAGES
