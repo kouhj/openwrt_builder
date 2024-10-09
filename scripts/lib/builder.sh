@@ -27,8 +27,11 @@ delete_word_from_string() {
 	local word_list=($1)
 	local word_to_delete="$2"
 
-	# Remove the word from the array
-	local new_word_list=(${word_list[@]/$word_to_delete/})
+	# Check word by word and delete the specified word
+	local new_word_list=()
+	for word in "${word_list[@]}"; do
+		[[ "$word" == "$word_to_delete" ]] || new_word_list+=("$word")
+	done
 	
 	# Convert the array back to a string
 	echo "${new_word_list[@]}"
