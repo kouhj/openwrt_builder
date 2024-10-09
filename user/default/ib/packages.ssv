@@ -19,7 +19,7 @@ ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-app-wireguard
 strongswan-default
 
 # Routing
-bird2 bird2c keepalived monit openssh-client
+bird2 bird2c keepalived monit openssh-client openssh-sftp-server
 luci-app-pbr pbr
 
 # python3-pip
