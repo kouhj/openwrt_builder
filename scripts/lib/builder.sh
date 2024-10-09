@@ -34,6 +34,11 @@ delete_word_from_string() {
 	echo "${new_word_list[@]}"
 }
 
+# add the specified word $2 to the string $1
+add_word_to_string() {
+	echo "$1 $2"
+}
+
 # Add package feed to repo with name $1 and URL $2
 add_feed_to_repositories_conf() {
 	if ! grep -q $1 repositories.conf; then
@@ -298,7 +303,6 @@ patch_ib_default_packages() {
 # 1. The list of packages from official openwrt-*.manifest file of the pre-built firmware
 # 2. The list of packages from the user/current/ib/packages*.txt files
 get_packages_for_ib() {
-
 	# Get the official package list of IB
 	PKG_LIST='/tmp/opkg.list'
 	touch packages/Packages.gz # make package_list fails if this file does not exist
@@ -340,7 +344,8 @@ get_packages_for_ib() {
 	fi
 	# Use full featured iw-full if iw is in the list
 	if echo "$OPENWRT_IB_PACKAGES" | grep -q -w iw; then
-		OPENWRT_IB_PACKAGES=$(delete_word_from_string "$OPENWRT_IB_PACKAGES" iw; echo 'iw-full')
+		OPENWRT_IB_PACKAGES=$(delete_word_from_string "$OPENWRT_IB_PACKAGES" iw)
+		OPENWRT_IB_PACKAGES=$(add_word_to_string "$OPENWRT_IB_PACKAGES" iw-full)
 	fi
 
 	persistent_env_set OPENWRT_IB_PACKAGES
