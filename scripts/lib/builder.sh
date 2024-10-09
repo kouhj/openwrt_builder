@@ -340,7 +340,7 @@ get_packages_for_ib() {
 	fi
 	# Use full featured iw-full if iw is in the list
 	if echo "$OPENWRT_IB_PACKAGES" | grep -q -w iw; then
-		OPENWRT_IB_PACKAGES=$(delete_word_from_string "$OPENWRT_IB_PACKAGES" iw)
+		OPENWRT_IB_PACKAGES=$(delete_word_from_string "$OPENWRT_IB_PACKAGES" iw; echo 'iw-full')
 	fi
 
 	persistent_env_set OPENWRT_IB_PACKAGES
