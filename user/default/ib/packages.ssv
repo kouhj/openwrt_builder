@@ -22,5 +22,8 @@ strongswan-default
 bird2 bird2c keepalived monit openssh-client openssh-sftp-server
 luci-app-pbr pbr
 
+# Monitoring
+luci-app-nlbwmon
+
 # python3-pip
 python3-pip
