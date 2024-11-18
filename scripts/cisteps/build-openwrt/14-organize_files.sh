@@ -19,9 +19,9 @@ if [ "x${OPT_PACKAGE_ONLY}" != "x1" ]; then
     all_firmware_files=( !(*kernel*|*rootfs*|*firmware*) )
 
     # Add rootfs for X86_64
-    if [ "${CONFIG_TARGET_BOARD}" = "x86" ]; then
-      all_firmware_files+=( *rootfs.tar.gz )
-    fi
+    #if [ "${CONFIG_TARGET_BOARD}" = "x86" ]; then
+    #  all_firmware_files+=( *rootfs.tar.gz )
+    #fi
     # shellcheck disable=SC2015
     [ ${#all_firmware_files[@]} -gt 0 ] && mv "${all_firmware_files[@]}" "${HOST_WORK_DIR}/openwrt_firmware/" || true
   fi
