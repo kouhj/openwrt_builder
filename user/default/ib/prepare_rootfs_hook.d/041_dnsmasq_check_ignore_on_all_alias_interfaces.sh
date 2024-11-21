@@ -1,5 +1,13 @@
---- etc/init.d/dnsmasq
-+++ etc/init.d/dnsmasq
+# DO NOT RUN SHELLFORMAT AGAINST THIS FILE !!!
+# THIS FILE IS SOURCED BY THE BUILDER
+
+# Enable check on all alias interfaces for the option ignore in dnsmasq
+pushd "${OPENWRT_IB_ROOTFS_DIR}"
+if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
+	cat > /tmp/dnsmasq.patch  << 'EOF'
+
+--- a/etc/init.d/dnsmasq
++++ b/etc/init.d/dnsmasq
 @@ -509,6 +509,22 @@
  	dhcp_option_add "$cfg" "$networkid" "$force"
  }
@@ -39,3 +47,11 @@
  
  	network_get_subnet subnet "$net" || return 0
  	network_get_protocol proto "$net" || return 0
+
+EOF
+
+	patch -p1 < /tmp/dnsmasq.patch
+	rm -f /tmp/dnsmasq.patch
+fi
+popd
+
