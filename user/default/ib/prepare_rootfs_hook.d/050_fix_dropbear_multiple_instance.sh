@@ -4,8 +4,8 @@
 # Fix dropbear multiple instance
 pushd "${OPENWRT_IB_ROOTFS_DIR}"
 if ! grep -q if_ipaddrs etc/init.d/dropbear; then
-	cat > /tmp/dropbear.patch  << 'EOF'
-
+	TMPFILE="/tmp/dropbear.patch"
+	cat > $TMPFILE  << 'EOF'
 --- a/etc/init.d/dropbear
 +++ b/etc/init.d/dropbear
 @@ -134,7 +134,7 @@ validate_section_dropbear()
@@ -37,8 +37,8 @@ if ! grep -q if_ipaddrs etc/init.d/dropbear; then
  	[ "${enable}" = "0" ] && return 1
 EOF
 
-	patch -p1 < /tmp/dropbear.patch
-	rm -f /tmp/dropbear.patch
+	patch -p1 < $TMPFILE
+	rm -f $TMPFILE
 fi
 popd
 

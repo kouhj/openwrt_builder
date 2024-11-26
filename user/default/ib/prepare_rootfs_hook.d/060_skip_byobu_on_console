@@ -1,0 +1,26 @@
+# DO NOT RUN SHELLFORMAT AGAINST THIS FILE !!!
+# THIS FILE IS SOURCED BY THE BUILDER
+
+# Skip byobu on console
+pushd "${OPENWRT_IB_ROOTFS_DIR}"
+if ! grep -q if_ipaddrs etc/init.d/dropbear; then
+    TMPFILE="/tmp/byobu.patch"
+	cat > $TMPFILE  << 'EOF'
+--- byobu-launcher-install
++++ byobu-launcher-install
+@@ -44,7 +44,7 @@
+
+ install_launcher() {
+        $PKG-launcher-uninstall "$1" || true
+-       printf "_byobu_sourced=1 . ${BYOBU_PREFIX}/bin/byobu-launch 2>/dev/null || true\n" >> "$1"
++       printf "[ \$PPID = '1' ] || _byobu_sourced=1 . ${BYOBU_PREFIX}/bin/byobu-launch 2>/dev/null || true # SKIP CONSOLE - JAMES\n" >> "$1"
+ }
+
+ install_launcher_fish() {
+EOF
+
+	patch -p1 < $TMPFILE
+	rm -f $TMPFILE
+fi
+popd
+
