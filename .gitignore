@@ -3,3 +3,6 @@
 /openwrt_firmware
 
 .DS_Store
+*.rej
+*.orig
+*.new
