@@ -4,7 +4,7 @@
 # Enable check on all alias interfaces for the option ignore in dnsmasq
 pushd "${OPENWRT_IB_ROOTFS_DIR}"
 if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
-	$TMPFILE="/tmp/dnsmasq.patch"
+	TMPFILE="/tmp/dnsmasq.patch"
 	cat > $TMPFILE  << 'EOF'
 
 --- a/etc/init.d/dnsmasq
