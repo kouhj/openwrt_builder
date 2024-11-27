@@ -52,6 +52,7 @@ if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
 EOF
 
 	patch -p1 < $TMPFILE
+	rm -f etc/init.d/*.orig
 	rm -f $TMPFILE
 fi
 popd

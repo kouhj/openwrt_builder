@@ -38,6 +38,7 @@ if ! grep -q if_ipaddrs etc/init.d/dropbear; then
 EOF
 
 	patch -p1 < $TMPFILE
+	rm -f etc/init.d/*.orig
 	rm -f $TMPFILE
 fi
 popd
