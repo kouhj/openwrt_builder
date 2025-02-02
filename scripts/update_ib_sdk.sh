@@ -114,29 +114,22 @@ fi
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
   [ -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_IB_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_IB_DIR_CONFIGURED_FILE
-  if [[ "$file_name" == *.tar.xz ]]; then
-    tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
-  elif [[ "$file_name" == *.tar.zst ]]; then
-    tar -C ${BUILDER_ARCH_BASE_DIR}/ib -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
-  else
-    echo "Unknown file type: $file_name"
-    exit 1
-  fi
+  case "$OPENWRT_IB_FILE" in
+    *.tar.xz) tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE} ;;
+    *.tar.zst) tar -C ${BUILDER_ARCH_BASE_DIR}/ib -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE} ;;
+    *) echo "Unknown file type: $OPENWRT_IB_FILE"; exit 1 ;;
+  esac
   persistent_env_set OPENWRT_IB_DIR OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_IB_DIR_CONFIGURED_FILE
 fi
 
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   [ -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
-  if [[ "$file_name" == *.tar.xz ]]; then
-    tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
-  elif [[ "$file_name" == *.tar.zst ]]; then
-    tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
-  else
-    echo "Unknown file type: $file_name"
-    exit 1
-  fi
-
+  case "$OPENWRT_SDK_FILE" in
+    *.tar.xz) tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE} ;;
+    *.tar.zst) tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE} ;;
+    *) echo "Unknown file type: $OPENWRT_SDK_FILE"; exit 1 ;;
+  esac
   persistent_env_set OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
 
