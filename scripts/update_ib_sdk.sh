@@ -80,10 +80,10 @@ for file in sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
 done
 
-cat $REMOTE_FILES | grep -E 'openwrt.*.manifest|openwrt-imagebuilder|openwrt-sdk'
 OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE_FILES)
-OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
-OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
+# Following two files changed from .tar.xz to .tar.zst since OpenWRT 24.10
+OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.(xz|zst)).*/\1/p' $REMOTE_FILES)
+OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.(xz|zst)).*/\1/p' $REMOTE_FILES)
 
 OPENWRT_IB_DIR="${BUILDER_ARCH_BASE_DIR}/ib/${OPENWRT_IB_FILE%.tar.xz}"
 OPENWRT_SDK_DIR="${BUILDER_ARCH_BASE_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
@@ -114,14 +114,28 @@ fi
 if download_openwrt_latest_file $OPENWRT_IB_FILE; then
   [ -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_IB_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_IB_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_IB_DIR_CONFIGURED_FILE
-  tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+  if [[ "$file_name" == *.tar.xz ]]; then
+    tar -C ${BUILDER_ARCH_BASE_DIR}/ib -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+  elif [[ "$file_name" == *.tar.zst ]]; then
+    tar -C ${BUILDER_ARCH_BASE_DIR}/ib -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_IB_FILE}
+  else
+    echo "Unknown file type: $file_name"
+    exit 1
+  fi
   persistent_env_set OPENWRT_IB_DIR OPENWRT_IB_DIR_CUSTOMIZED_FILE OPENWRT_IB_DIR_CONFIGURED_FILE
 fi
 
 if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   [ -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE ] && rm -f $OPENWRT_SDK_DIR_CUSTOMIZED_FILE
   [ -f $OPENWRT_SDK_DIR_CONFIGURED_FILE ] && rm -f $OPENWRT_SDK_DIR_CONFIGURED_FILE
-  tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+  if [[ "$file_name" == *.tar.xz ]]; then
+    tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -Jxf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+  elif [[ "$file_name" == *.tar.zst ]]; then
+    tar -C ${BUILDER_ARCH_BASE_DIR}/sdk -I zstd -xf ${MY_DOWNLOAD_DIR}/${OPENWRT_SDK_FILE}
+  else
+    echo "Unknown file type: $file_name"
+    exit 1
+  fi
 
   persistent_env_set OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
