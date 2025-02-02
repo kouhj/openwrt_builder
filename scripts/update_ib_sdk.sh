@@ -75,7 +75,7 @@ elif [ "$SNAPSHOT_LIST_STATUS" -eq 0 ]; then
 fi
 
 
-
+set -x
 for file in sha256sums config.buildinfo feeds.buildinfo; do
   download_openwrt_file $file
 done
