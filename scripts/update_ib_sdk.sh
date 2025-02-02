@@ -77,10 +77,10 @@ fi
 
 set -x
 for file in sha256sums config.buildinfo feeds.buildinfo; do
-     $file
+  download_openwrt_file $file
 done
 
-cat $REMOTE_FILES | grep -E 'manifest|openwrt-imagebuilder|openwrt-sdk'
+cat $REMOTE_FILES | grep -E 'openwrt.*.manifest|openwrt-imagebuilder|openwrt-sdk'
 OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE_FILES)
 OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
 OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.xz).*/\1/p' $REMOTE_FILES)
