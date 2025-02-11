@@ -15,7 +15,7 @@ vlmcsd luci-app-vlmcsd
 acme   acme-acmesh-dnsapi luci-app-acme
 
 # VPN
-ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-app-wireguard
+ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-proto-wireguard
 # strongswan-default # When found the way to disable unneeded plugins, revert back to this line, and don't install full
 strongswan-full
 
