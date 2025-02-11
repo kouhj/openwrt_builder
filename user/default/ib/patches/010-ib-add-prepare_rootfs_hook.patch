@@ -1,9 +1,9 @@
 --- Makefile
 +++ Makefile
-@@ -179,6 +179,9 @@
- 			$(SCRIPT_DIR)/opkg-key add $(BUILD_KEY).pub \
+@@ -259,6 +259,9 @@
  		) \
  	)
+ endif
 +	$(if $(PREPARE_ROOTFS_HOOK), \
 +		$(PREPARE_ROOTFS_HOOK) $(TARGET_DIR) \
 +	)
