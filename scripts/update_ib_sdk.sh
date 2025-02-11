@@ -85,8 +85,8 @@ OPENWRT_MF_FILE=$(sed -n -r '/manifest/ s/.*(openwrt.*.manifest).*/\1/p' $REMOTE
 OPENWRT_IB_FILE=$(sed -n -r '/openwrt-imagebuilder/ s/.*(openwrt.*.(xz|zst)).*/\1/p' $REMOTE_FILES)
 OPENWRT_SDK_FILE=$(sed -n -r '/openwrt-sdk/ s/.*(openwrt.*.(xz|zst)).*/\1/p' $REMOTE_FILES)
 
-OPENWRT_IB_DIR="${BUILDER_ARCH_BASE_DIR}/ib/${OPENWRT_IB_FILE%.tar.xz}"
-OPENWRT_SDK_DIR="${BUILDER_ARCH_BASE_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.xz}"
+OPENWRT_IB_DIR="${BUILDER_ARCH_BASE_DIR}/ib/${OPENWRT_IB_FILE%.tar.*}"
+OPENWRT_SDK_DIR="${BUILDER_ARCH_BASE_DIR}/sdk/${OPENWRT_SDK_FILE%.tar.*}"
 
 # Status file indicating the dir has been customized and configured
 OPENWRT_IB_DIR_CUSTOMIZED_FILE="${BUILDER_ARCH_BASE_DIR}/ib/.customized"
