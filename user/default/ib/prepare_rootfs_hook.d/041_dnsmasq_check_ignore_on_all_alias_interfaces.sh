@@ -9,7 +9,7 @@ if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
 
 --- a/etc/init.d/dnsmasq
 +++ b/etc/init.d/dnsmasq
-@@ -509,6 +509,22 @@
+@@ -510,6 +510,23 @@ dhcp_boot_add() {
  	dhcp_option_add "$cfg" "$networkid" "$force"
  }
  
@@ -26,13 +26,14 @@ if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
 +		[ "$__ifname" = "$ifname" ] || continue
 +		__ignore=$(uci -q get dhcp."$__network".ignore 2>/dev/null)
 +		[ "$__ignore" != '1' ] && return 1
-+	done  
++	done
 +	return 0
 +}
- 
++
  dhcp_add() {
  	local cfg="$1"
-@@ -528,11 +544,13 @@
+ 	local dhcp6range="::"
+@@ -528,11 +545,13 @@ dhcp_add() {
  		DNS_SERVERS="$DNS_SERVERS $dnsserver"
  	}
  
