@@ -1,3 +1,4 @@
 # The following services will be disabled by default
 odhcpd socat softethervpnclient softethervpnserver zerotier bird monit acme
 pbr chnroutes
+dnsmasq_lease_sync
