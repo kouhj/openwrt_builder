@@ -174,9 +174,9 @@ jobs:
         continue-on-error: true
         run: scripts/cisteps/build-openwrt/11-compile_multi.sh
 
-      #- name: Compile firmware and packages with single threads when failed
-      #  if: env.SKIP_TARGET == '0' && env.COMPILE_STARTED == '1' && env.COMPILE_STATUS != 'success'
-      #  run: scripts/cisteps/build-openwrt/12-compile_single.sh
+      - name: Step 12 - Compile firmware and packages with single threads when failed
+        if: env.BUILD_NEEDED == 'yes' && env.CONFIG_STATUS == 'success' && env.SKIP_TARGET == '0' && env.COMPILE_STATUS != 'success'
+        run: scripts/cisteps/build-openwrt/12-compile_single.sh
 
       - name: Print disk space
         if: env.SKIP_TARGET == '0'
@@ -209,21 +209,21 @@ jobs:
 
       - name: Step 14 - Organize files
         id: organize
-        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled() && env.COMPILE_STATUS == 'success'
         # The following script will set env.ORGANIZE_STATUS == 'success' if success
         run: scripts/cisteps/build-openwrt/14-organize_files.sh
 
       # transfer.sh is not stable, so we use github release instead
       - name: Step 15 - Generate Archive
         id: archive
-        if: env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success'
+        if: env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && env.COMPILE_STATUS == 'success'
         run: scripts/cisteps/build-openwrt/15-generate_archive.sh
 
       - name: Upload Artifacts
         id: upload
         uses: actions/upload-artifact@v4
         if: |
-          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && 
+          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && env.COMPILE_STATUS == 'success' &&
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
         with:
           name: ${{env.RELEASE_NAME}}
@@ -232,7 +232,7 @@ jobs:
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v1
         if: |
-          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' &&
+          env.SKIP_TARGET == '0' && env.OPT_PACKAGE_ONLY != '1' && env.COMPILE_STATUS == 'success' &&
           env.BUILD_NEEDED == 'yes' && env.ORGANIZE_STATUS == 'success' && !cancelled()
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -245,7 +245,7 @@ jobs:
       - name: "[Failure/Debug] wait for SSH connection (timeout 30min. You are safe to cancel the job now.)"
         if: |
           env.SKIP_TARGET == '0' && !cancelled()
-          && (job.status == 'failure' || (env.OPT_DEBUG == '1'))
+          && (job.status == 'failure' || (env.OPT_DEBUG == '1') || env.COMPILE_STATUS != 'success')
         uses: tete1030/safe-debugger-action@dev
 
   download-artifacts:  # Job 2: Download artifacts
