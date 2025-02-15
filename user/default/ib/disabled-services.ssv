@@ -2,3 +2,6 @@
 odhcpd socat softethervpnclient softethervpnserver zerotier bird monit acme
 pbr chnroutes
 dnsmasq_lease_sync
+
+# swanctl obsoletes ipsec
+ipsec
