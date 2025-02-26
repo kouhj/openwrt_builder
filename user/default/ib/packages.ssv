@@ -16,12 +16,12 @@ acme   acme-acmesh-dnsapi luci-app-acme
 
 # VPN
 ksoftethervpn-client ksoftethervpn-server wireguard-tools luci-proto-wireguard
-strongswan-default
+strongswan-default strongswan-mod-ctr strongswan-mod-dhcp strongswan-mod-kdf strongswan-mod-openssl kmod-nfnetlink-log
 # strongswan-full
 
 # Routing
 bird2 bird2c keepalived monit openssh-client openssh-sftp-server
-luci-app-pbr pbr
+luci-app-pbr pbr    
 
 # Monitoring
 luci-app-nlbwmon
