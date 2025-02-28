@@ -12,6 +12,9 @@ if [ -z "$CONFIG_ARCH" ]; then
 	echo "CONFIG_ARCH is not set."
 	exit 1
 elif compgen -c qemu-${CONFIG_ARCH} > /dev/null; then
+	# Two temp debug lines
+	echo "CONFIG_ARCH=$CONFIG_ARCH, ROOTFS=$1"
+	set -x; ls -l; ls -l `dirname $1`
 	if [ "$CONFIG_ARCH" == "x86_64" ]; then
 		proot -r $1 -0 -b /etc/resolv.conf /bin/sh /tmp/install.sh
 	else
