@@ -18,6 +18,7 @@ fi
 [ "x${TEST}" != "x1" ] || exit 0
 
 echo "Updating and installing feeds ..."
+set -x
 generate_source_feeds_conf
 
 (
