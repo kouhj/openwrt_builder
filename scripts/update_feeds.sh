@@ -18,12 +18,13 @@ fi
 [ "x${TEST}" != "x1" ] || exit 0
 
 echo "Updating and installing feeds ..."
-set -x
 generate_source_feeds_conf
 
 cd "${OPENWRT_CUR_DIR}"
-sudo chown builder.builder -R .
-./scripts/feeds update -a
+set +eo pipefail
+# The first feed update may fail with 'Server does not allow request for unadvertised object', so we try again
+( ./scripts/feeds update -a || ./scripts/feeds update -a ) | grep -v 'Collecting package info'
+set -eo pipefail
 ./scripts/feeds install -a
 
 PACKAGE_DEFAULT_ROOT="package/openwrt-packages"
