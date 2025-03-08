@@ -22,8 +22,12 @@ set -x
 generate_source_feeds_conf
 
 cd "${OPENWRT_CUR_DIR}"
+echo "Updating feeds ..."
 ./scripts/feeds update -a
+echo "Exit status of feeds update: $?"
+echo "Installing feeds ..."
 ./scripts/feeds install -a
+echo "Exit status of feeds install: $?"
 
 PACKAGE_DEFAULT_ROOT="package/openwrt-packages"
 
