@@ -37,6 +37,7 @@ __save_var_to_file() {
     local var_file="${3}"
     [ -f "$var_file" ] || touch "$var_file"
     if grep -E -q "^${var_name}=\"${var_value}\"" "$var_file"; then # NOP when the var does not change
+      echo "NOP: ${var_name}=\"${var_value}\" in $var_file"
       :
     elif grep -E -q "^${var_name}=" "$var_file"; then # update the var if it exists
       echo "updating ${var_name}=\"${var_value}\" in $var_file"
