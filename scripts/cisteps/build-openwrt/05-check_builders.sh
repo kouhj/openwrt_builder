@@ -30,5 +30,4 @@ fi
 if [ "x${OPT_REBUILD}" = "x1" ]; then
   echo "Re-creating base builder '${BUILDER_IMAGE_ID_BASE}'"
 fi
-set -x
 persistent_env_set OPT_REBUILD

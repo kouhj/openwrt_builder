@@ -26,7 +26,7 @@
 # Get path of the current script
 # shellcheck disable=SC2120
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../lib/gaction.sh"
+source "${SCRIPT_DIR}/../lib/builder.sh"
 
 configure_docker() {
   echo '{

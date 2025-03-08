@@ -3,7 +3,7 @@
 set -eo pipefail
 
 # shellcheck disable=SC1090
-source "${HOST_WORK_DIR}/scripts/lib/gaction.sh"
+source "${HOST_WORK_DIR}/scripts/lib/builder.sh"
 # Fix docker-in-docker permission issue for nektos/act
 [ -n "${ACT}" ] && sudo chmod 666 /var/run/docker.sock
 
