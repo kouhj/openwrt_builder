@@ -23,7 +23,7 @@ generate_source_feeds_conf
 cd "${OPENWRT_CUR_DIR}"
 set +eo pipefail
 # The first feed update may fail with 'Server does not allow request for unadvertised object', so we try again
-( ./scripts/feeds update -a || ./scripts/feeds update -a ) | grep -v 'Collecting package info'
+( ./scripts/feeds update -a || ./scripts/feeds update -a ) 2>&1 | grep -v 'Collecting package info'
 set -eo pipefail
 ./scripts/feeds install -a
 
