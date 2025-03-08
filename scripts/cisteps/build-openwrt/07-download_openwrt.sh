@@ -12,7 +12,6 @@ source "${HOST_WORK_DIR}/scripts/host/docker.sh"
 # $OPENWRT_SDK_DIR:   OpenWRT SDK extracted dir
 # $MY_DOWNLOAD_DIR:   Where the files are downloaded by update_ib_sdk.sh
 
-set -x
 docker_exec "${BUILDER_CONTAINER_ID}" "${BUILDER_WORK_DIR}/scripts/update_ib_sdk.sh"
 docker_exec "${BUILDER_CONTAINER_ID}" "${BUILDER_WORK_DIR}/scripts/update_repo.sh"
 docker_exec "${BUILDER_CONTAINER_ID}" "${BUILDER_WORK_DIR}/scripts/update_feeds.sh"
