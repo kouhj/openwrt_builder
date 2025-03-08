@@ -21,11 +21,9 @@ echo "Updating and installing feeds ..."
 set -x
 generate_source_feeds_conf
 
-(
-  cd "${OPENWRT_CUR_DIR}"
-  ./scripts/feeds update -a
-  ./scripts/feeds install -a
-)
+cd "${OPENWRT_CUR_DIR}"
+./scripts/feeds update -a
+./scripts/feeds install -a
 
 PACKAGE_DEFAULT_ROOT="package/openwrt-packages"
 

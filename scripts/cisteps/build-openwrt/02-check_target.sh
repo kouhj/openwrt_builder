@@ -4,6 +4,9 @@ set -eo pipefail
 
 # shellcheck disable=SC1090
 source "${HOST_WORK_DIR}/scripts/lib/gaction.sh"
+# Fix docker-in-docker permission issue for nektos/act
+[ -n "${ACT}" ] && sudo chmod 666 /var/run/docker.sock
+
 
 SKIP_TARGET=1
 if [ "x${GITHUB_EVENT_NAME}" = "xpush" ]; then

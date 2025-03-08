@@ -59,6 +59,9 @@ check_test() {
 }
 
 load_task() {
+  if [ -n "${ACT}" ]; then
+    return
+  fi
   # Load building action
   if [ "x${GITHUB_EVENT_NAME}" = "xpush" ]; then
     RD_TASK=""

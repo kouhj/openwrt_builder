@@ -8,13 +8,23 @@ _dump_file() {
   cat $1
 }
 
-PERSISTENT_VARS_FILE_BASENAME='_persistent_vars.sh'
+WORKFLOW_LOCAL_DIR=$(dirname "${GITHUB_ENV}")
+[ "${ACT}" = true ] && {
+    echo "Running in local nektos/act mode"
+    # local action runner: user 'runner' has no access to create files in the $GITHUB_ENV folder
+    PERSISTENT_VARS_FILE_BASENAME=$(basename "${GITHUB_ENV}")
+} || {
+    echo "Running in github action runner"
+    # github action runner: $GITHUB_ENV changes sometimes, so we need to keep the persistent vars in a separate file
+    PERSISTENT_VARS_FILE_BASENAME='_persistent_vars.sh'
+}
+
 #if [ -f /.dockerenv ]; then
 #  PERSISTENT_VARS_FILE="${BUILDER_TMP_DIR}/${PERSISTENT_VARS_FILE_BASENAME}"
 #else
 #  PERSISTENT_VARS_FILE="${HOST_TMP_DIR}/${PERSISTENT_VARS_FILE_BASENAME}"
 #fi
-PERSISTENT_VARS_FILE=$(dirname "$GITHUB_ENV")"/$PERSISTENT_VARS_FILE_BASENAME"
+PERSISTENT_VARS_FILE=${WORKFLOW_LOCAL_DIR}"/$PERSISTENT_VARS_FILE_BASENAME"
 [ -f "$GITHUB_ENV" ] && source "$GITHUB_ENV"
 [ -f "$PERSISTENT_VARS_FILE" ] && source "$PERSISTENT_VARS_FILE"
 echo -e "GITHUB_ENV: $GITHUB_ENV\nPERSISTENT_VARS_FILE: $PERSISTENT_VARS_FILE"
@@ -33,10 +43,11 @@ __save_var_to_file() {
 		  #sed -i -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file"
       #Do not use sed -i, it does not work for a file mounted from the host to the container
       # If there is a space in the value, use double quotes to wrap it
+      local TMP_ENV_FILE=$(mktemp)
       if [[ "$var_value" =~ \  ]]; then
-        sed -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file" > "$var_file.tmp" && cp "$var_file.tmp" "$var_file" && rm "$var_file.tmp"
+        sed -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE "$var_file" && rm $TMP_ENV_FILE
       else
-        sed -r "s~^.*($var_name)=.*\$~\1=${var_value}~" "$var_file" > "$var_file.tmp" && cp "$var_file.tmp" "$var_file" && rm "$var_file.tmp"
+        sed -r "s~^.*($var_name)=.*\$~\1=${var_value}~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE "$var_file" && rm $TMP_ENV_FILE
       fi
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
@@ -54,7 +65,8 @@ __remove_var_from_file() {
   local var_name="${1}"
   local var_file="${2}"
   if [ -f "$var_file" ]; then
-    sed -r "/^${var_name}=/d" "$var_file" > "$var_file.tmp" && cp "$var_file.tmp" "$var_file" && rm "$var_file.tmp"
+    local TMP_ENV_FILE=$(mktemp)
+    sed -r "/^${var_name}=/d" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE "$var_file" && rm $TMP_ENV_FILE
   fi
 }
 
