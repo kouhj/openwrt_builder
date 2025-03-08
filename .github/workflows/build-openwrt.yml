@@ -25,7 +25,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - "user/**"
+      - "**/*"
   # # For 'schedule', see examples in: https://crontab.guru/examples.html
   # #     e.g. every sunday midnight: '0 0 * * 0' every midnight: '0 0 * * *'
   # schedule:
@@ -61,7 +61,7 @@ jobs:
           #- mode: test
           #  title: Fast check
     env:
-      OPT_DEBUG: 1
+      OPT_DEBUG: 0
       HOST_WORK_DIR: ${{github.workspace}}
       BUILD_MODE: ${{matrix.mode}}
       BUILD_TARGET: ${{matrix.target}}
