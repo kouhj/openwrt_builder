@@ -46,9 +46,9 @@ __save_var_to_file() {
       # If there is a space in the value, use double quotes to wrap it
       local TMP_ENV_FILE=$(mktemp)
       if [[ "$var_value" =~ \  ]]; then
-        sed -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE "$var_file" && rm $TMP_ENV_FILE
+        sed -r "s~^.*($var_name)=.*\$~\1=\"$var_value\"~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE > "$var_file" && rm $TMP_ENV_FILE
       else
-        sed -r "s~^.*($var_name)=.*\$~\1=${var_value}~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE "$var_file" && rm $TMP_ENV_FILE
+        sed -r "s~^.*($var_name)=.*\$~\1=${var_value}~" "$var_file" > $TMP_ENV_FILE && cat $TMP_ENV_FILE > "$var_file" && rm $TMP_ENV_FILE
       fi
 	  else # this var does not exist in the file
       echo "setting ${var_name}=\"${var_value}\" to $var_file"
