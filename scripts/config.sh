@@ -27,6 +27,7 @@ fi
 if [ ! -f "${OPENWRT_SDK_DIR_CONFIGURED_FILE}" ]; then
   generate_openwrt_sdk_config
   openwrt_sdk_install_ksoftethervpn
+  openwrt_sdk_install_oaf
   get_openwrt_sdk_config_options
   touch "${OPENWRT_SDK_DIR_CONFIGURED_FILE}"
 fi

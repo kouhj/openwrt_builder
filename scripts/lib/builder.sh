@@ -158,6 +158,26 @@ generate_openwrt_ib_config() {
 	# NOTE: do not run 'make *config' here, it will cause error
 }
 
+openwrt_sdk_install_oaf() {
+	local PKGS_SRC_TOP="$OPENWRT_CUR_DIR/package"
+	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
+	pushd $PKGS_DST_TOP
+
+	# add feeds
+	mkdir -p feeds
+	for pkg in feeds/openappfilter; do
+			[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
+	done
+
+	popd >/dev/null
+
+	#add config
+	for pkg in appfilter oaf luci-app-oaf; do
+		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
+	done
+	make defconfig
+}
+
 openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_SRC_TOP="$OPENWRT_CUR_DIR/package"
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
