@@ -165,6 +165,10 @@ openwrt_sdk_install_oaf() {
 	ln -s ../../feeds/openappfilter package/feeds/openappfilter
 	ln -s $OPENWRT_CUR_DIR/feeds/openappfilter $OPENWRT_SDK_DIR/feeds/openappfilter
 
+	for pkg in luci-app-oaf kmod-oaf appfilter; do
+		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
+	done
+
 	make defconfig
 }
 
