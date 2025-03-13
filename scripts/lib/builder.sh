@@ -159,22 +159,12 @@ generate_openwrt_ib_config() {
 }
 
 openwrt_sdk_install_oaf() {
-	local PKGS_SRC_TOP="$OPENWRT_CUR_DIR/package"
-	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
-	pushd $PKGS_DST_TOP
+	mkdir feeds/luci
+	ln -s $OPENWRT_CUR_DIR/feeds/luci/luci.mk $OPENWRT_SDK_DIR/feeds/luci/luci.mk
 
-	# add feeds
-	mkdir -p feeds
-	for pkg in feeds/openappfilter; do
-			[ -h $PKGS_DST_TOP/$pkg ] || ln -sf $PKGS_SRC_TOP/$pkg $PKGS_DST_TOP/$pkg
-	done
+	ln -s ../../feeds/openappfilter package/feeds/openappfilter
+	ln -s $OPENWRT_CUR_DIR/feeds/openappfilter $OPENWRT_SDK_DIR/feeds/openappfilter
 
-	popd >/dev/null
-
-	#add config
-	for pkg in appfilter oaf luci-app-oaf; do
-		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
-	done
 	make defconfig
 }
 
@@ -183,10 +173,10 @@ openwrt_sdk_install_ksoftethervpn() {
 	local PKGS_DST_TOP="$OPENWRT_SDK_DIR/package"
 	pushd $PKGS_DST_TOP
 
-	mkdir -p feeds feeds/luci kernel libs utils system feeds/pacakges/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
+	mkdir -p feeds feeds/luci kernel libs utils system feeds/packages/curl feeds/packages/gawk feeds/packages/net feeds/packages/libs
 
 	# Extra package dependencies for ksoftethervpn
-	for lib in zlib libiconv ncurses openssl readline libjson-c libubox libnl-tiny nettle gmp libevent2 libmnl; do
+	for lib in zlib libiconv ncurses openssl readline libjson-c libubox libmd libnl-tiny nettle gmp libevent2 libmnl; do
 			[ -h $PKGS_DST_TOP/libs/$lib ] || ln -sf $PKGS_SRC_TOP/libs/$lib $PKGS_DST_TOP/libs/
 	done
 	for pkg in feeds/kouhj feeds/luci/luci-base feeds/packages/libs/gnutls feeds/packages/net/unbound feeds/packages/libs/expat\
