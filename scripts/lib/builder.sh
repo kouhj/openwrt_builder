@@ -165,7 +165,7 @@ openwrt_sdk_install_oaf() {
 	ln -s ../../feeds/openappfilter package/feeds/openappfilter
 	ln -s $OPENWRT_CUR_DIR/feeds/openappfilter $OPENWRT_SDK_DIR/feeds/openappfilter
 
-	for pkg in luci-app-oaf kmod-oaf appfilter; do
+	for pkg in luci-app-oaf luci-i18n-oaf-zh-cn kmod-oaf appfilter; do
 		config_option_select ${OPENWRT_SDK_DIR}/.config CONFIG_PACKAGE_${pkg} module
 	done
 
@@ -247,6 +247,7 @@ generate_sdk_feeds_conf() {
 # Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files
 update_ib_repositories_conf() {
 	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/kouhj
+	add_feed_to_repositories_conf local-openappfilter file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/openappfilter
 	add_feed_to_repositories_conf local-base file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/base
 	add_feed_to_repositories_conf local-luci file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/luci
 	add_feed_to_repositories_conf local-packages file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/packages
