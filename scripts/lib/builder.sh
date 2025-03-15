@@ -520,7 +520,7 @@ fix_ucode_mods_for_openwrt_sdk() {
 compile() {
 	(
 		if [ "x${MODE}" = "xm" ]; then
-			local nthread=$(($(nproc) + 2))
+			local nthread=$(($(nproc) * 4))
 			echo "${nthread} thread compile: $*"
 			make -j${nthread} "$@" || ( fix_ucode_mods_for_openwrt_sdk && make -j${nthread} "$@" )
 		elif [ "x${MODE}" = "xs" ]; then
