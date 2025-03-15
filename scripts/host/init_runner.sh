@@ -124,9 +124,9 @@ prepare_target() {
   # fi
 
   # Load settings
-  NECESSARY_SETTING_VARS=( BUILDER_NAME BUILDER_TAG REPO_URL REPO_BRANCH OPENWRT_DOWNLOAD_SITE_URL OPT_DEBUG )
+  NECESSARY_SETTING_VARS=( BUILDER_NAME BUILDER_TAG REPO_URL REPO_BRANCH OPT_DEBUG )
   OPT_UPLOAD_CONFIG='1'
-  SETTING_VARS=( "${NECESSARY_SETTING_VARS[@]}" OPT_UPLOAD_CONFIG OPENWRT_DOWNLOAD_SITE_URL OPENWRT_PACKAGES_URL )
+  SETTING_VARS=( "${NECESSARY_SETTING_VARS[@]}" OPT_UPLOAD_CONFIG )
   [ ! -f "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" ] || _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
   _source_vars "${HOST_WORK_DIR}/user/${BUILD_TARGET}/settings.ini" "${SETTING_VARS[@]}"
   setting_missing_vars="$(_check_missing_vars "${NECESSARY_SETTING_VARS[@]}")"
@@ -134,6 +134,13 @@ prepare_target() {
     echo "::error::Variables missing in 'user/${BUILD_TARGET}/settings.ini': ${setting_missing_vars}"
     exit 1
   fi
+
+  # Base URL where to download the ImageBuilder and SDK
+  OPENWRT_DOWNLOAD_SITE_URL="${PRE_BUILT_PACKAGES_SITE_URL}/releases/${REPO_VERSION}/targets/${CONFIG_TARGET_BOARD}/${CONFIG_TARGET_SUBTARGET}"
+  # Base URL where to download the prebuilt packages
+  OPENWRT_PACKAGES_URL="${PRE_BUILT_PACKAGES_SITE_URL}/releases/${REPO_VERSION}/packages/${CONFIG_TARGET_ARCH_PACKAGES}"
+  SETTING_VARS=( "${SETTING_VARS[@]}" OPENWRT_DOWNLOAD_SITE_URL OPENWRT_PACKAGES_URL )
+
   persistent_env_set "${SETTING_VARS[@]}"
   append_docker_exec_env "${SETTING_VARS[@]}"
   
