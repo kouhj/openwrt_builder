@@ -229,8 +229,9 @@ config_openwrt_ib() {
 # Generate feeds.conf from IB's feeds.buildinfo and user/current/feeds.conf
 do_generate_feeds_conf() {
 	# Set SDK feeds.conf
-	cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo $2/feeds.conf
-
+	#cp ${MY_DOWNLOAD_DIR}/feeds.buildinfo $2/feeds.conf
+	cp $2/feeds.conf.default $2/feeds.conf	
+	
 	for file in $(compgen -G "${BUILDER_PROFILE_DIR}/$1/feeds*.conf"); do
 		cat $file >>$2/feeds.conf
 	done
