@@ -246,7 +246,8 @@ generate_sdk_feeds_conf() {
 
 # Update IB/repositories.conf from SDK/bin/packages/ARCH/* folders and user/current/feeds*.conf files
 update_ib_repositories_conf() {
-	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/kouhj
+	add_feed_to_repositories_conf local-kouhj file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH}/kouhj
+	add_feed_to_repositories_conf local-target file:${OPENWRT_SDK_DIR}/bin/targets/${CONFIG_TARGET_BOARD}/${CONFIG_TARGET_SUBTARGET}/packages/  # For kernel modules
 	add_feed_to_repositories_conf local-openappfilter file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/openappfilter
 	add_feed_to_repositories_conf local-base file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/base
 	add_feed_to_repositories_conf local-luci file:${OPENWRT_SDK_DIR}/bin/packages/${CONFIG_TARGET_ARCH_PACKAGES}/luci
