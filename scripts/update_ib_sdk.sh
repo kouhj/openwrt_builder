@@ -133,6 +133,11 @@ if download_openwrt_latest_file $OPENWRT_SDK_FILE; then
   persistent_env_set OPENWRT_SDK_DIR OPENWRT_SDK_DIR_CUSTOMIZED_FILE OPENWRT_SDK_DIR_CONFIGURED_FILE
 fi
 
+# Get the cached sources for SDK
+pushd $OPENWRT_SDK_DIR
+git clone https://github.com/kouhj/dl_cache dl
+popd
+
 # Update current IB/SDK info
 echo -e "CUR_IB_DIR='$OPENWRT_IB_DIR'\nCUR_SDK_DIR='$OPENWRT_SDK_DIR'\nCUR_KOUHJ_SRC_REVISION='$KOUHJ_SRC_REVISION'" >$CURRENT_IB_SDK_INFO_FILE
 
