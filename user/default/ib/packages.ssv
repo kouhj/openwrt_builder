@@ -31,7 +31,8 @@ luci-app-pbr pbr
 luci-app-nlbwmon
 
 # Open App Filter
-luci-app-oaf luci-i18n-oaf-zh-cn kmod-oaf appfilter
+luci-app-oaf kmod-oaf appfilter
+# luci-i18n-oaf-zh-cn
 
 # python3-pip
 python3-pip
