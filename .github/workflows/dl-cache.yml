@@ -16,7 +16,7 @@ env:
   SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
   TMATE_ENCRYPT_PASSWORD: ${{secrets.TMATE_ENCRYPT_PASSWORD}}
 
-name: Download OpenWrt Source Cache
+name: Download Source Cache
 
 on:
   deployment:

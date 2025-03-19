@@ -12,7 +12,7 @@ fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
-DL_CACHE_DIR="${BUILDER_WORK_DIR}/dl_cache
+DL_CACHE_DIR="${BUILDER_WORK_DIR}/dl_cache"
 
 cd "${OPENWRT_SDK_DIR}"
 source <( grep DOWNLOAD .config )
