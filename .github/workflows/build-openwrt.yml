@@ -87,6 +87,14 @@ jobs:
           token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
           path: kouhj_src
 
+      - name: Checkout dl_cache
+        uses: actions/checkout@v3
+        with:
+          repository: kouhj/dl_cache
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{matrix.target}}
+          path: dl_cache
+
       - name: Step 01 - Init build env
         run: scripts/cisteps/build-openwrt/01-init_env.sh
 

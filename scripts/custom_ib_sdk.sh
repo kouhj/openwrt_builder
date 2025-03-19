@@ -65,5 +65,13 @@ if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
   touch ${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}
 fi
 
-CUSTOMIZE_STATUS="success"
+# Get the cached SDK sources archives
+DL_CACHE_DIR="${BUILDER_WORK_DIR}/dl_cache"
+cd "${OPENWRT_SDK_DIR}"
+source <( grep DOWNLOAD .config )
+for f in $(compgen ${DL_CACHE_DIR}/*); do
+  cp -a $f ${CONFIG_DOWNLOAD_FOLDER}/
+done
+
+CUSTOMIZE_STATUS='success'
 persistent_env_set CUSTOMIZE_STATUS

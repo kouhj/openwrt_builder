@@ -1,0 +1,160 @@
+#=================================================
+# https://github.com/tete1030/openwrt-fastbuild-actions
+# Description: FAST building OpenWrt with Github Actions and Docker!
+# Lisence: MIT
+# Author: Texot
+#=================================================
+
+env:
+  # DO NOT CHANGE the following here, set them only in forked repo's Settings->Secrets page
+  # You don't need to set docker_registry if you are using the default Docker Hub
+  # 安全起见以下参数请不要在此更改，在你Fork的repo中，Settings->Secrets页面更改
+  # 如果你想使用默认的Docker Hub，你不需要在secrets页面设置docker_registry
+  DK_REGISTRY: ${{secrets.docker_registry}}
+  DK_USERNAME: ${{secrets.docker_username}}
+  DK_PASSWORD: ${{secrets.docker_password}}
+  SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+  TMATE_ENCRYPT_PASSWORD: ${{secrets.TMATE_ENCRYPT_PASSWORD}}
+
+name: Download OpenWrt Source Cache
+
+on:
+  deployment:
+  repository_dispatch:
+  workflow_dispatch:
+
+  # # For 'schedule', see examples in: https://crontab.guru/examples.html
+  # #     e.g. every sunday midnight: '0 0 * * 0' every midnight: '0 0 * * *'
+  schedule:
+     - cron: '0 0 * * 0'
+  # watch:
+  #   types: [started]
+
+jobs:
+  download-source-cache:
+    runs-on: ubuntu-latest
+    # For `github.event`'s structure, see: https://developer.github.com/v3/activity/events/types/
+    # Do not modify the trigger methods here, customize them in the `on` section
+    if: |
+      github.event_name == 'push'
+      || github.event_name == 'repository_dispatch'
+      || github.event_name == 'workflow_dispatch'
+      || github.event_name == 'deployment'
+      || (github.event_name == 'watch' && github.event.action == 'started' && github.event.repository.owner.id == github.event.sender.id)
+      || github.event_name == 'schedule'
+    name: ${{matrix.title}} ${{matrix.target}}
+    strategy:
+      fail-fast: false
+      matrix:
+        mode:
+          - normal
+        target: [x64, ax6s, cr6609]
+        include:
+          - mode: normal
+            title: Download OpenWrt Source Cache
+
+    env:
+      OPT_DEBUG: 0
+      HOST_WORK_DIR: ${{github.workspace}}
+      BUILD_MODE: ${{matrix.mode}}
+      BUILD_TARGET: ${{matrix.target}}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Setup timezone
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: Asia/Shanghai
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout private tools maintained by kouhj
+        uses: actions/checkout@v3
+        with:
+          repository: kouhj/kouhj_openwrt_packages
+          token: ${{ secrets.GH_PAT }}
+          path: kouhj_src
+
+      - name: Checkout dl_cache
+        uses: actions/checkout@v3
+        with:
+          repository: kouhj/dl_cache
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{matrix.target}}
+          path: dl_cache
+
+      - name: Step 01 - Init build env
+        run: scripts/cisteps/build-openwrt/01-init_env.sh
+
+      - name: Step 02 - Check if skip this job
+        run: scripts/cisteps/build-openwrt/02-check_target.sh
+
+      - name: Set up QEMU
+        id: buildx-qemu
+        if: env.SKIP_TARGET == '0'
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        id: buildx
+        if: env.SKIP_TARGET == '0'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Step 04 - Configure docker
+        if: env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/04-configure_docker.sh
+
+      - name: Step 05 - Check status of builders
+        if: env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/05-check_builders.sh
+
+      - name: "[Debug] Wait for SSH connection (timeout 5min)"
+        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1'
+        env:
+          TIMEOUT_MIN: 5
+        uses: tete1030/safe-debugger-action@dev
+
+      - name: Step 06 - Get builder
+        if: env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/06-get_builder.sh
+
+      - name: Step 07 - Clone/update OpenWrt
+        id: update
+        if: env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/07-download_openwrt.sh
+
+      - name: Step 08 - Apply customizations
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/08-customize.sh
+
+      # Allow intermediate customization
+      - name: "[Debug/Menuconfig] Wait for SSH connection (timeout 30min)"
+        if: env.SKIP_TARGET == '0' && env.OPT_DEBUG == '1'
+        env:
+          TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+        uses: tete1030/safe-debugger-action@dev
+
+      - name: Step 09 - Prepare config file
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0'
+        run: scripts/cisteps/build-openwrt/09-prepare_config.sh
+
+      # Should not call this, as we are using SDK
+      - name: Download source cache
+        if: env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: scripts/cisteps/build-openwrt/10-download_dl_cache.sh
+
+      # failure checking
+      - name: "[Failure/Debug] Wait for SSH connection (timeout 30min)"
+        if: |
+          env.BUILD_NEEDED == 'yes' && env.SKIP_TARGET == '0' && !cancelled()
+          && (job.status == 'failure' || env.DOWNLOAD_STATUS != 'success' || (env.OPT_DEBUG == '1'))
+        env:
+          TMATE_DOCKER_CONTAINER: ${{env.BUILDER_CONTAINER_ID}}
+        uses: tete1030/safe-debugger-action@dev
+
