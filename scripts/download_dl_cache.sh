@@ -13,8 +13,6 @@ fi
 
 [ "x${TEST}" != "x1" ] || exit 0
 
-DL_CACHE_DIR="${BUILDER_WORK_DIR}/dl_cache"
-
 cd "${OPENWRT_SDK_DIR}"
 make download -j8
 rm -rf ${DL_CACHE_DIR}/*
@@ -28,14 +26,7 @@ wget "$FEATURE_LIB_URL" -O feature_lib.zip
 unzip -j feature_lib.zip -d ${DL_CACHE_DIR} '*.bin'
 rm feature_lib.zip
 
-cd ${DL_CACHE_DIR}/
-git config --global --add safe.directory $DL_CACHE_DIR
-git --global user.name "builder"
-git --global user.email "builder@users.noreply"
-git remote set-url origin https://x-access-token:$GH_PAT@github.com/kouhj/dl_cache
-if git status --porcelain | grep -q .; then
-    git commit -am "Update dl_cache"
-fi
+commit_dl_cache
 
 DOWNLOAD_STATUS="success"
 persistent_env_set DOWNLOAD_STATUS

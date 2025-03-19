@@ -30,6 +30,7 @@ fi
 # shellcheck disable=SC1090
 COMPILE_STATUS='unknown'
 if bash "${BUILDER_WORK_DIR}/scripts/compile_ib_sdk.sh"; then
+  commit_dl_cache
   COMPILE_STATUS='success'
   rc=0
 else

@@ -534,4 +534,17 @@ compile() {
 	)
 }
 
+commit_dl_cache() {
+	# Commit the changes to the dl_cache repo
+	cd ${DL_CACHE_DIR}
+	git config --global --add safe.directory $DL_CACHE_DIR
+	git config --global user.name "builder"
+	git config --global user.email "builder@users.noreply"
+	git remote set-url origin https://x-access-token:$GH_PAT@github.com/kouhj/dl_cache
+	if git status --porcelain | grep -q .; then
+		git commit -am "Update dl_cache"
+		git push --all origin
+	fi
+}
+
 initialize

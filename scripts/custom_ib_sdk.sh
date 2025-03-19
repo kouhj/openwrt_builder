@@ -66,7 +66,6 @@ if [ ! -f "${OPENWRT_SDK_DIR_CUSTOMIZED_FILE}" ]; then
 fi
 
 # Get the cached SDK sources archives
-DL_CACHE_DIR="${BUILDER_WORK_DIR}/dl_cache"
 cd "${OPENWRT_SDK_DIR}"
 source <( grep DOWNLOAD .config )
 for f in $(compgen ${DL_CACHE_DIR}/*); do
