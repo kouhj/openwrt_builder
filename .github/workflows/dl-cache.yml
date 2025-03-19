@@ -51,7 +51,7 @@ jobs:
         target: [x64, ax6s, cr6609]
         include:
           - mode: normal
-            title: Download OpenWrt Source Cache
+            title: Download Source Cache
 
     env:
       OPT_DEBUG: 0
