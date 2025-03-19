@@ -25,7 +25,8 @@ cp -a ${CONFIG_DOWNLOAD_FOLDER}/*  ${DL_CACHE_DIR}/
 FEATURE_LIB_FILENAME='feature3.0_cn_25.03.16-free.zip'  # Update as needed
 FEATURE_LIB_URL="https://www.openappfilter.com/fros/download_feature?filename=${FEATURE_LIB_FILENAME}&f=1"
 wget "$FEATURE_LIB_URL" -O feature_lib.zip
-unzip -j feature_lib.zip -d ${DL_CACHE_DIR}/feature_lib.tar.gz
+unzip -j feature_lib.zip -d ${DL_CACHE_DIR} '*.bin'
+rm feature_lib.zip
 
 cd ${DL_CACHE_DIR}/
 if git status --porcelain | grep -q .; then
