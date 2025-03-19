@@ -119,7 +119,7 @@ persistent_env_load() {
   if [ -f $vars_file ]; then
     echo "Load vars from $vars_file"
     source $vars_file
-    _dump_file $vars_file
+    #_dump_file $vars_file
     echo "End of vars."
     if [ ! -f /.dockerenv ]; then
       __merge_var_files $vars_file $GITHUB_ENV
