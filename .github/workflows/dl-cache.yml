@@ -22,6 +22,13 @@ on:
   deployment:
   repository_dispatch:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+        - ".github/workflows/dl-cache.yml"
+        - ""
+        - "scripts/download_dl_cache.sh"
+        - "scripts/cisteps/build-openwrt/10-download_dl_cache.sh"
 
   # # For 'schedule', see examples in: https://crontab.guru/examples.html
   # #     e.g. every sunday midnight: '0 0 * * 0' every midnight: '0 0 * * *'

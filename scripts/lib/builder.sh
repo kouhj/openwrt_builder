@@ -542,6 +542,7 @@ commit_dl_cache() {
 	git config --global user.email "builder@users.noreply"
 	git remote set-url origin https://x-access-token:$GH_PAT@github.com/kouhj/dl_cache
 	if git status --porcelain | grep -q .; then
+		git add -A
 		git commit -am "Update dl_cache"
 		git push --all origin
 	fi
