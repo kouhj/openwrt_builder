@@ -534,6 +534,16 @@ compile() {
 	)
 }
 
+download_appfilter_feature_lib() {
+	# Cache the feature library
+	FEATURE_LIB_FILENAME='feature3.0_cn_25.03.16-free.zip'  # Update as needed
+	FEATURE_LIB_URL="https://www.openappfilter.com/fros/download_feature?filename=${FEATURE_LIB_FILENAME}&f=1"
+	wget "$FEATURE_LIB_URL" -O /tmp/feature_lib.zip
+	# -j discard the path, -p extract the file to stdout
+	unzip -j -p /tmp/feature_lib.zip '*.bin' > ${DL_CACHE_DIR}/feature_lib.tar.gz
+	rm -f /tmp/feature_lib.zip
+}
+
 commit_dl_cache() {
 	# Commit the changes to the dl_cache repo
 	cd ${DL_CACHE_DIR}
