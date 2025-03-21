@@ -428,9 +428,7 @@ prepare_rootfs_hook() {
 	for script in $(compgen -G "${BUILDER_PROFILE_DIR}/ib/prepare_rootfs_hook.d/*.sh" | sort); do
 		if [ -f "$script" ]; then
 			echo "Running prepare_rootfs_hook script: $script"
-			set -x
-			. "$script" ${OPENWRT_IB_ROOTFS_DIR}
-			set +x
+			bash -x "$script" ${OPENWRT_IB_ROOTFS_DIR}
 		fi
 	done
 }

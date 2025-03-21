@@ -1,11 +1,11 @@
 export IPKG_INSTROOT=$1
 
 FEATURE_LIB="${DL_CACHE_DIR}/feature_lib.tar.gz"
-tar zxf $FEATURE_LIB ./feature.cfg -C etc/appfilter/
-tar zxf $FEATURE_LIB ./app_icons -C www/luci-static/resources/
-ls -l etc/appfilter
+tar zxf $FEATURE_LIB ./feature.cfg -C ${IPKG_INSTROOT}/etc/appfilter/
+tar zxf $FEATURE_LIB ./app_icons -C ${IPKG_INSTROOT}/www/luci-static/resources/
+ls -l ${IPKG_INSTROOT}/etc/appfilter
 
-if ! grep -q IPKG_INSTROOT etc/init.d/appfilter; then
+if ! grep -q IPKG_INSTROOT ${IPKG_INSTROOT}/etc/init.d/appfilter; then
 	TMPFILE="/tmp/appfilter.patch"
 	cat > $TMPFILE  << 'EOF'
 --- a/etc/init.d/appfilter
@@ -34,6 +34,6 @@ exit 0
 EOF
 
 	patch -p1 < $TMPFILE
-	rm -f etc/init.d/*.orig
+	rm -f ${IPKG_INSTROOT}/etc/init.d/*.orig
 	rm -f $TMPFILE
 fi

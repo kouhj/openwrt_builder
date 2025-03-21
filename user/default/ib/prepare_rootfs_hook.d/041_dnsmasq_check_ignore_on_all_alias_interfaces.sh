@@ -1,8 +1,10 @@
 # DO NOT RUN SHELLFORMAT AGAINST THIS FILE !!!
 # THIS FILE IS SOURCED BY THE BUILDER
 
+export IPKG_INSTROOT=$1
+
 # Enable check on all alias interfaces for the option ignore in dnsmasq
-pushd "${OPENWRT_IB_ROOTFS_DIR}"
+pushd "${IPKG_INSTROOT}"
 if ! grep -q interface_and_aliases_are_all_ignored etc/init.d/dnsmasq; then
 	TMPFILE="/tmp/dnsmasq.patch"
 	cat > $TMPFILE  << 'EOF'

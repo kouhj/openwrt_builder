@@ -1,8 +1,10 @@
 # DO NOT RUN SHELLFORMAT AGAINST THIS FILE !!!
 # THIS FILE IS SOURCED BY THE BUILDER
 
+export IPKG_INSTROOT=$1
+
 # Fix dropbear multiple instance
-pushd "${OPENWRT_IB_ROOTFS_DIR}"
+pushd "${IPKG_INSTROOT}"
 if ! grep -q if_ipaddrs etc/init.d/dropbear; then
 	TMPFILE="/tmp/dropbear.patch"
 	cat > $TMPFILE  << 'EOF'
