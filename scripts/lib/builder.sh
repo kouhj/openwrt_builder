@@ -553,7 +553,8 @@ commit_dl_cache() {
 	git remote set-url origin https://x-access-token:$GH_PAT@github.com/kouhj/dl_cache
 	if git status --porcelain | grep -q .; then
 		git add -A
-		git commit -am "Update dl_cache"
+		DATE_FULL=$(date "+%Y%m%d-%H%M")
+		git commit -am "Update dl_cache - ${DATE_FULL}"
 		git push --all origin
 	fi
 }
