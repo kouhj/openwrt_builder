@@ -26,14 +26,14 @@ on:
     branches: [ main ]
     paths:
         - ".github/workflows/dl-cache.yml"
-        - ""
+        - "scripts/lib/builder.sh"
         - "scripts/download_dl_cache.sh"
         - "scripts/cisteps/build-openwrt/10-download_dl_cache.sh"
 
   # # For 'schedule', see examples in: https://crontab.guru/examples.html
   # #     e.g. every sunday midnight: '0 0 * * 0' every midnight: '0 0 * * *'
   schedule:
-     - cron: '0 0 * * 0'
+     - cron: '0 0 * * *'
   # watch:
   #   types: [started]
 
