@@ -463,7 +463,7 @@ user                                                                            
 ├── default                                 # Default profile settings
 │   ├── ib                                  # Files for ImageBuilder                                   
 │   │   ├── config.diff                     # Extra options for .config                              #step09  scripts/config.sh
-│   │   ├── disabled-services.ssv           # SpaceSeparatedVars for services to be disabed          #step09  scripts/config.sh
+│   │   ├── disabled-services.ssv           # SpaceSeparatedVars for services to be disabled          #step09  scripts/config.sh
 │   │   ├── packages.ssv                    # SpaceSeparatedVars for packages to be installed        #step09  scripts/config.sh
 │   │   ├── profile.ssv                     # SpaceSeparatedVars for device profile (e.g. xiaomi_mi-router-ax3000t)
 │   │   ├── feeds.conf                      # Extra feeds to be added                                #step08  scripts/custom_ib_sdk.sh  update_ib_repositories_conf
