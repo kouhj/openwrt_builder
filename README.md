@@ -463,8 +463,9 @@ user                                                                            
 ├── default                                 # Default profile settings
 │   ├── ib                                  # Files for ImageBuilder                                   
 │   │   ├── config.diff                     # Extra options for .config                              #step09  scripts/config.sh
-│   │   ├── disabled-services.ssv           # SpaceSeparatedVars for services to be disabed          #step09  scripts/config.sh
+│   │   ├── disabled-services.ssv           # SpaceSeparatedVars for services to be disabled          #step09  scripts/config.sh
 │   │   ├── packages.ssv                    # SpaceSeparatedVars for packages to be installed        #step09  scripts/config.sh
+│   │   ├── profile.ssv                     # SpaceSeparatedVars for device profile (e.g. xiaomi_mi-router-ax3000t)
 │   │   ├── feeds.conf                      # Extra feeds to be added                                #step08  scripts/custom_ib_sdk.sh  update_ib_repositories_conf
 │   │   ├── custom.sh                       # Script before make                                     #step08  scripts/custom_ib_sdk.sh
 │   │   ├── prepare_rootfs_hook.d           # Hook scripts before IB prepares rootfs                 #step11/12  scripts/compile.sh 
@@ -542,3 +543,17 @@ Docker Directory Mappings:
 | ${GITHUB_ENV}                                       | ${GITHUB_ENV}                                          |
 
 
+
+
+## Supported Devices
+
+This repository currently supports the following device targets:
+
+| Target Name | Device | Target Board | Subtarget | Architecture | Profile |
+|-------------|--------|--------------|-----------|--------------|---------|
+| x64 | Generic x86_64 | x86 | 64 | x86_64 | - |
+| ax6s | Xiaomi Redmi Router AX6S | mediatek | mt7622 | aarch64_cortex-a53 | xiaomi_redmi-router-ax6s |
+| ax3000t | Xiaomi Mi Router AX3000T | mediatek | mt7981 | aarch64_cortex-a53 | xiaomi_mi-router-ax3000t |
+| cr6609 | Xiaomi Mi Router CR6609 | ramips | mt7621 | mipsel_24kc | xiaomi_mi-router-cr6609 |
+
+To add a new target, create a directory under `user/<target_name>/` with the same structure as existing targets and update the workflow file.

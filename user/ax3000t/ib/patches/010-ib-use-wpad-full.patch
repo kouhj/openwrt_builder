@@ -1,0 +1,11 @@
+--- target/linux/mediatek/mt7981/target.mk
++++ target/linux/mediatek/mt7981/target.mk
+@@ -2,7 +2,7 @@
+ SUBTARGET:=mt7981
+ BOARDNAME:=MT7981
+ CPU_TYPE:=cortex-a53
+-DEFAULT_PACKAGES += fitblk kmod-mt7915-firmware wpad-basic-mbedtls uboot-envtools
++DEFAULT_PACKAGES += fitblk kmod-mt7915-firmware wpad-mbedtls uboot-envtools
+ 
+ define Target/Description
+        Build firmware images for MediaTek MT7981 based boards.
