@@ -54,7 +54,7 @@ jobs:
         #  - test
         # ########### Add your target name below ###########
         # targets are located in the folder user/${TARGET_NAME}/
-        target: [x64, ax6s, cr6609]
+        target: [x64, ax6s, ax3000t, cr6609]
         include:
           - mode: normal
             title: Build
